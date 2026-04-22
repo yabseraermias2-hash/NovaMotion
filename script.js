@@ -1331,6 +1331,30 @@ class NovaBuilder {
     out += html.slice(last);
     html = out;
 
+    // PASS D: scrub emoji out of CSS. Models love writing `content: '🍕'` in ::before
+    // pseudo-elements, and those get rendered by the browser but never appear in HTML
+    // text — so passes A/B/C miss them entirely. Strip them from <style> blocks and
+    // inline style="" attributes. Also kill any bare emoji that lingers anywhere.
+    const emojiGlobalRe = new RegExp(emojiSeq, 'gu');
+    html = html.replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, (styleBlock) => {
+      // Remove any CSS rule whose content property is just emoji
+      let s = styleBlock.replace(
+        new RegExp('content\\s*:\\s*["\']\\s*' + emojiSeq + '(?:\\s*' + emojiSeq + ')*\\s*["\']\\s*;?', 'gu'),
+        'content: "";'
+      );
+      // Remove any remaining emoji characters inside the style block as a safety net
+      s = s.replace(emojiGlobalRe, '');
+      return s;
+    });
+    // Also scrub inline style="" attributes
+    html = html.replace(/style\s*=\s*"([^"]*)"/gi, (full, css) => {
+      emojiGlobalRe.lastIndex = 0;
+      if (!emojiGlobalRe.test(css)) return full;
+      emojiGlobalRe.lastIndex = 0;
+      const cleaned = css.replace(emojiGlobalRe, '');
+      return 'style="' + cleaned + '"';
+    });
+
     // If the document has fewer than 3 <img> tags, inject a hero fallback
     const imgCount = (html.match(/<img\b/gi) || []).length;
     if (imgCount < 3) {
