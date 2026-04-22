@@ -11,12 +11,18 @@ class SiteGenerator {
   parseBrief(brief) {
     const t = brief.toLowerCase();
 
-    // Name
+    // Name — try standard brief fields first, then quoted, then "called X", then bare first word
     let name = 'MySite';
-    const nm = brief.match(/["']([^"']{2,40})["']/) ||
-               brief.match(/(?:called|named)\s+([A-Za-z][A-Za-z0-9\s&\-]{1,30})/i) ||
+    const nm = brief.match(/(?:^|\n)\s*(?:site\s*name|name|brand|business|company|project|title)\s*[:\-]\s*([A-Za-z][A-Za-z0-9\s&'\-\.]{1,40})/i) ||
+               brief.match(/["']([^"']{2,40})["']/) ||
+               brief.match(/(?:called|named)\s+([A-Za-z][A-Za-z0-9\s&'\-]{1,30})/i) ||
                brief.match(/^([A-Za-z][A-Za-z0-9\s&\-]{1,20})[\s,\.]/);
-    if (nm) name = nm[1].trim().replace(/\b\w/g, c => c.toUpperCase());
+    if (nm) {
+      let raw = nm[1].trim().replace(/[,\.;\s]+$/, '');
+      // Strip stray field words if user wrote "Site name: X Purpose: Y" all on one line
+      raw = raw.split(/\s+(?:purpose|style|color|sections?|reference|hero|image)\s*[:\-]/i)[0].trim();
+      name = raw.replace(/\b\w/g, c => c.toUpperCase());
+    }
 
     // Type detection
     let type = 'saas';
