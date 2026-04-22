@@ -1088,15 +1088,25 @@ class NovaBuilder {
       '- Define CSS custom properties in :root for the palette.',
       '- Use generous whitespace, clear hierarchy. Real copy that reflects the brief — never lorem ipsum, never "Lorem", never placeholder text.',
       '',
-      'IMAGES — REQUIRED (use AI-generated Pollinations images, NEVER placeholders, NEVER Unsplash, NEVER lorem-picsum):',
+      'IMAGES — STRICTLY REQUIRED (use AI-generated Pollinations images, NEVER use emoji as icons, NEVER placeholders, NEVER Unsplash):',
+      '- ABSOLUTELY NO EMOJI characters anywhere in the document — not in cards, not in menu items, not as icons. Use real <img> tags instead.',
       '- Every image MUST use this exact URL pattern: https://image.pollinations.ai/prompt/{URL_ENCODED_DESCRIPTION}?width={W}&height={H}&nologo=true&seed={N}&model=flux',
       '- {URL_ENCODED_DESCRIPTION} = a vivid 8–20 word description tailored to the brief and the section. Example for a pizza shop hero: "cinematic%20wood%20fired%20pizza%20on%20rustic%20wooden%20board%20warm%20golden%20lighting%20photographic"',
-      '- {W}x{H}: hero 1600x900, gallery 1200x800, card 800x600, avatar 400x400, banner 1920x600.',
+      '- {W}x{H}: hero 1600x900, gallery 1200x800, card 800x600, menu-item 600x600, avatar 400x400.',
       '- {N} (seed): a different integer per image (1–9999) so every image is unique.',
       '- Always include loading="lazy" on non-hero images and descriptive alt text.',
-      '- Use AT LEAST 4–8 images across the page (hero + gallery/showcase + about + testimonial avatars + footer banner if appropriate). Make the site visual and rich.',
-      '- Match each image prompt to the brand vibe (e.g. "warm rustic" for cozy cafe, "minimal monochrome studio" for luxury, "neon synthwave" for retro tech).',
-      '- Example tag: <img src="https://image.pollinations.ai/prompt/cozy%20italian%20restaurant%20interior%20warm%20candlelight%20wooden%20tables?width=1600&height=900&nologo=true&seed=42&model=flux" alt="Bella Vista dining room" loading="lazy" class="w-full h-full object-cover"/>',
+      '- Use AT LEAST 6–10 images across the page (hero + every gallery/menu/showcase card + about + testimonial avatars). Make the site visual and rich.',
+      '- For menu/product cards: each item MUST have its own <img> photo (e.g. one for margherita pizza, one for tiramisu) — never use emoji or text-only icons.',
+      '- Example tag: <img src="https://image.pollinations.ai/prompt/wood%20fired%20margherita%20pizza%20fresh%20basil?width=600&height=600&nologo=true&seed=42&model=flux" alt="Margherita pizza" loading="lazy" class="w-full h-full object-cover"/>',
+      '',
+      'INTERACTIVITY — REQUIRED (the site must feel alive, not static):',
+      '- Mobile nav: hamburger button on small screens that toggles a slide-out menu.',
+      '- Any "Reserve", "Book", "Order", "Contact" button must open a working modal with a form.',
+      '- Form submission: prevent default, validate inputs, show a "Thanks!" success message inline.',
+      '- Smooth scroll on nav anchor clicks (event.preventDefault + scrollIntoView).',
+      '- Image gallery: clicking a card opens a lightbox modal with the larger image (close on Escape or backdrop click).',
+      '- Use vanilla JS, wrapped in <script> at the end of <body>. No frameworks, no jQuery.',
+      '- Include keyboard support: Escape closes any open modal; Enter on a focused button activates it.',
       '',
       'ANIMATIONS (REQUIRED):',
       '- Hero title fade + rise on load (900ms cubic-bezier(0.22,1,0.36,1)), word-level stagger 100–140ms.',
@@ -1197,13 +1207,44 @@ class NovaBuilder {
       return '<img' + newAttrs + (newAttrs.includes('loading=') ? '' : ' loading="lazy"') + '>';
     });
 
-    // Replace lone emoji-as-icon spans inside cards (very common gpt-oss pattern)
-    // e.g. <span style="font-size: 4rem">🍕</span>  ->  small AI image
+    // Map common emojis the model loves to use as icons -> real photo prompts
+    const emojiMap = {
+      '🍕':'wood fired pizza closeup','🍔':'gourmet cheeseburger closeup','🍝':'fresh pasta plate',
+      '🥗':'fresh garden salad bowl','🍖':'grilled meat closeup','🍗':'roasted chicken leg',
+      '🍞':'rustic bread loaf','🥖':'french baguette','🥩':'grilled steak',
+      '🍳':'sunny side up eggs','🥚':'farm fresh egg','🍷':'glass of red wine',
+      '☕':'latte art coffee cup','🍰':'tiramisu cake slice','🌮':'gourmet taco',
+      '🍜':'ramen bowl steaming','🍣':'sushi platter','🍱':'bento box',
+      '🍦':'gelato cone','🍫':'artisan chocolate','🍇':'fresh grapes',
+      '🍎':'red apple closeup','🍊':'orange fruit','🍓':'fresh strawberry',
+      '⭐':'gold star icon dark background','💡':'glowing lightbulb','🚀':'rocket launching',
+      '❤️':'red heart symbol','🔥':'fire flame','💎':'crystal diamond',
+      '🎨':'paint palette artist','📱':'modern smartphone','💻':'sleek laptop',
+      '⚡':'lightning bolt energy','🌟':'shining star','🏆':'gold trophy',
+      '🎯':'dartboard bullseye','📷':'professional camera','🎵':'music note',
+      '🏠':'modern house exterior','🌲':'pine tree forest','🌊':'ocean wave',
+      '🍃':'green leaf nature','🌸':'cherry blossom','🌹':'red rose',
+      '👨‍🍳':'professional chef portrait','👩‍🍳':'female chef portrait',
+      '🧑‍💻':'developer at laptop','💼':'leather briefcase',
+    };
+    const fallbackDesc = (emoji) => emojiMap[emoji] || (briefHint + ' ' + emoji + ' photographic');
+
+    // PASS A: emoji wrapped in any single inline/block tag like <span>🍕</span> or <div class=...>🍕</div>
     html = html.replace(
-      /<(span|div|p)([^>]*?)>\s*([\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}])\s*<\/\1>/gu,
+      /<(span|div|p|i|h[1-6]|li|td|button|a)([^>]*?)>\s*([\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}])\u{FE0F}?\s*<\/\1>/gu,
       (_full, tag, attrs, emoji) => {
-        const imgUrl = polUrl(briefHint + ' ' + emoji + ' icon minimal', 400, 400);
+        const imgUrl = polUrl(fallbackDesc(emoji), 600, 600);
         return '<' + tag + attrs + '><img src="' + imgUrl + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"/></' + tag + '>';
+      }
+    );
+
+    // PASS B: standalone emoji that's the only content between any two tags
+    // e.g. <li>🍕</li> with nested whitespace, or emoji with variation selector
+    html = html.replace(
+      />(\s*)([\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}])\u{FE0F}?(\s*)</gu,
+      (_full, sp1, emoji, sp2) => {
+        const imgUrl = polUrl(fallbackDesc(emoji), 400, 400);
+        return '>' + sp1 + '<img src="' + imgUrl + '" alt="" loading="lazy" style="display:inline-block;width:64px;height:64px;object-fit:cover;vertical-align:middle;"/>' + sp2 + '<';
       }
     );
 
