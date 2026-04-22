@@ -1,0 +1,124 @@
+{
+  "site": "Kitchen Stories",
+  "output": "index.html",
+  "brief_source": "brief.txt",
+  "generated_at": "2026-04-21T20:41:00-07:00",
+  "pipeline": "animated-website",
+  "brief_summary": {
+    "purpose": "Personal recipe blog, warm editorial magazine-quality",
+    "voice": "The Warm Host — passionate home cook, casual, expressive, sensory",
+    "tagline": "Food made with love, shared freely.",
+    "value_prop": "A curated collection of recipes from my kitchen to yours.",
+    "style_keywords": ["warm", "editorial", "cozy", "magazine", "terracotta", "cream", "inviting", "food photography", "artisan"],
+    "reference_url": "https://www.bonappetit.com"
+  },
+  "design_system": {
+    "colors": {
+      "primary": "#C4623A",
+      "secondary": "#2C1A0F",
+      "accent": "#7A9E7E",
+      "surface_base": "#FBF5EC",
+      "surface_raised": "#F2E8D8",
+      "ink": "#6B4C38"
+    },
+    "typography": {
+      "display": "Playfair Display",
+      "body": "Lora",
+      "ui": "DM Sans"
+    },
+    "spacing_scale_px": [4, 8, 12, 16, 24, 32, 48, 64, 96, 128],
+    "container_max_px": 1280,
+    "grid": { "desktop": 12, "tablet": 8, "mobile": 4 },
+    "motion": {
+      "easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "durations_ms": { "micro": 150, "standard": 300, "expressive": 600 },
+      "stagger_ms": 100,
+      "hero_ms": 900,
+      "reduced_motion": "collapse to opacity 200ms"
+    }
+  },
+  "tools_used": [
+    {
+      "tool": "UI UX Pro Max",
+      "role": "design system reference",
+      "status": "applied_from_brief",
+      "note": "Design tokens were pre-specified in brief Step 3; applied directly without re-deriving."
+    },
+    {
+      "tool": "Firecrawl MCP",
+      "role": "reference scrape of bonappetit.com",
+      "status": "skipped",
+      "reason": "MCP installed but API token returned Unauthorized; brief Step 3 already specifies the design system derived from that editorial style, so no blocker to the build."
+    },
+    {
+      "tool": "21st.dev Magic MCP",
+      "role": "hero component",
+      "status": "built_manually",
+      "reason": "Brief supplied an explicit hero prompt; manual implementation matches design tokens exactly and keeps build self-contained."
+    },
+    {
+      "tool": "Google Stitch MCP",
+      "role": "screen generation",
+      "status": "installed_not_invoked",
+      "reason": "Sections 1–6 are fully specified in brief Step 5; manual assembly guarantees exact compliance with content, order, and design tokens."
+    },
+    {
+      "tool": "Nano Banana 2 (google/gemini-3-1-flash-image-preview via infsh)",
+      "role": "image generation",
+      "status": "used",
+      "note": "Brief Step 6 referenced pre-existing images in images/ but the folder was empty in the starter. Generated all 6 at 2K via nano-banana-2 rather than falling back to flat SVGs."
+    }
+  ],
+  "mcp_installation_check": {
+    "stitch": "installed",
+    "firecrawl": "installed"
+  },
+  "sections_built": [
+    { "id": "hero", "type": "split-hero", "notes": "Large serif headline with word-level stagger, subtitle, 2 CTAs, editorial hero image, floating garnish accents, pick-of-the-week card" },
+    { "id": "recipes", "type": "3-col grid", "cards": 3, "notes": "Pasta, cake, salad — image, category, title, description, difficulty dots, cook time, servings" },
+    { "id": "featured", "type": "wide horizontal card", "notes": "Slow-Roasted Herbed Lamb Shoulder, 6hr cook time, serves 6–8, difficulty meter" },
+    { "id": "stats", "type": "4-number strip", "notes": "248 recipes, 18 categories, 42,000+ happy cooks, ∞ good meals — count-up on scroll" },
+    { "id": "about", "type": "dark split section", "notes": "Portrait left, personal story right, dark-brown surface, CTAs" },
+    { "id": "footer", "type": "logo + nav + copyright" }
+  ],
+  "images_generated": [
+    { "file": "images/hero.jpg",     "dims": "2752x1536", "prompt": "Editorial overhead food photography — hero dish, terracotta and cream palette" },
+    { "file": "images/pasta.jpg",    "dims": "2400x1792", "prompt": "Brown butter sage pasta, crispy sage, parmesan, terracotta bowl" },
+    { "file": "images/cake.jpg",     "dims": "2400x1792", "prompt": "Dark chocolate layer cake, glossy ganache drip" },
+    { "file": "images/salad.jpg",    "dims": "2400x1792", "prompt": "Mango avocado summer salad with cilantro and lime" },
+    { "file": "images/featured.jpg", "dims": "2752x1536", "prompt": "Slow-roasted herbed lamb shoulder, cast iron, candlelit" },
+    { "file": "images/about.jpg",    "dims": "2400x1792", "prompt": "Home cook portrait in sunlit kitchen, apron dusted with flour" }
+  ],
+  "animations_applied": [
+    "Hero title fade + rise 900ms with 120ms word stagger, subtitle/CTA delayed",
+    "Section reveals via IntersectionObserver (threshold 0.15, once:true)",
+    "Recipe cards fade-in with 100ms stagger between siblings",
+    "CTA hover lift 2px + shadow (200ms)",
+    "Recipe card hover lift 8px + image zoom 1.07 + shadow",
+    "Navbar background + shadow appear after 80px scroll",
+    "Stats numbers count up on scroll into view (ease-out cubic, 1600ms)",
+    "Active nav link underline on section intersection",
+    "Hero garnish floating circles (5s / 7s loops)",
+    "prefers-reduced-motion collapses all transforms and animations"
+  ],
+  "accessibility": {
+    "landmarks": ["header", "nav", "main", "footer"],
+    "alt_text": "present on every image",
+    "reduced_motion": true,
+    "min_tap_target_px": 44,
+    "skip_link": false
+  },
+  "responsive_breakpoints_px": { "sm": 640, "lg": 1024, "xl": 1280 },
+  "seo": {
+    "title": "Kitchen Stories — Food made with love, shared freely.",
+    "description": "A curated collection of recipes from my kitchen to yours. From quick weeknight dinners to slow Sunday bakes.",
+    "og_tags": ["og:title", "og:description", "og:image", "og:type"],
+    "theme_color": "#C4623A"
+  },
+  "tech_stack": {
+    "html": "single self-contained index.html",
+    "css": "Tailwind CDN + custom :root tokens + scoped styles",
+    "js": "vanilla, no framework, no build step",
+    "fonts": "Google Fonts (Playfair Display, Lora, DM Sans)"
+  }
+}

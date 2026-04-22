@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Kitchen Stories — Food made with love, shared freely.</title>
+<meta name="description" content="A curated collection of recipes from my kitchen to yours. From quick weeknight dinners to slow Sunday bakes."/>
+<meta property="og:title" content="Kitchen Stories — Food made with love, shared freely."/>
+<meta property="og:description" content="A curated collection of recipes from my kitchen to yours. From quick weeknight dinners to slow Sunday bakes."/>
+<meta property="og:image" content="images/hero.jpg"/>
+<meta property="og:type" content="website"/>
+<meta name="theme-color" content="#C4623A"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          terracotta: '#C4623A',
+          'terracotta-dark': '#A84F2C',
+          'brown-ink': '#2C1A0F',
+          sage: '#7A9E7E',
+          cream: '#FBF5EC',
+          'tan-raised': '#F2E8D8',
+          'mid-brown': '#6B4C38',
+        },
+        fontFamily: {
+          display: ['"Playfair Display"', 'Georgia', 'serif'],
+          body: ['Lora', 'Georgia', 'serif'],
+          ui: ['"DM Sans"', 'system-ui', 'sans-serif'],
+        },
+        maxWidth: { shell: '1280px' },
+        boxShadow: {
+          card: '0 4px 18px rgba(44, 26, 15, 0.08)',
+          cardHover: '0 18px 40px rgba(44, 26, 15, 0.18)',
+          nav: '0 2px 20px rgba(44, 26, 15, 0.06)',
+        },
+      },
+    },
+  };
+</script>
+<style>
+  :root {
+    --terracotta: #C4623A;
+    --terracotta-dark: #A84F2C;
+    --brown-ink: #2C1A0F;
+    --sage: #7A9E7E;
+    --cream: #FBF5EC;
+    --tan-raised: #F2E8D8;
+    --mid-brown: #6B4C38;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --dur-micro: 150ms;
+    --dur-std: 300ms;
+    --dur-expr: 600ms;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Lora', Georgia, serif;
+    background: var(--cream);
+    color: var(--brown-ink);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.65;
+  }
+  h1, h2, h3, h4, .display { font-family: 'Playfair Display', Georgia, serif; letter-spacing: -0.01em; }
+  .ui { font-family: 'DM Sans', system-ui, sans-serif; }
+  .eyebrow {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--terracotta);
+  }
+  /* Hero word stagger */
+  .hero-word { display: inline-block; opacity: 0; transform: translateY(32px); transition: opacity 900ms var(--ease), transform 900ms var(--ease); }
+  .hero-sub, .hero-ctas, .hero-media { opacity: 0; transform: translateY(24px); transition: opacity 900ms var(--ease), transform 900ms var(--ease); }
+  body.loaded .hero-word { opacity: 1; transform: translateY(0); }
+  body.loaded .hero-sub { opacity: 1; transform: translateY(0); transition-delay: 400ms; }
+  body.loaded .hero-ctas { opacity: 1; transform: translateY(0); transition-delay: 550ms; }
+  body.loaded .hero-media { opacity: 1; transform: translateY(0); transition-delay: 300ms; }
+  /* Reveal */
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity 600ms var(--ease), transform 600ms var(--ease); }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  /* Recipe card */
+  .recipe-card { transition: transform var(--dur-std) var(--ease), box-shadow var(--dur-std) var(--ease); }
+  .recipe-card:hover { transform: translateY(-8px); box-shadow: 0 18px 40px rgba(44, 26, 15, 0.18); }
+  .recipe-card .card-image { overflow: hidden; }
+  .recipe-card .card-image img { transition: transform 600ms var(--ease); will-change: transform; }
+  .recipe-card:hover .card-image img { transform: scale(1.07); }
+  /* Button hover */
+  .btn-primary, .btn-outline { transition: transform 200ms var(--ease), box-shadow 200ms var(--ease), background 200ms var(--ease), color 200ms var(--ease), border-color 200ms var(--ease); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(196, 98, 58, 0.35); }
+  .btn-outline:hover { transform: translateY(-2px); border-color: var(--terracotta); color: var(--terracotta); }
+  /* Navbar */
+  #sitenav { transition: background 300ms var(--ease), box-shadow 300ms var(--ease), backdrop-filter 300ms var(--ease); }
+  #sitenav.stuck { background: rgba(251, 245, 236, 0.92); backdrop-filter: saturate(1.2) blur(14px); box-shadow: 0 2px 20px rgba(44, 26, 15, 0.06); }
+  .nav-link { position: relative; }
+  .nav-link::after { content: ''; position: absolute; left: 0; right: 0; bottom: -6px; height: 2px; background: var(--terracotta); transform: scaleX(0); transform-origin: left; transition: transform 250ms var(--ease); }
+  .nav-link:hover::after, .nav-link.active::after { transform: scaleX(1); }
+  /* Difficulty dots */
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--tan-raised); display: inline-block; }
+  .dot.on { background: var(--terracotta); }
+  /* Floating garnish on hero */
+  .float-slow { animation: floaty 7s ease-in-out infinite; }
+  .float-med  { animation: floaty 5s ease-in-out infinite; }
+  @keyframes floaty { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-12px) rotate(3deg); } }
+  /* Tap targets */
+  a, button { min-height: 44px; }
+  .inline-link { min-height: 0; }
+  /* Stats */
+  .stat-num { font-variant-numeric: tabular-nums; }
+  /* About section */
+  .about-dark { background: var(--brown-ink); color: var(--cream); }
+  .about-dark .eyebrow { color: #E8A582; }
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: 200ms !important; animation: none !important; }
+    .hero-word, .hero-sub, .hero-ctas, .hero-media, .reveal { transform: none !important; }
+    .float-slow, .float-med { animation: none !important; }
+  }
+</style>
+</head>
+<body class="bg-cream text-brown-ink">
+
+<!-- ============ NAV ============ -->
+<header>
+<nav id="sitenav" aria-label="Primary" class="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-6 md:px-10 h-[72px]">
+  <a href="#top" class="display text-2xl md:text-[26px] font-semibold text-brown-ink tracking-tight" aria-label="Kitchen Stories home">
+    Kitchen <span class="italic text-terracotta">Stories</span>
+  </a>
+  <ul class="hidden md:flex items-center gap-9 ui text-[14px] font-medium text-brown-ink">
+    <li><a href="#recipes" class="nav-link" data-section="recipes">Recipes</a></li>
+    <li><a href="#featured" class="nav-link" data-section="featured">Featured</a></li>
+    <li><a href="#about" class="nav-link" data-section="about">My Story</a></li>
+  </ul>
+  <a href="#recipes" class="ui inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-terracotta text-cream text-[13px] font-semibold tracking-wide btn-primary">
+    Browse Recipes
+  </a>
+</nav>
+</header>
+
+<main id="top">
+
+<!-- ============ HERO ============ -->
+<section class="pt-[120px] pb-24 px-6 md:px-10">
+  <div class="max-w-shell mx-auto grid lg:grid-cols-2 gap-14 items-center">
+    <div>
+      <span class="eyebrow hero-sub">A Recipe Blog</span>
+      <h1 class="display text-[48px] sm:text-[62px] lg:text-[78px] leading-[1.02] font-bold mt-5 text-brown-ink">
+        <span class="hero-word">Food</span>
+        <span class="hero-word italic text-terracotta">made</span>
+        <span class="hero-word">with</span>
+        <span class="hero-word italic">love,</span><br/>
+        <span class="hero-word">shared</span>
+        <span class="hero-word italic">freely.</span>
+      </h1>
+      <p class="hero-sub mt-7 text-lg md:text-xl text-mid-brown max-w-xl leading-relaxed">
+        A curated collection of recipes from my kitchen to yours — from quick weeknight dinners to slow Sunday bakes. Every dish tells a story.
+      </p>
+      <div class="hero-ctas mt-9 flex flex-wrap gap-4">
+        <a href="#recipes" class="btn-primary ui inline-flex items-center gap-2 px-7 py-4 rounded-full bg-terracotta text-cream font-semibold text-[15px] shadow-card">
+          Browse Recipes
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="#about" class="btn-outline ui inline-flex items-center px-7 py-4 rounded-full border-2 border-brown-ink text-brown-ink font-semibold text-[15px]">
+          My Story
+        </a>
+      </div>
+    </div>
+    <div class="hero-media relative">
+      <div class="absolute -top-6 -left-6 w-24 h-24 rounded-full bg-sage/20 float-slow" aria-hidden="true"></div>
+      <div class="absolute -bottom-8 -right-6 w-32 h-32 rounded-full bg-terracotta/15 float-med" aria-hidden="true"></div>
+      <figure class="relative rounded-[6px] overflow-hidden shadow-cardHover">
+        <img src="images/hero.jpg" alt="A beautifully plated dish on a rustic wooden table in warm natural light" class="w-full h-[520px] object-cover" loading="eager"/>
+        <figcaption class="sr-only">Hero dish photography</figcaption>
+      </figure>
+      <div class="absolute -bottom-6 -left-6 bg-cream border border-tan-raised shadow-card rounded-[6px] px-5 py-4 hidden md:flex items-center gap-4">
+        <div class="w-10 h-10 rounded-full bg-terracotta/15 flex items-center justify-center">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l2.39 7.36H22l-6.19 4.5L18.2 21 12 16.5 5.8 21l2.39-7.14L2 9.36h7.61L12 2z" fill="#C4623A"/></svg>
+        </div>
+        <div class="ui">
+          <div class="text-xs text-mid-brown">This week's pick</div>
+          <div class="text-sm font-semibold text-brown-ink">Brown Butter Sage Pasta</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RECIPES ============ -->
+<section id="recipes" class="py-24 px-6 md:px-10 bg-cream">
+  <div class="max-w-shell mx-auto">
+    <div class="reveal flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
+      <div>
+        <span class="eyebrow">The Collection</span>
+        <h2 class="display text-4xl md:text-5xl lg:text-[56px] mt-4 font-bold text-brown-ink leading-tight">
+          Recipes from <span class="italic text-terracotta">my kitchen</span>
+        </h2>
+      </div>
+      <p class="max-w-sm text-mid-brown">Handpicked, tested, and cooked many times over. Come hungry.</p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8">
+      <!-- Pasta -->
+      <article class="recipe-card reveal bg-tan-raised rounded-[6px] overflow-hidden shadow-card flex flex-col" style="--d:0ms">
+        <div class="card-image aspect-[4/3]">
+          <img src="images/pasta.jpg" alt="Brown butter sage pasta with crispy sage leaves in a terracotta bowl" class="w-full h-full object-cover" loading="lazy"/>
+        </div>
+        <div class="p-7 flex-1 flex flex-col">
+          <span class="eyebrow">Pasta · Weeknight</span>
+          <h3 class="display text-2xl md:text-[26px] mt-3 font-semibold text-brown-ink">Brown Butter Sage Pasta</h3>
+          <p class="mt-3 text-mid-brown">Golden nutty butter, crispy sage leaves, and a flurry of parmesan — the coziest 20 minutes you'll spend this week.</p>
+          <div class="mt-6 flex items-center gap-5 ui text-sm text-mid-brown">
+            <span class="inline-flex items-center gap-2" title="Difficulty easy">
+              <span class="dot on"></span><span class="dot on"></span><span class="dot"></span>
+            </span>
+            <span class="inline-flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#6B4C38" stroke-width="1.6"/><path d="M12 7v5l3 2" stroke="#6B4C38" stroke-width="1.6" stroke-linecap="round"/></svg>20 min</span>
+            <span class="inline-flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M16 14a4 4 0 10-8 0M12 10a3 3 0 100-6 3 3 0 000 6zM4 20c0-2.8 3.6-5 8-5s8 2.2 8 5" stroke="#6B4C38" stroke-width="1.6" stroke-linecap="round"/></svg>Serves 4</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Cake -->
+      <article class="recipe-card reveal bg-tan-raised rounded-[6px] overflow-hidden shadow-card flex flex-col" style="--d:100ms">
+        <div class="card-image aspect-[4/3]">
+          <img src="images/cake.jpg" alt="Dark chocolate layer cake with glossy ganache drip on a cream plate" class="w-full h-full object-cover" loading="lazy"/>
+        </div>
+        <div class="p-7 flex-1 flex flex-col">
+          <span class="eyebrow">Baking · Slow Sunday</span>
+          <h3 class="display text-2xl md:text-[26px] mt-3 font-semibold text-brown-ink">Dark Chocolate Layer Cake</h3>
+          <p class="mt-3 text-mid-brown">Three tender cocoa layers, glossy ganache drip, flaked sea salt on top. For the Sunday that deserves more than just Sunday.</p>
+          <div class="mt-6 flex items-center gap-5 ui text-sm text-mid-brown">
+            <span class="inline-flex items-center gap-2" title="Difficulty medium">
+              <span class="dot on"></span><span class="dot on"></span><span class="dot on"></span>
+            </span>
+            <span class="inline-flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#6B4C38" stroke-width="1.6"/><path d="M12 7v5l3 2" stroke="#6B4C38" stroke-width="1.6" stroke-linecap="round"/></svg>2 hr</span>
+            <span class="inline-flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M16 14a4 4 0 10-8 0M12 10a3 3 0 100-6 3 3 0 000 6zM4 20c0-2.8 3.6-5 8-5s8 2.2 8 5" stroke="#6B4C38" stroke-width="1.6" stroke-linecap="round"/></svg>Serves 10</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Salad -->
+      <article class="recipe-card reveal bg-tan-raised rounded-[6px] overflow-hidden shadow-card flex flex-col" style="--d:200ms">
+        <div class="card-image aspect-[4/3]">
+          <img src="images/salad.jpg" alt="Mango avocado summer salad with cilantro and lime in a cream bowl" class="w-full h-full object-cover" loading="lazy"/>
+        </div>
+        <div class="p-7 flex-1 flex flex-col">
+          <span class="eyebrow">Salad · Summer</span>
+          <h3 class="display text-2xl md:text-[26px] mt-3 font-semibold text-brown-ink">Mango Avocado Summer Salad</h3>
+          <p class="mt-3 text-mid-brown">Ripe mango, buttery avocado, cilantro, a generous squeeze of lime. Bright, cold, and five minutes from your cutting board.</p>
+          <div class="mt-6 flex items-center gap-5 ui text-sm text-mid-brown">
+            <span class="inline-flex items-center gap-2" title="Difficulty easy">
+              <span class="dot on"></span><span class="dot"></span><span class="dot"></span>
+            </span>
+            <span class="inline-flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#6B4C38" stroke-width="1.6"/><path d="M12 7v5l3 2" stroke="#6B4C38" stroke-width="1.6" stroke-linecap="round"/></svg>10 min</span>
+            <span class="inline-flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M16 14a4 4 0 10-8 0M12 10a3 3 0 100-6 3 3 0 000 6zM4 20c0-2.8 3.6-5 8-5s8 2.2 8 5" stroke="#6B4C38" stroke-width="1.6" stroke-linecap="round"/></svg>Serves 4</span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURED ============ -->
+<section id="featured" class="py-24 px-6 md:px-10 bg-tan-raised">
+  <div class="max-w-shell mx-auto">
+    <div class="reveal text-center mb-12">
+      <span class="eyebrow inline-flex items-center gap-2">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#C4623A" aria-hidden="true"><path d="M12 2l2.39 7.36H22l-6.19 4.5L18.2 21 12 16.5 5.8 21l2.39-7.14L2 9.36h7.61L12 2z"/></svg>
+        Featured This Week
+      </span>
+      <h2 class="display text-4xl md:text-5xl lg:text-[56px] mt-4 font-bold text-brown-ink leading-tight">
+        The <span class="italic text-terracotta">Sunday</span> showstopper
+      </h2>
+    </div>
+
+    <article class="reveal recipe-card bg-cream rounded-[6px] overflow-hidden shadow-card grid lg:grid-cols-2">
+      <div class="card-image aspect-[16/10] lg:aspect-auto lg:min-h-[460px]">
+        <img src="images/featured.jpg" alt="Slow-roasted herbed lamb shoulder in a cast iron skillet, golden and crusted" class="w-full h-full object-cover" loading="lazy"/>
+      </div>
+      <div class="p-8 md:p-12 flex flex-col justify-center">
+        <span class="eyebrow">Mains · Sunday Roast</span>
+        <h3 class="display text-3xl md:text-4xl lg:text-[44px] mt-4 font-bold text-brown-ink leading-tight">
+          Slow-Roasted Herbed Lamb Shoulder
+        </h3>
+        <p class="mt-5 text-lg text-mid-brown leading-relaxed">
+          Six hours of rosemary, thyme, garlic, and patience. The kind of roast that fills the house with the smell of "come sit down, dinner's almost ready." Fall-apart tender. A recipe to hand down.
+        </p>
+        <div class="mt-8 grid grid-cols-3 gap-6 py-6 border-y border-tan-raised">
+          <div>
+            <div class="ui text-xs text-mid-brown uppercase tracking-widest">Cook time</div>
+            <div class="display text-2xl text-brown-ink font-semibold mt-1">6 hours</div>
+          </div>
+          <div>
+            <div class="ui text-xs text-mid-brown uppercase tracking-widest">Serves</div>
+            <div class="display text-2xl text-brown-ink font-semibold mt-1">6–8</div>
+          </div>
+          <div>
+            <div class="ui text-xs text-mid-brown uppercase tracking-widest">Difficulty</div>
+            <div class="mt-2 flex items-center gap-1.5">
+              <span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot"></span>
+            </div>
+          </div>
+        </div>
+        <a href="#about" class="btn-primary ui mt-8 inline-flex items-center gap-2 self-start px-7 py-4 rounded-full bg-terracotta text-cream font-semibold text-[15px] shadow-card">
+          Get the recipe
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ============ STATS ============ -->
+<section class="py-20 px-6 md:px-10 bg-cream border-y border-tan-raised">
+  <div class="max-w-shell mx-auto grid grid-cols-2 md:grid-cols-4 gap-10 text-center">
+    <div class="reveal">
+      <div class="stat-num display text-5xl md:text-6xl font-bold text-terracotta" data-count="248">0</div>
+      <div class="eyebrow mt-3">Recipes</div>
+    </div>
+    <div class="reveal">
+      <div class="stat-num display text-5xl md:text-6xl font-bold text-terracotta" data-count="18">0</div>
+      <div class="eyebrow mt-3">Categories</div>
+    </div>
+    <div class="reveal">
+      <div class="stat-num display text-5xl md:text-6xl font-bold text-terracotta" data-count="42000" data-suffix="+">0</div>
+      <div class="eyebrow mt-3">Happy Cooks</div>
+    </div>
+    <div class="reveal">
+      <div class="stat-num display text-5xl md:text-6xl font-bold text-terracotta" data-count="∞" data-literal="true">∞</div>
+      <div class="eyebrow mt-3">Good Meals</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section id="about" class="about-dark py-24 px-6 md:px-10">
+  <div class="max-w-shell mx-auto grid lg:grid-cols-2 gap-14 items-center">
+    <figure class="reveal relative rounded-[6px] overflow-hidden shadow-cardHover">
+      <img src="images/about.jpg" alt="Portrait of the home cook in their sunlit kitchen" class="w-full h-[520px] object-cover" loading="lazy"/>
+    </figure>
+    <div class="reveal">
+      <span class="eyebrow">My Story</span>
+      <h2 class="display text-4xl md:text-5xl lg:text-[56px] mt-4 font-bold leading-tight">
+        From my <span class="italic" style="color:#E8A582">kitchen</span> to yours
+      </h2>
+      <p class="mt-7 text-lg leading-relaxed text-cream/85">
+        I started cooking the way most of us did — out of necessity, on a Tuesday night, with whatever was in the fridge. Somewhere between the burnt pans and the "okay, that actually worked" dinners, it turned into the thing I look forward to most.
+      </p>
+      <p class="mt-5 text-lg leading-relaxed text-cream/85">
+        Every recipe here has been cooked more times than I can count. Some came from my grandmother. Some I made up on a slow Sunday. All of them are the kind of food I actually want to eat. Cook with love — warmth always wins.
+      </p>
+      <div class="mt-10 flex flex-wrap gap-4">
+        <a href="#recipes" class="btn-primary ui inline-flex items-center gap-2 px-7 py-4 rounded-full bg-terracotta text-cream font-semibold text-[15px]">
+          Start cooking
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="#featured" class="btn-outline ui inline-flex items-center px-7 py-4 rounded-full border-2 border-cream/40 text-cream font-semibold text-[15px]">
+          This week's pick
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="bg-cream border-t border-tan-raised py-14 px-6 md:px-10">
+  <div class="max-w-shell mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+    <a href="#top" class="display text-2xl font-semibold text-brown-ink inline-link">
+      Kitchen <span class="italic text-terracotta">Stories</span>
+    </a>
+    <ul class="flex flex-wrap gap-8 ui text-sm text-mid-brown">
+      <li><a href="#recipes" class="hover:text-terracotta transition-colors inline-link">Recipes</a></li>
+      <li><a href="#featured" class="hover:text-terracotta transition-colors inline-link">Featured</a></li>
+      <li><a href="#about" class="hover:text-terracotta transition-colors inline-link">My Story</a></li>
+    </ul>
+    <p class="ui text-sm text-mid-brown">© <span id="yr">2026</span> Kitchen Stories — Cook with love.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // Year
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  // Hero load animation
+  requestAnimationFrame(function(){ document.body.classList.add('loaded'); });
+
+  // Sticky nav shadow
+  var nav = document.getElementById('sitenav');
+  var onScroll = function(){ nav.classList.toggle('stuck', window.scrollY > 80); };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // Section reveal
+  var revealEls = document.querySelectorAll('.reveal');
+  revealEls.forEach(function(el, i){
+    if (el.closest('.grid')) {
+      var sibs = el.parentNode.querySelectorAll(':scope > .reveal');
+      var idx = Array.prototype.indexOf.call(sibs, el);
+      if (idx >= 0) el.style.transitionDelay = (idx * 100) + 'ms';
+    }
+  });
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+  revealEls.forEach(function(el){ io.observe(el); });
+
+  // Active nav link by section
+  var links = document.querySelectorAll('.nav-link[data-section]');
+  var sections = Array.prototype.map.call(links, function(l){ return document.getElementById(l.dataset.section); });
+  var navIO = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting) {
+        links.forEach(function(l){ l.classList.toggle('active', l.dataset.section === e.target.id); });
+      }
+    });
+  }, { threshold: 0.45 });
+  sections.forEach(function(s){ if (s) navIO.observe(s); });
+
+  // Stats count-up
+  var statEls = document.querySelectorAll('.stat-num[data-count]');
+  var statIO = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (!e.isIntersecting) return;
+      var el = e.target;
+      if (el.dataset.literal === 'true') { statIO.unobserve(el); return; }
+      var target = parseInt(el.dataset.count, 10);
+      var suffix = el.dataset.suffix || '';
+      var dur = 1600, start = performance.now();
+      function tick(now){
+        var p = Math.min(1, (now - start) / dur);
+        var eased = 1 - Math.pow(1 - p, 3);
+        var val = Math.floor(target * eased);
+        el.textContent = val.toLocaleString() + (p === 1 ? suffix : '');
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+      statIO.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+  statEls.forEach(function(el){ statIO.observe(el); });
+})();
+</script>
+
+</body>
+</html>
