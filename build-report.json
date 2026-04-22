@@ -2,7 +2,8 @@
   "site": "NovaMotion",
   "tagline": "Build Websites That Move.",
   "output": "index.html",
-  "generated_at": "2026-04-21T21:10:00-07:00",
+  "generated_at": "2026-04-21T21:25:00-07:00",
+  "creator": "Yabsera Kebede",
   "pipeline": "animated-website",
   "product_summary": {
     "what_it_is": "A live, AI-powered website builder. The user types a plain-text brief, NovaMotion engineers a design system, assembles cinematic sections, and ships a fully animated single-file website in seconds.",
@@ -65,8 +66,8 @@
       "tool": "Nano Banana 2 (Gemini 3.1 Flash Image Preview via infsh)",
       "role": "Image generation",
       "status": "used_extensively",
-      "images_generated": 7,
-      "how": "Replaced every placeholder/SVG mockup with real cinematic imagery. Generated one hero backdrop plus six gallery-card website mockups at 2K, then resized to 1400-1920px JPEG q82 for fast loads. No fallback to flat SVGs."
+      "images_generated": 15,
+      "how": "Replaced every placeholder/SVG mockup with real cinematic imagery. Generated: 1 hero backdrop, 6 gallery-card website mockups, 3 editorial testimonial portraits (Alex R., Priya K., Jordan M.), 1 about-section backdrop, 3 about bento-card visuals (brief-to-beauty wireframe, neural assembly circuit, ships-animated light trails), and 1 features image-generation strip — all resized to lean JPEGs (37KB–511KB) for fast loads. No fallback to flat SVGs."
     },
     {
       "tool": "Pollinations.ai (free GPT-OSS 20B, no key required)",
@@ -96,9 +97,18 @@
     { "file": "images/gal-3-ignition.jpg",     "role": "Gallery card — brutalist portfolio", "source": "Nano Banana 2", "dims": "1400x785" },
     { "file": "images/gal-4-nexusai.jpg",      "role": "Gallery card — AI landing",          "source": "Nano Banana 2", "dims": "1400x785" },
     { "file": "images/gal-5-orbital.jpg",      "role": "Gallery card — dev API",             "source": "Nano Banana 2", "dims": "1400x785" },
-    { "file": "images/gal-6-goldforge.jpg",    "role": "Gallery card — luxury e-commerce",   "source": "Nano Banana 2", "dims": "1400x785" }
+    { "file": "images/gal-6-goldforge.jpg",    "role": "Gallery card — luxury e-commerce",   "source": "Nano Banana 2", "dims": "1400x785" },
+    { "file": "images/avatar-alex.jpg",        "role": "Testimonial portrait — Alex R.",     "source": "Nano Banana 2", "dims": "480x480" },
+    { "file": "images/avatar-priya.jpg",       "role": "Testimonial portrait — Priya K.",    "source": "Nano Banana 2", "dims": "480x480" },
+    { "file": "images/avatar-jordan.jpg",      "role": "Testimonial portrait — Jordan M.",   "source": "Nano Banana 2", "dims": "480x480" },
+    { "file": "images/about-bg.jpg",           "role": "About section parallax backdrop",    "source": "Nano Banana 2", "dims": "1920x1080" },
+    { "file": "images/about-brief.jpg",        "role": "About bento — Brief-to-Beauty visual","source": "Nano Banana 2", "dims": "1200x800" },
+    { "file": "images/about-assembly.jpg",     "role": "About bento — Neural assembly visual","source": "Nano Banana 2", "dims": "1600x900" },
+    { "file": "images/about-shipped.jpg",      "role": "About bento — Light-trails visual",  "source": "Nano Banana 2", "dims": "1600x900" },
+    { "file": "images/feature-imggen.jpg",     "role": "Features card — Image-gen strip",    "source": "Nano Banana 2", "dims": "1600x400" }
   ],
   "animations": [
+    "Cinematic scroll parallax: hero backdrop drifts at 0.35x, about backdrop at 0.18x, floating shards at -0.4x to +0.5x (rAF-throttled, reduced-motion honored)",
     "Hero headline reveal on load with staggered sub-elements (reveal-delay-1/2/3 chain)",
     "IntersectionObserver scroll-reveals on every section (threshold 0.15, once)",
     "Gallery cards: hover lift -6px + glow, mousemove parallax tilt",
