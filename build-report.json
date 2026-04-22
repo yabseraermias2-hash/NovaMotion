@@ -70,11 +70,19 @@
       "how": "Replaced every placeholder/SVG mockup with real cinematic imagery. Generated: 1 hero backdrop, 6 gallery-card website mockups, 3 editorial testimonial portraits (Alex R., Priya K., Jordan M.), 4 cinematic section parallax backdrops (about, how-it-works, builder, contact CTA), 3 about bento-card visuals (brief-to-beauty wireframe, neural assembly circuit, ships-animated light trails), and 1 features image-generation strip — all resized to lean JPEGs (37KB–523KB) for fast loads. No fallback to flat SVGs."
     },
     {
-      "tool": "Pollinations.ai (free GPT-OSS 20B, no key required)",
-      "role": "LIVE generation engine — makes the builder alive",
+      "tool": "Cloudflare Workers AI (Llama 3.3 70B Instruct fp8-fast)",
+      "role": "PRIMARY live generation engine — tier 1",
       "status": "wired_into_builder",
-      "endpoint": "https://text.pollinations.ai/openai",
-      "model": "openai-fast (gpt-oss-20b)",
+      "endpoint": "/api/generate (Cloudflare Pages Function, same origin)",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "how": "A Pages Function at functions/api/generate.js receives the brief, prepends the NovaMotion system prompt (8–11 sections, custom palette, cinematic fonts, AI imagery, interactivity, cinematic animations), and calls the AI binding. Llama 3.3 70B is dramatically smarter than the previous 20B model and follows the full contract — produces 700–1500 line Emergent-tier output. Free tier: 10K requests/day. No API key in the browser. Requires one dashboard step: Pages → Settings → Functions → Bindings → add AI binding with variable name 'AI'."
+    },
+    {
+      "tool": "Pollinations.ai (free GPT-OSS 20B, no key required)",
+      "role": "FALLBACK generation engine — tier 2 if Workers AI fails",
+      "status": "wired_into_builder",
+      "endpoint": "https://text.pollinations.ai/openai (TIER 2 FALLBACK — primary is now Cloudflare Workers AI)",
+      "model": "openai-fast (gpt-oss-20b) — fallback only",
       "image_engine": "https://image.pollinations.ai/prompt/{description} (Flux model, free, no key)",
       "how": "When a user types a brief and hits Launch Engine, script.js posts the brief plus a strict HTML-output system prompt to Pollinations. The model returns a complete single-file HTML document which renders in the preview iframe. The system prompt is engineered to rival Emergent.sh / Framer / Webflow output — it demands 8–11 sections, a custom 5-color palette, cinematic font pairings (Space Grotesk + Inter, Fraunces + DM Sans, Bricolage + Geist, Bebas + Manrope), modern CSS effects (gradient text, glassmorphism, mesh gradients, grain overlays), 6–10 AI Pollinations images, full interactivity (hamburger nav, lightbox modals, working forms with validation, smooth scroll, keyboard support), cinematic animations (hero word-stagger, IntersectionObserver reveals, count-up stats, parallax, signature animated element), and 700–1500 lines / 50–110KB density. A post-processor (_forcePollinationsImages) then enforces the contract: rewrites every <img> to a Pollinations Flux URL, kills emoji-as-icon placeholders via a 50-entry emoji-to-photo map, and injects a hero image if fewer than 3 images are present. Every produced website ships with fully bespoke AI imagery tailored to the brief — no Unsplash, no placeholders, no emoji icons. If the text API is ever unavailable, the in-browser SiteGenerator template engine takes over as fallback so the builder never breaks."
     }

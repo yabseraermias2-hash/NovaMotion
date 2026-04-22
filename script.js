@@ -1071,6 +1071,42 @@ class NovaBuilder {
   }
 
   async _aiGenerate(brief, seed, onProgress) {
+    // TIER 1: Cloudflare Workers AI (Llama 3.3 70B) via our Pages Function
+    try {
+      if (onProgress) onProgress(5, 'Calling NovaMotion AI engine (Llama 3.3 70B)...');
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 120000);
+      let cfRes;
+      try {
+        cfRes = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ brief, name: seed.name || 'Untitled', type: seed.type || 'website' }),
+          signal: ctrl.signal,
+        });
+      } finally {
+        clearTimeout(tid);
+      }
+      if (cfRes.ok) {
+        const j = await cfRes.json();
+        let html = String(j.html || '').trim();
+        if (html.length > 500) {
+          if (onProgress) onProgress(70, 'Parsing 70B response...');
+          html = html.replace(/^```(?:html)?\s*/i, '').replace(/\s*```$/i, '').trim();
+          const docIdx = html.search(/<!DOCTYPE\s+html/i);
+          if (docIdx > 0) html = html.slice(docIdx);
+          if (onProgress) onProgress(90, 'Forcing AI imagery...');
+          html = this._forcePollinationsImages(html, brief, seed);
+          if (onProgress) onProgress(95, 'Validating output...');
+          return html;
+        }
+      }
+      if (onProgress) onProgress(15, 'Falling back to Pollinations...');
+    } catch (e) {
+      if (onProgress) onProgress(15, 'Primary engine unavailable, using fallback...');
+    }
+
+    // TIER 2: Pollinations.ai fallback
     const sys = [
       'You are NovaMotion, an elite web design AI. You produce production-grade, design-award-quality, fully interactive single-file websites that rival Emergent.sh, Framer, and Webflow output. Every site you create is rich, deep, and feels handcrafted.',
       '',
