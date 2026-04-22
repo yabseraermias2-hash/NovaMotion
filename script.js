@@ -1159,7 +1159,62 @@ class NovaBuilder {
     const docIdx = html.search(/<!DOCTYPE\s+html/i);
     if (docIdx > 0) html = html.slice(docIdx);
 
+    if (onProgress) onProgress(90, 'Forcing AI imagery...');
+    html = this._forcePollinationsImages(html, brief, seed);
+
     if (onProgress) onProgress(95, 'Validating output...');
+    return html;
+  }
+
+  // Post-process: rewrite every <img src=...> to use Pollinations Flux,
+  // strip emoji-only "icon" placeholders the model often emits, and inject
+  // a fallback hero image if the document has none.
+  _forcePollinationsImages(html, brief, seed) {
+    const briefHint = (brief || '').replace(/\s+/g, ' ').trim().slice(0, 80);
+    const vibe = (seed && seed.type) ? seed.type : 'website';
+    let imgIndex = 0;
+    const polUrl = (prompt, w, h) => {
+      const p = encodeURIComponent((prompt || (vibe + ' ' + briefHint)).slice(0, 200));
+      const s = 1000 + (imgIndex++ * 137) % 8999;
+      return 'https://image.pollinations.ai/prompt/' + p + '?width=' + w + '&height=' + h + '&nologo=true&seed=' + s + '&model=flux';
+    };
+
+    // Rewrite every <img> that isn't already a Pollinations URL
+    html = html.replace(/<img\b([^>]*?)>/gi, (full, attrs) => {
+      const srcMatch = attrs.match(/\bsrc\s*=\s*["']([^"']+)["']/i);
+      const altMatch = attrs.match(/\balt\s*=\s*["']([^"']*)["']/i);
+      const widthMatch = attrs.match(/\bwidth\s*=\s*["']?(\d+)/i);
+      const heightMatch = attrs.match(/\bheight\s*=\s*["']?(\d+)/i);
+      const src = srcMatch ? srcMatch[1] : '';
+      if (src && /image\.pollinations\.ai/i.test(src)) return full;
+      const alt = altMatch ? altMatch[1] : '';
+      const w = widthMatch ? Math.min(2000, parseInt(widthMatch[1])) : 1200;
+      const h = heightMatch ? Math.min(2000, parseInt(heightMatch[1])) : 800;
+      const newSrc = polUrl(alt || briefHint, w, h);
+      const newAttrs = srcMatch
+        ? attrs.replace(/\bsrc\s*=\s*["'][^"']+["']/i, 'src="' + newSrc + '"')
+        : attrs + ' src="' + newSrc + '"';
+      return '<img' + newAttrs + (newAttrs.includes('loading=') ? '' : ' loading="lazy"') + '>';
+    });
+
+    // Replace lone emoji-as-icon spans inside cards (very common gpt-oss pattern)
+    // e.g. <span style="font-size: 4rem">🍕</span>  ->  small AI image
+    html = html.replace(
+      /<(span|div|p)([^>]*?)>\s*([\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}])\s*<\/\1>/gu,
+      (_full, tag, attrs, emoji) => {
+        const imgUrl = polUrl(briefHint + ' ' + emoji + ' icon minimal', 400, 400);
+        return '<' + tag + attrs + '><img src="' + imgUrl + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"/></' + tag + '>';
+      }
+    );
+
+    // If the document has fewer than 3 <img> tags, inject a hero fallback
+    const imgCount = (html.match(/<img\b/gi) || []).length;
+    if (imgCount < 3) {
+      const heroUrl = polUrl(briefHint + ' cinematic hero photograph', 1600, 900);
+      const heroTag = '<img src="' + heroUrl + '" alt="" style="width:100%;max-height:70vh;object-fit:cover;display:block;" loading="eager"/>';
+      html = html.replace(/<body([^>]*)>/i, '<body$1>' + heroTag);
+    }
+
     return html;
   }
 
