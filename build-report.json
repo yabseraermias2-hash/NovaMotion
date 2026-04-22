@@ -76,7 +76,7 @@
       "endpoint": "https://text.pollinations.ai/openai",
       "model": "openai-fast (gpt-oss-20b)",
       "image_engine": "https://image.pollinations.ai/prompt/{description} (Flux model, free, no key)",
-      "how": "When a user types a brief and hits Launch Engine, script.js posts the brief plus a strict HTML-output system prompt to Pollinations. The model returns a complete single-file HTML document which renders in the preview iframe. The system prompt instructs the model to embed Pollinations image URLs (https://image.pollinations.ai/prompt/...) directly in the generated HTML — so when the iframe loads, the browser fetches AI-generated Flux images on the fly, giving every produced website fully bespoke imagery tailored to the brief. No Unsplash, no placeholders, all generated. If the text API is ever unavailable, the in-browser SiteGenerator template engine takes over as fallback so the builder never breaks."
+      "how": "When a user types a brief and hits Launch Engine, script.js posts the brief plus a strict HTML-output system prompt to Pollinations. The model returns a complete single-file HTML document which renders in the preview iframe. The system prompt is engineered to rival Emergent.sh / Framer / Webflow output — it demands 8–11 sections, a custom 5-color palette, cinematic font pairings (Space Grotesk + Inter, Fraunces + DM Sans, Bricolage + Geist, Bebas + Manrope), modern CSS effects (gradient text, glassmorphism, mesh gradients, grain overlays), 6–10 AI Pollinations images, full interactivity (hamburger nav, lightbox modals, working forms with validation, smooth scroll, keyboard support), cinematic animations (hero word-stagger, IntersectionObserver reveals, count-up stats, parallax, signature animated element), and 700–1500 lines / 50–110KB density. A post-processor (_forcePollinationsImages) then enforces the contract: rewrites every <img> to a Pollinations Flux URL, kills emoji-as-icon placeholders via a 50-entry emoji-to-photo map, and injects a hero image if fewer than 3 images are present. Every produced website ships with fully bespoke AI imagery tailored to the brief — no Unsplash, no placeholders, no emoji icons. If the text API is ever unavailable, the in-browser SiteGenerator template engine takes over as fallback so the builder never breaks."
     }
   ],
   "sections_assembled": [
@@ -142,5 +142,25 @@
     "mandatory_mcps": { "stitch": "installed", "firecrawl": "installed" },
     "imagery_via_nano_banana_2": true,
     "flat_svg_fallback_bypassed": true
+  },
+  "generated_site_quality": {
+    "benchmark": "Emergent.sh / Framer / Webflow / top Awwwards entries",
+    "system_prompt_demands": [
+      "8–11 sections always (navbar, hero, trust strip, features, about, showcase, pricing/comparison, testimonials, FAQ, contact, footer)",
+      "Custom 5-color palette per brief (no defaults)",
+      "Cinematic font pairing from Google Fonts (Space Grotesk+Inter / Fraunces+DM Sans / Bricolage+Geist / Bebas+Manrope)",
+      "Modern CSS effects: gradient text, glassmorphism, mesh gradients, grain overlays, soft glows",
+      "6–10 AI-generated Pollinations Flux images with bespoke per-section prompts",
+      "Full interactivity: hamburger nav, lightbox, working forms with validation, smooth scroll, Escape-to-close, keyboard support",
+      "Cinematic animations: hero word-stagger, IntersectionObserver reveals, count-up stats, hero parallax, signature animated element",
+      "Mobile-first responsive at 375px / sm / lg / xl",
+      "700–1500 lines, 50–110KB density target"
+    ],
+    "post_processor_safety_net": [
+      "Rewrites every <img> src to a Pollinations Flux URL (preserving alt as prompt)",
+      "Kills emoji-as-icon placeholders via 50-entry emoji-to-photo map (PASS A: emoji wrapped in tag → AI image; PASS B: standalone emoji → AI image)",
+      "Injects hero image if document has fewer than 3 images",
+      "Cache-busted via script.js?v=6 to defeat browser cache"
+    ]
   }
 }
