@@ -1,454 +1,1789 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Kitchen Stories — Food made with love, shared freely.</title>
-<meta name="description" content="A curated collection of recipes from my kitchen to yours. From quick weeknight dinners to slow Sunday bakes."/>
-<meta property="og:title" content="Kitchen Stories — Food made with love, shared freely."/>
-<meta property="og:description" content="A curated collection of recipes from my kitchen to yours. From quick weeknight dinners to slow Sunday bakes."/>
-<meta property="og:image" content="images/hero.jpg"/>
-<meta property="og:type" content="website"/>
-<meta name="theme-color" content="#C4623A"/>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          terracotta: '#C4623A',
-          'terracotta-dark': '#A84F2C',
-          'brown-ink': '#2C1A0F',
-          sage: '#7A9E7E',
-          cream: '#FBF5EC',
-          'tan-raised': '#F2E8D8',
-          'mid-brown': '#6B4C38',
-        },
-        fontFamily: {
-          display: ['"Playfair Display"', 'Georgia', 'serif'],
-          body: ['Lora', 'Georgia', 'serif'],
-          ui: ['"DM Sans"', 'system-ui', 'sans-serif'],
-        },
-        maxWidth: { shell: '1280px' },
-        boxShadow: {
-          card: '0 4px 18px rgba(44, 26, 15, 0.08)',
-          cardHover: '0 18px 40px rgba(44, 26, 15, 0.18)',
-          nav: '0 2px 20px rgba(44, 26, 15, 0.06)',
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NovaMotion — The Cinematic Web Engine</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background":               "#0e0e0e",
+            "surface":                  "#0e0e0e",
+            "surface-dim":              "#0e0e0e",
+            "surface-container-lowest": "#000000",
+            "surface-container-low":    "#131313",
+            "surface-container":        "#1a1919",
+            "surface-container-high":   "#20201f",
+            "surface-container-highest":"#262626",
+            "surface-bright":           "#2c2c2c",
+            "surface-variant":          "#262626",
+            "surface-tint":             "#ff8f70",
+            "on-surface":               "#ffffff",
+            "on-surface-variant":       "#adaaaa",
+            "outline":                  "#767575",
+            "outline-variant":          "#484847",
+            "primary":                  "#ff8f70",
+            "primary-container":        "#ff7852",
+            "primary-dim":              "#ff734c",
+            "primary-fixed":            "#ff7852",
+            "primary-fixed-dim":        "#ff5d2e",
+            "on-primary":               "#5c1300",
+            "on-primary-container":     "#480d00",
+            "on-primary-fixed":         "#000000",
+            "secondary":                "#fc7c7c",
+            "secondary-container":      "#842327",
+            "on-secondary":             "#53000b",
+            "error":                    "#ff716c",
+            "error-container":          "#9f0519",
+            "on-error":                 "#490006",
+            "inverse-surface":          "#fcf9f8",
+            "inverse-primary":          "#b22e00",
+          },
+          borderRadius: {
+            DEFAULT: "0px",
+            sm: "0px",
+            md: "0px",
+            lg: "0px",
+            xl: "0px",
+            "2xl": "0px",
+            full: "9999px",
+          },
+          fontFamily: {
+            display: ["Space Grotesk", "sans-serif"],
+            headline: ["Space Grotesk", "sans-serif"],
+            body: ["Space Grotesk", "sans-serif"],
+            label: ["Space Grotesk", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"],
+          },
         },
       },
-    },
-  };
-</script>
-<style>
-  :root {
-    --terracotta: #C4623A;
-    --terracotta-dark: #A84F2C;
-    --brown-ink: #2C1A0F;
-    --sage: #7A9E7E;
-    --cream: #FBF5EC;
-    --tan-raised: #F2E8D8;
-    --mid-brown: #6B4C38;
-    --ease: cubic-bezier(0.22, 1, 0.36, 1);
-    --dur-micro: 150ms;
-    --dur-std: 300ms;
-    --dur-expr: 600ms;
-  }
-  html { scroll-behavior: smooth; }
-  body {
-    font-family: 'Lora', Georgia, serif;
-    background: var(--cream);
-    color: var(--brown-ink);
-    -webkit-font-smoothing: antialiased;
-    line-height: 1.65;
-  }
-  h1, h2, h3, h4, .display { font-family: 'Playfair Display', Georgia, serif; letter-spacing: -0.01em; }
-  .ui { font-family: 'DM Sans', system-ui, sans-serif; }
-  .eyebrow {
-    font-family: 'DM Sans', system-ui, sans-serif;
-    font-size: 12px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    font-weight: 600;
-    color: var(--terracotta);
-  }
-  /* Hero word stagger */
-  .hero-word { display: inline-block; opacity: 0; transform: translateY(32px); transition: opacity 900ms var(--ease), transform 900ms var(--ease); }
-  .hero-sub, .hero-ctas, .hero-media { opacity: 0; transform: translateY(24px); transition: opacity 900ms var(--ease), transform 900ms var(--ease); }
-  body.loaded .hero-word { opacity: 1; transform: translateY(0); }
-  body.loaded .hero-sub { opacity: 1; transform: translateY(0); transition-delay: 400ms; }
-  body.loaded .hero-ctas { opacity: 1; transform: translateY(0); transition-delay: 550ms; }
-  body.loaded .hero-media { opacity: 1; transform: translateY(0); transition-delay: 300ms; }
-  /* Reveal */
-  .reveal { opacity: 0; transform: translateY(28px); transition: opacity 600ms var(--ease), transform 600ms var(--ease); }
-  .reveal.in { opacity: 1; transform: translateY(0); }
-  /* Recipe card */
-  .recipe-card { transition: transform var(--dur-std) var(--ease), box-shadow var(--dur-std) var(--ease); }
-  .recipe-card:hover { transform: translateY(-8px); box-shadow: 0 18px 40px rgba(44, 26, 15, 0.18); }
-  .recipe-card .card-image { overflow: hidden; }
-  .recipe-card .card-image img { transition: transform 600ms var(--ease); will-change: transform; }
-  .recipe-card:hover .card-image img { transform: scale(1.07); }
-  /* Button hover */
-  .btn-primary, .btn-outline { transition: transform 200ms var(--ease), box-shadow 200ms var(--ease), background 200ms var(--ease), color 200ms var(--ease), border-color 200ms var(--ease); }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(196, 98, 58, 0.35); }
-  .btn-outline:hover { transform: translateY(-2px); border-color: var(--terracotta); color: var(--terracotta); }
-  /* Navbar */
-  #sitenav { transition: background 300ms var(--ease), box-shadow 300ms var(--ease), backdrop-filter 300ms var(--ease); }
-  #sitenav.stuck { background: rgba(251, 245, 236, 0.92); backdrop-filter: saturate(1.2) blur(14px); box-shadow: 0 2px 20px rgba(44, 26, 15, 0.06); }
-  .nav-link { position: relative; }
-  .nav-link::after { content: ''; position: absolute; left: 0; right: 0; bottom: -6px; height: 2px; background: var(--terracotta); transform: scaleX(0); transform-origin: left; transition: transform 250ms var(--ease); }
-  .nav-link:hover::after, .nav-link.active::after { transform: scaleX(1); }
-  /* Difficulty dots */
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--tan-raised); display: inline-block; }
-  .dot.on { background: var(--terracotta); }
-  /* Floating garnish on hero */
-  .float-slow { animation: floaty 7s ease-in-out infinite; }
-  .float-med  { animation: floaty 5s ease-in-out infinite; }
-  @keyframes floaty { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-12px) rotate(3deg); } }
-  /* Tap targets */
-  a, button { min-height: 44px; }
-  .inline-link { min-height: 0; }
-  /* Stats */
-  .stat-num { font-variant-numeric: tabular-nums; }
-  /* About section */
-  .about-dark { background: var(--brown-ink); color: var(--cream); }
-  .about-dark .eyebrow { color: #E8A582; }
-  /* Reduced motion */
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { transition-duration: 200ms !important; animation: none !important; }
-    .hero-word, .hero-sub, .hero-ctas, .hero-media, .reveal { transform: none !important; }
-    .float-slow, .float-med { animation: none !important; }
-  }
-</style>
+    };
+  </script>
+
+  <style>
+    /* ─── Reset & Globals ─── */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: #0e0e0e;
+      color: #ffffff;
+      font-family: 'Space Grotesk', sans-serif;
+      overflow-x: hidden;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      line-height: 1;
+    }
+
+    /* ─── Kinetic Gradient ─── */
+    .kinetic-gradient {
+      background: linear-gradient(135deg, #ff4500 0%, #ff6b00 100%);
+    }
+    .kinetic-gradient-text {
+      background: linear-gradient(135deg, #ff4500 0%, #ff8f70 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ─── Glow Effects ─── */
+    .glow-accent { filter: drop-shadow(0 0 8px #ff8f70); }
+    .glow-hover:hover { box-shadow: 0 0 30px rgba(255, 143, 112, 0.2); }
+    .glow-text { text-shadow: 0 0 40px rgba(255, 69, 0, 0.5); }
+
+    /* ─── Connector Line ─── */
+    .line-connector {
+      background: repeating-linear-gradient(
+        90deg,
+        transparent, transparent 10px,
+        #484847 10px, #484847 20px
+      );
+    }
+
+    /* ─── Feature Card ─── */
+    .feature-card {
+      transition: box-shadow 0.4s ease, transform 0.4s ease;
+    }
+    .feature-card:hover {
+      box-shadow: 0 0 30px rgba(255, 143, 112, 0.1);
+      transform: translateY(-2px);
+    }
+
+    /* ─── Hero Floating Shapes ─── */
+    @keyframes float-a {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50%       { transform: translateY(-24px) rotate(5deg); }
+    }
+    @keyframes float-b {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50%       { transform: translateY(18px) rotate(-4deg); }
+    }
+    @keyframes float-c {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33%       { transform: translate(12px, -10px) rotate(6deg); }
+      66%       { transform: translate(-8px, 8px) rotate(-3deg); }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.4; }
+      50%       { opacity: 0.8; }
+    }
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    @keyframes scan-line {
+      0%   { transform: translateY(-100%); opacity: 0; }
+      10%  { opacity: 0.6; }
+      90%  { opacity: 0.6; }
+      100% { transform: translateY(100vh); opacity: 0; }
+    }
+
+    .float-a { animation: float-a 7s ease-in-out infinite; }
+    .float-b { animation: float-b 9s ease-in-out infinite; }
+    .float-c { animation: float-c 11s ease-in-out infinite; }
+    .pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+    .spin-slow  { animation: spin-slow 20s linear infinite; }
+    .scan-line  { animation: scan-line 6s linear infinite; }
+
+    /* ─── Scroll Reveal ─── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+    .reveal-scale {
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal-scale.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* ─── Navbar scroll effect ─── */
+    #navbar {
+      transition: background 0.4s ease, backdrop-filter 0.4s ease, box-shadow 0.4s ease;
+    }
+    #navbar.scrolled {
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 1px 0 rgba(72, 72, 71, 0.4);
+    }
+
+    /* ─── CTA Button ─── */
+    .btn-primary {
+      background: linear-gradient(135deg, #ff4500 0%, #ff6b00 100%);
+      color: #000;
+      font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.875rem 2rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: none;
+      cursor: pointer;
+      transition: filter 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    }
+    .btn-primary:hover {
+      filter: brightness(1.1);
+      transform: scale(1.02);
+      box-shadow: 0 0 30px rgba(255, 69, 0, 0.4);
+    }
+    .btn-primary:active { transform: scale(0.97); }
+
+    .btn-secondary {
+      background: transparent;
+      color: #ffffff;
+      font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.875rem 2rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: 1px solid rgba(72, 72, 71, 0.6);
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+    }
+    .btn-secondary:hover {
+      background: rgba(44, 44, 44, 0.8);
+      border-color: rgba(255, 143, 112, 0.4);
+      transform: scale(1.02);
+    }
+    .btn-secondary:active { transform: scale(0.97); }
+
+    /* ─── Gallery card ─── */
+    .gallery-card {
+      background: #111111;
+      border: 1px solid rgba(72, 72, 71, 0.3);
+      overflow: hidden;
+      transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.3s ease;
+    }
+    .gallery-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 24px rgba(255, 69, 0, 0.1);
+      border-color: rgba(255, 143, 112, 0.3);
+    }
+
+    /* ─── Hero grid background ─── */
+    .hero-grid {
+      background-image:
+        linear-gradient(rgba(72, 72, 71, 0.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(72, 72, 71, 0.12) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    /* ─── Builder section ─── */
+    #builder { background: #080808; }
+
+    .nb-textarea {
+      width: 100%;
+      background: #131313;
+      color: #ffffff;
+      border: 2px solid rgba(72,72,71,0.4);
+      padding: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      line-height: 1.7;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
+      min-height: 180px;
+    }
+    .nb-textarea:focus {
+      border-color: #ff4500;
+      box-shadow: 0 0 0 3px rgba(255,69,0,0.12), 0 0 20px rgba(255,69,0,0.08);
+      background: #181818;
+    }
+    .nb-textarea::placeholder { color: #484847; }
+
+    .nb-tab {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: #767575;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 10px 0;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .nb-tab[data-active="true"] { color: #ff4500; border-bottom-color: #ff4500; }
+    .nb-tab:hover { color: #ffffff; }
+
+    #nb-terminal {
+      background: #0a0a0a;
+      border: 1px solid rgba(72,72,71,0.3);
+      padding: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.8;
+      max-height: 260px;
+      overflow-y: auto;
+      display: none;
+    }
+    #nb-terminal .log-line { color: #adaaaa; }
+    #nb-terminal .log-line:last-child { color: #ff8f70; }
+
+    #nb-progress-track {
+      height: 3px;
+      background: rgba(72,72,71,0.3);
+      margin-top: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    #nb-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #ff4500, #ff8f70);
+      width: 0%;
+      transition: width 0.5s ease;
+      box-shadow: 0 0 12px rgba(255,69,0,0.6);
+    }
+    @keyframes progress-pulse {
+      0%,100% { opacity: 1; } 50% { opacity: 0.6; }
+    }
+    #nb-progress-bar { animation: progress-pulse 1.5s ease-in-out infinite; }
+
+    #nb-preview-zone {
+      display: none;
+      border-top: 1px solid rgba(72,72,71,0.3);
+      padding-top: 0;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    #nb-preview-zone.visible { opacity: 1; transform: none; }
+
+    #nb-iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+      background: #fff;
+      display: block;
+    }
+
+    .nb-example-pill {
+      display: inline-block;
+      padding: 6px 14px;
+      background: rgba(26,25,25,0.8);
+      border: 1px solid rgba(72,72,71,0.3);
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      color: #adaaaa;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      margin: 4px;
+    }
+    .nb-example-pill:hover { border-color: rgba(255,69,0,0.4); color: #ffffff; }
+
+    #nb-error {
+      color: #ff716c;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      opacity: 0;
+      transition: opacity 0.3s;
+      min-height: 16px;
+      margin-top: 8px;
+    }
+
+    #nb-actions { display: none; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+    /* ─── Login Modal ─── */
+    #login-modal {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center;
+    }
+    #login-modal.open { display: flex; }
+    #login-box {
+      background: #111111;
+      border: 1px solid rgba(72,72,71,0.4);
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+    }
+    .login-input {
+      width: 100%;
+      background: #1a1919;
+      border: none;
+      border-bottom: 2px solid rgba(72,72,71,0.5);
+      color: #fff;
+      padding: 14px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .login-input:focus { border-bottom-color: #ff4500; }
+    .login-input::placeholder { color: #484847; }
+
+    /* ─── Projects Panel ─── */
+    #projects-panel {
+      position: fixed; top: 0; right: -400px; width: 380px; height: 100vh;
+      background: #0e0e0e; border-left: 1px solid rgba(72,72,71,0.3);
+      z-index: 150; overflow-y: auto; padding: 24px;
+      transition: right 0.35s cubic-bezier(0.4,0,0.2,1);
+    }
+    #projects-panel.open { right: 0; }
+
+    /* ─── Toast ─── */
+    #nova-toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: #1a1919; border: 1px solid rgba(72,72,71,0.5);
+      color: #fff; padding: 12px 24px; font-size: 13px;
+      font-family: 'Space Grotesk', sans-serif; font-weight: 600;
+      z-index: 300; transition: transform 0.3s ease;
+      white-space: nowrap; pointer-events: none;
+    }
+    #nova-toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ─── Reduced motion ─── */
+    @media (prefers-reduced-motion: reduce) {
+      .reveal, .reveal-scale {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
+      .float-a, .float-b, .float-c, .pulse-glow, .spin-slow, .scan-line {
+        animation: none !important;
+      }
+      .btn-primary:hover, .btn-secondary:hover,
+      .gallery-card:hover, .feature-card:hover { transform: none; }
+    }
+  </style>
 </head>
-<body class="bg-cream text-brown-ink">
+<body class="bg-background text-on-surface selection:bg-primary selection:text-on-primary">
 
-<!-- ============ NAV ============ -->
-<header>
-<nav id="sitenav" aria-label="Primary" class="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-6 md:px-10 h-[72px]">
-  <a href="#top" class="display text-2xl md:text-[26px] font-semibold text-brown-ink tracking-tight" aria-label="Kitchen Stories home">
-    Kitchen <span class="italic text-terracotta">Stories</span>
-  </a>
-  <ul class="hidden md:flex items-center gap-9 ui text-[14px] font-medium text-brown-ink">
-    <li><a href="#recipes" class="nav-link" data-section="recipes">Recipes</a></li>
-    <li><a href="#featured" class="nav-link" data-section="featured">Featured</a></li>
-    <li><a href="#about" class="nav-link" data-section="about">My Story</a></li>
-  </ul>
-  <a href="#recipes" class="ui inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-terracotta text-cream text-[13px] font-semibold tracking-wide btn-primary">
-    Browse Recipes
-  </a>
-</nav>
-</header>
+  <!-- ══════════════════════════════════════
+       NAVBAR
+  ══════════════════════════════════════ -->
+  <nav id="navbar" class="fixed top-0 w-full z-50 flex justify-between items-center px-8 h-20">
+    <a href="#" class="text-xl font-bold tracking-tighter text-white uppercase font-headline flex items-center gap-2">
+      <span class="kinetic-gradient-text">Nova</span><span>Motion</span>
+    </a>
+    <div class="hidden md:flex items-center gap-8 text-sm font-label uppercase tracking-widest">
+      <a href="#about"    class="text-on-surface-variant hover:text-white transition-colors duration-200">About</a>
+      <a href="#how"      class="text-on-surface-variant hover:text-white transition-colors duration-200">How It Works</a>
+      <a href="#features" class="text-on-surface-variant hover:text-white transition-colors duration-200">Features</a>
+      <a href="#gallery"  class="text-on-surface-variant hover:text-white transition-colors duration-200">Gallery</a>
+      <a href="#builder"  class="text-on-surface-variant hover:text-white transition-colors duration-200">Builder</a>
+    </div>
+    <div class="flex items-center gap-3">
+      <!-- User label (shown when logged in) -->
+      <span id="nav-user-label" class="text-xs font-bold uppercase tracking-widest text-primary hidden sm:block"></span>
+      <!-- Projects link (logged-in only) -->
+      <a href="#" id="nav-projects-link" class="text-on-surface-variant hover:text-white transition-colors text-xs font-bold uppercase tracking-widest hidden" style="display:none">
+        <span class="material-symbols-outlined text-base align-middle" style="vertical-align:middle">folder_open</span>
+        Projects
+      </a>
+      <!-- Login -->
+      <button id="nav-login-btn" class="btn-secondary text-xs hidden sm:inline-flex" style="padding:0.6rem 1.2rem">
+        Login
+        <span class="material-symbols-outlined text-sm">person</span>
+      </button>
+      <!-- Logout -->
+      <button id="nav-logout-btn" class="btn-secondary text-xs hidden" style="padding:0.6rem 1.2rem;display:none">
+        Sign Out
+      </button>
+      <!-- CTA -->
+      <a href="#builder" class="btn-primary text-xs hidden sm:inline-flex">
+        Launch Engine
+        <span class="material-symbols-outlined text-sm">bolt</span>
+      </a>
+    </div>
+  </nav>
 
-<main id="top">
+  <!-- ══════════════════════════════════════
+       HERO
+  ══════════════════════════════════════ -->
+  <section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden hero-grid">
 
-<!-- ============ HERO ============ -->
-<section class="pt-[120px] pb-24 px-6 md:px-10">
-  <div class="max-w-shell mx-auto grid lg:grid-cols-2 gap-14 items-center">
-    <div>
-      <span class="eyebrow hero-sub">A Recipe Blog</span>
-      <h1 class="display text-[48px] sm:text-[62px] lg:text-[78px] leading-[1.02] font-bold mt-5 text-brown-ink">
-        <span class="hero-word">Food</span>
-        <span class="hero-word italic text-terracotta">made</span>
-        <span class="hero-word">with</span>
-        <span class="hero-word italic">love,</span><br/>
-        <span class="hero-word">shared</span>
-        <span class="hero-word italic">freely.</span>
+    <!-- Background glow orbs -->
+    <div class="absolute inset-0 pointer-events-none">
+      <!-- Primary glow -->
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full pulse-glow"
+           style="background: radial-gradient(ellipse at center, rgba(255,69,0,0.18) 0%, rgba(255,107,0,0.08) 40%, transparent 70%);"></div>
+      <!-- Secondary glow top-right -->
+      <div class="absolute -top-32 right-0 w-[500px] h-[500px] rounded-full"
+           style="background: radial-gradient(ellipse, rgba(255,69,0,0.08) 0%, transparent 70%);"></div>
+      <!-- Scan line effect -->
+      <div class="scan-line absolute left-0 w-full h-px"
+           style="background: linear-gradient(90deg, transparent, rgba(255,143,112,0.4), transparent);"></div>
+    </div>
+
+    <!-- Floating abstract shapes -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+      <!-- Large rotating ring top-right -->
+      <div class="float-a absolute -top-20 right-12 w-96 h-96 opacity-10"
+           style="border: 1px solid #ff8f70; border-radius: 0;">
+        <div class="spin-slow w-full h-full"
+             style="border: 1px solid rgba(255,69,0,0.3); transform: rotate(45deg);"></div>
+      </div>
+      <!-- Medium square bottom-left -->
+      <div class="float-b absolute bottom-24 -left-12 w-64 h-64 opacity-[0.07]"
+           style="background: linear-gradient(135deg, #ff4500, transparent); border: 1px solid rgba(255,69,0,0.3);"></div>
+      <!-- Small accent top-left -->
+      <div class="float-c absolute top-32 left-1/4 w-4 h-4 kinetic-gradient opacity-60"></div>
+      <div class="float-a absolute top-48 right-1/3 w-2 h-2 bg-primary opacity-80"
+           style="animation-delay: 2s;"></div>
+      <div class="float-b absolute bottom-1/3 right-20 w-3 h-3 kinetic-gradient opacity-50"
+           style="animation-delay: 4s;"></div>
+      <!-- Diagonal accent lines -->
+      <div class="absolute top-0 left-0 w-full h-full opacity-[0.04]"
+           style="background: repeating-linear-gradient(-45deg, transparent, transparent 80px, #ff4500 80px, #ff4500 81px);"></div>
+    </div>
+
+    <!-- Hero content -->
+    <div class="relative z-10 text-center px-6 max-w-6xl mx-auto pt-20">
+      <!-- Badge -->
+      <div class="inline-flex items-center gap-2 border border-outline-variant px-4 py-1.5 mb-8 reveal" style="background: rgba(26,25,25,0.8);">
+        <span class="w-2 h-2 kinetic-gradient pulse-glow"></span>
+        <span class="text-xs font-bold uppercase tracking-[0.3em] text-on-surface-variant">Kinetic Brutalism Engine — V.2.0.4</span>
+      </div>
+
+      <!-- Headline -->
+      <h1 class="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tighter leading-none mb-6 reveal reveal-delay-1 glow-text">
+        Build Websites<br/>
+        <span class="kinetic-gradient-text">That Move.</span>
       </h1>
-      <p class="hero-sub mt-7 text-lg md:text-xl text-mid-brown max-w-xl leading-relaxed">
-        A curated collection of recipes from my kitchen to yours — from quick weeknight dinners to slow Sunday bakes. Every dish tells a story.
+
+      <!-- Subtitle -->
+      <p class="text-lg md:text-xl text-on-surface-variant max-w-2xl mx-auto leading-relaxed mb-10 reveal reveal-delay-2">
+        Describe your vision in plain text. NovaMotion engineers the design system,
+        assembles the sections, and ships a fully animated website — automatically.
       </p>
-      <div class="hero-ctas mt-9 flex flex-wrap gap-4">
-        <a href="#recipes" class="btn-primary ui inline-flex items-center gap-2 px-7 py-4 rounded-full bg-terracotta text-cream font-semibold text-[15px] shadow-card">
-          Browse Recipes
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-        <a href="#about" class="btn-outline ui inline-flex items-center px-7 py-4 rounded-full border-2 border-brown-ink text-brown-ink font-semibold text-[15px]">
-          My Story
-        </a>
-      </div>
-    </div>
-    <div class="hero-media relative">
-      <div class="absolute -top-6 -left-6 w-24 h-24 rounded-full bg-sage/20 float-slow" aria-hidden="true"></div>
-      <div class="absolute -bottom-8 -right-6 w-32 h-32 rounded-full bg-terracotta/15 float-med" aria-hidden="true"></div>
-      <figure class="relative rounded-[6px] overflow-hidden shadow-cardHover">
-        <img src="images/hero.jpg" alt="A beautifully plated dish on a rustic wooden table in warm natural light" class="w-full h-[520px] object-cover" loading="eager"/>
-        <figcaption class="sr-only">Hero dish photography</figcaption>
-      </figure>
-      <div class="absolute -bottom-6 -left-6 bg-cream border border-tan-raised shadow-card rounded-[6px] px-5 py-4 hidden md:flex items-center gap-4">
-        <div class="w-10 h-10 rounded-full bg-terracotta/15 flex items-center justify-center">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l2.39 7.36H22l-6.19 4.5L18.2 21 12 16.5 5.8 21l2.39-7.14L2 9.36h7.61L12 2z" fill="#C4623A"/></svg>
-        </div>
-        <div class="ui">
-          <div class="text-xs text-mid-brown">This week's pick</div>
-          <div class="text-sm font-semibold text-brown-ink">Brown Butter Sage Pasta</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- ============ RECIPES ============ -->
-<section id="recipes" class="py-24 px-6 md:px-10 bg-cream">
-  <div class="max-w-shell mx-auto">
-    <div class="reveal flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
-      <div>
-        <span class="eyebrow">The Collection</span>
-        <h2 class="display text-4xl md:text-5xl lg:text-[56px] mt-4 font-bold text-brown-ink leading-tight">
-          Recipes from <span class="italic text-terracotta">my kitchen</span>
+      <!-- CTAs -->
+      <div class="flex flex-wrap gap-4 justify-center reveal reveal-delay-3">
+        <a href="#contact" class="btn-primary">
+          Launch Engine
+          <span class="material-symbols-outlined text-base">bolt</span>
+        </a>
+        <a href="#how" class="btn-secondary">
+          See How It Works
+          <span class="material-symbols-outlined text-base">play_arrow</span>
+        </a>
+      </div>
+
+      <!-- Stats strip -->
+      <div class="mt-20 grid grid-cols-2 sm:grid-cols-4 gap-px reveal reveal-delay-4"
+           style="background: rgba(72,72,71,0.2);">
+        <div class="px-8 py-5 text-left" style="background:#0e0e0e;">
+          <div class="text-2xl font-black text-white">0.4s</div>
+          <div class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mt-1">Assembly Time</div>
+        </div>
+        <div class="px-8 py-5 text-left" style="background:#0e0e0e;">
+          <div class="text-2xl font-black text-white">∞</div>
+          <div class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mt-1">Motion Layers</div>
+        </div>
+        <div class="px-8 py-5 text-left" style="background:#0e0e0e;">
+          <div class="text-2xl font-black text-white">99/100</div>
+          <div class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mt-1">Lighthouse Score</div>
+        </div>
+        <div class="px-8 py-5 text-left" style="background:#0e0e0e;">
+          <div class="text-2xl font-black text-white">Active</div>
+          <div class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mt-1">Global CDN</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40">
+      <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Scroll</span>
+      <div class="w-px h-8 kinetic-gradient"></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       ABOUT — from Google Stitch
+  ══════════════════════════════════════ -->
+  <section id="about" class="py-24 px-6 md:px-12" style="background:#111111;">
+    <div class="max-w-7xl mx-auto overflow-hidden">
+
+      <!-- Section header -->
+      <div class="relative mb-24 flex flex-col md:flex-row items-end justify-between gap-8 border-b border-outline-variant pb-12" style="border-color: rgba(72,72,71,0.2);">
+        <div class="max-w-2xl reveal">
+          <span class="text-primary font-bold tracking-[0.3em] uppercase text-sm mb-4 block">Engine Identity</span>
+          <h2 class="text-6xl md:text-8xl font-black tracking-tighter leading-none mb-8">What Is<br/>NovaMotion?</h2>
+          <p class="text-on-surface-variant text-xl md:text-2xl font-light leading-relaxed max-w-xl">
+            The world's first cinematic web engine. We don't build pages;
+            we engineer digital experiences that move with intent.
+          </p>
+        </div>
+        <div class="hidden lg:block reveal reveal-delay-2">
+          <div class="w-32 h-32 border flex items-center justify-center relative" style="border-color: rgba(255,143,112,0.3);">
+            <div class="absolute inset-0" style="background: rgba(255,143,112,0.05);"></div>
+            <span class="material-symbols-outlined text-primary text-4xl glow-accent">bolt</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bento grid -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+
+        <!-- Card 1: Brief to Beauty -->
+        <div class="md:col-span-4 bg-surface-container border border-outline-variant/20 p-8 flex flex-col justify-between group hover:bg-surface-bright transition-all duration-500 reveal glow-hover"
+             style="border-color:rgba(72,72,71,0.2);">
+          <div>
+            <div class="w-12 h-12 bg-surface-container-high flex items-center justify-center mb-12 border-l-4 border-primary">
+              <span class="material-symbols-outlined text-primary text-2xl glow-accent">auto_awesome</span>
+            </div>
+            <h3 class="text-3xl font-black tracking-tight mb-4 uppercase">Brief to Beauty</h3>
+            <p class="text-on-surface-variant leading-relaxed">
+              Describe your vision in plain text. Our linguistic engine translates
+              your intent into high-fidelity structural logic instantly.
+            </p>
+          </div>
+          <!-- SVG illustration -->
+          <div class="mt-12 h-40 w-full bg-surface-container-lowest relative overflow-hidden">
+            <svg class="w-full h-full" viewBox="0 0 300 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="20" y="20" width="260" height="120" rx="0" fill="none" stroke="rgba(255,143,112,0.1)" stroke-width="1"/>
+              <line x1="20" y1="50" x2="280" y2="50" stroke="rgba(255,69,0,0.15)" stroke-width="1"/>
+              <rect x="40" y="65" width="140" height="8" rx="0" fill="rgba(255,143,112,0.2)"/>
+              <rect x="40" y="80" width="100" height="6" rx="0" fill="rgba(72,72,71,0.4)"/>
+              <rect x="40" y="93" width="120" height="6" rx="0" fill="rgba(72,72,71,0.3)"/>
+              <rect x="220" y="65" width="40" height="40" rx="0" fill="rgba(255,69,0,0.15)"/>
+              <circle cx="240" cy="85" r="10" fill="rgba(255,69,0,0.3)"/>
+              <!-- Particles -->
+              <circle cx="60" cy="130" r="2" fill="rgba(255,143,112,0.5)"/>
+              <circle cx="80" cy="125" r="1.5" fill="rgba(255,143,112,0.3)"/>
+              <circle cx="100" cy="132" r="1" fill="rgba(255,143,112,0.4)"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Card 2: AI-Powered Assembly -->
+        <div class="md:col-span-8 bg-surface-container border border-outline-variant/20 p-8 flex flex-col md:flex-row gap-8 group hover:bg-surface-bright transition-all duration-500 reveal reveal-delay-1 glow-hover"
+             style="border-color:rgba(72,72,71,0.2);">
+          <div class="flex-1 flex flex-col justify-between">
+            <div>
+              <div class="w-12 h-12 bg-surface-container-high flex items-center justify-center mb-12 border-l-4 border-primary">
+                <span class="material-symbols-outlined text-primary text-2xl glow-accent">architecture</span>
+              </div>
+              <h3 class="text-4xl font-black tracking-tight mb-6 uppercase">AI-Powered Assembly</h3>
+              <p class="text-on-surface-variant text-lg leading-relaxed mb-8">
+                Design systems, component libraries, and layout sections are generated automatically
+                through a recursive neural assembly process. No templates, just pure mathematical precision.
+              </p>
+            </div>
+            <button class="self-start text-primary font-black uppercase tracking-widest text-sm flex items-center gap-2 group/btn">
+              Explore the Core
+              <span class="material-symbols-outlined text-sm group-hover/btn:translate-x-2 transition-transform">arrow_forward</span>
+            </button>
+          </div>
+          <!-- SVG circuit board -->
+          <div class="flex-1 h-64 md:h-auto bg-surface-container-lowest relative overflow-hidden">
+            <svg class="w-full h-full" viewBox="0 0 300 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Circuit traces -->
+              <line x1="30" y1="60" x2="270" y2="60" stroke="rgba(255,69,0,0.2)" stroke-width="1"/>
+              <line x1="30" y1="120" x2="270" y2="120" stroke="rgba(255,69,0,0.15)" stroke-width="1"/>
+              <line x1="30" y1="180" x2="270" y2="180" stroke="rgba(255,69,0,0.1)" stroke-width="1"/>
+              <line x1="80" y1="20" x2="80" y2="220" stroke="rgba(255,143,112,0.1)" stroke-width="1"/>
+              <line x1="150" y1="20" x2="150" y2="220" stroke="rgba(255,143,112,0.15)" stroke-width="1"/>
+              <line x1="220" y1="20" x2="220" y2="220" stroke="rgba(255,143,112,0.1)" stroke-width="1"/>
+              <!-- Nodes -->
+              <circle cx="80" cy="60" r="5" fill="rgba(255,69,0,0.5)" stroke="rgba(255,69,0,0.8)" stroke-width="1"/>
+              <circle cx="150" cy="60" r="3" fill="rgba(255,143,112,0.3)"/>
+              <circle cx="220" cy="120" r="5" fill="rgba(255,69,0,0.4)" stroke="rgba(255,69,0,0.6)" stroke-width="1"/>
+              <circle cx="80" cy="180" r="3" fill="rgba(255,143,112,0.3)"/>
+              <circle cx="150" cy="180" r="5" fill="rgba(255,69,0,0.5)" stroke="rgba(255,69,0,0.8)" stroke-width="1"/>
+              <!-- Components -->
+              <rect x="130" y="50" width="40" height="20" rx="0" fill="rgba(26,25,25,1)" stroke="rgba(255,143,112,0.3)" stroke-width="1"/>
+              <rect x="60" y="110" width="40" height="20" rx="0" fill="rgba(26,25,25,1)" stroke="rgba(255,143,112,0.2)" stroke-width="1"/>
+              <rect x="200" y="110" width="40" height="20" rx="0" fill="rgba(26,25,25,1)" stroke="rgba(255,143,112,0.3)" stroke-width="1"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Card 3: Ships Animated -->
+        <div class="md:col-span-12 bg-surface-container border border-outline-variant/20 p-10 flex flex-col md:flex-row items-center gap-12 group hover:bg-surface-bright transition-all duration-500 reveal reveal-delay-2 glow-hover"
+             style="border-color:rgba(72,72,71,0.2);">
+          <div class="flex-1 order-2 md:order-1">
+            <div class="w-12 h-12 bg-surface-container-high flex items-center justify-center mb-8 border-l-4 border-primary">
+              <span class="material-symbols-outlined text-primary text-2xl glow-accent">movie_filter</span>
+            </div>
+            <h3 class="text-4xl md:text-5xl font-black tracking-tighter mb-6 uppercase leading-tight">Ships Animated</h3>
+            <p class="text-on-surface-variant text-xl leading-relaxed max-w-2xl">
+              Static is obsolete. Every page deployed via NovaMotion arrives with native scroll triggers,
+              kinetic hover states, and cinematic transitions baked into the source code. It's not a website; it's a performance.
+            </p>
+          </div>
+          <div class="w-full md:w-1/3 aspect-video bg-surface-container-lowest relative overflow-hidden order-1 md:order-2"
+               style="border: 1px solid rgba(72,72,71,0.1);">
+            <!-- Animated SVG light trails -->
+            <svg class="w-full h-full" viewBox="0 0 400 225" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="trail1" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="transparent"/>
+                  <stop offset="50%" stop-color="rgba(255,69,0,0.8)"/>
+                  <stop offset="100%" stop-color="transparent"/>
+                </linearGradient>
+                <linearGradient id="trail2" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="transparent"/>
+                  <stop offset="50%" stop-color="rgba(255,143,112,0.5)"/>
+                  <stop offset="100%" stop-color="transparent"/>
+                </linearGradient>
+              </defs>
+              <!-- Static light trails -->
+              <line x1="0" y1="50" x2="400" y2="180" stroke="url(#trail1)" stroke-width="2" opacity="0.6"/>
+              <line x1="0" y1="100" x2="400" y2="40" stroke="url(#trail2)" stroke-width="1" opacity="0.4"/>
+              <line x1="0" y1="170" x2="400" y2="80" stroke="url(#trail1)" stroke-width="1.5" opacity="0.3"/>
+              <line x1="50" y1="0" x2="350" y2="225" stroke="url(#trail2)" stroke-width="1" opacity="0.3"/>
+              <!-- Center glow -->
+              <ellipse cx="200" cy="112" rx="80" ry="50" fill="rgba(255,69,0,0.08)"/>
+              <ellipse cx="200" cy="112" rx="40" ry="25" fill="rgba(255,69,0,0.12)"/>
+            </svg>
+            <!-- Overlay gradient -->
+            <div class="absolute inset-0 bg-gradient-to-t from-surface-container via-transparent to-transparent"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 reveal">
+        <div class="bg-surface-container-low p-6 flex flex-col gap-2">
+          <span class="text-on-surface-variant text-xs uppercase tracking-widest">Performance</span>
+          <span class="text-3xl font-black text-white">99/100</span>
+        </div>
+        <div class="bg-surface-container-low p-6 flex flex-col gap-2">
+          <span class="text-on-surface-variant text-xs uppercase tracking-widest">Assembly Time</span>
+          <span class="text-3xl font-black text-white">0.4s</span>
+        </div>
+        <div class="bg-surface-container-low p-6 flex flex-col gap-2">
+          <span class="text-on-surface-variant text-xs uppercase tracking-widest">Motion Layers</span>
+          <span class="text-3xl font-black text-white">Infinite</span>
+        </div>
+        <div class="bg-surface-container-low p-6 flex flex-col gap-2">
+          <span class="text-on-surface-variant text-xs uppercase tracking-widest">Global CDN</span>
+          <span class="text-3xl font-black text-white">Active</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       HOW IT WORKS — from Google Stitch
+  ══════════════════════════════════════ -->
+  <section id="how" class="py-24 px-6 md:px-12" style="background: #0a0a0a;">
+    <div class="max-w-7xl mx-auto">
+
+      <!-- Header -->
+      <div class="text-center mb-16 reveal">
+        <span class="text-primary font-bold tracking-[0.3em] uppercase text-xs mb-4 block">The Process</span>
+        <h2 class="text-5xl md:text-7xl font-black tracking-tighter leading-none mb-6">
+          Kinetic <span class="kinetic-gradient-text">Workflow</span>
         </h2>
-      </div>
-      <p class="max-w-sm text-mid-brown">Handpicked, tested, and cooked many times over. Come hungry.</p>
-    </div>
-
-    <div class="grid md:grid-cols-3 gap-8">
-      <!-- Pasta -->
-      <article class="recipe-card reveal bg-tan-raised rounded-[6px] overflow-hidden shadow-card flex flex-col" style="--d:0ms">
-        <div class="card-image aspect-[4/3]">
-          <img src="images/pasta.jpg" alt="Brown butter sage pasta with crispy sage leaves in a terracotta bowl" class="w-full h-full object-cover" loading="lazy"/>
-        </div>
-        <div class="p-7 flex-1 flex flex-col">
-          <span class="eyebrow">Pasta · Weeknight</span>
-          <h3 class="display text-2xl md:text-[26px] mt-3 font-semibold text-brown-ink">Brown Butter Sage Pasta</h3>
-          <p class="mt-3 text-mid-brown">Golden nutty butter, crispy sage leaves, and a flurry of parmesan — the coziest 20 minutes you'll spend this week.</p>
-          <div class="mt-6 flex items-center gap-5 ui text-sm text-mid-brown">
-            <span class="inline-flex items-center gap-2" title="Difficulty easy">
-              <span class="dot on"></span><span class="dot on"></span><span class="dot"></span>
-            </span>
-            <span class="inline-flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#6B4C38" stroke-width="1.6"/><path d="M12 7v5l3 2" stroke="#6B4C38" stroke-width="1.6" stroke-linecap="round"/></svg>20 min</span>
-            <span class="inline-flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M16 14a4 4 0 10-8 0M12 10a3 3 0 100-6 3 3 0 000 6zM4 20c0-2.8 3.6-5 8-5s8 2.2 8 5" stroke="#6B4C38" stroke-width="1.6" stroke-linecap="round"/></svg>Serves 4</span>
-          </div>
-        </div>
-      </article>
-
-      <!-- Cake -->
-      <article class="recipe-card reveal bg-tan-raised rounded-[6px] overflow-hidden shadow-card flex flex-col" style="--d:100ms">
-        <div class="card-image aspect-[4/3]">
-          <img src="images/cake.jpg" alt="Dark chocolate layer cake with glossy ganache drip on a cream plate" class="w-full h-full object-cover" loading="lazy"/>
-        </div>
-        <div class="p-7 flex-1 flex flex-col">
-          <span class="eyebrow">Baking · Slow Sunday</span>
-          <h3 class="display text-2xl md:text-[26px] mt-3 font-semibold text-brown-ink">Dark Chocolate Layer Cake</h3>
-          <p class="mt-3 text-mid-brown">Three tender cocoa layers, glossy ganache drip, flaked sea salt on top. For the Sunday that deserves more than just Sunday.</p>
-          <div class="mt-6 flex items-center gap-5 ui text-sm text-mid-brown">
-            <span class="inline-flex items-center gap-2" title="Difficulty medium">
-              <span class="dot on"></span><span class="dot on"></span><span class="dot on"></span>
-            </span>
-            <span class="inline-flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#6B4C38" stroke-width="1.6"/><path d="M12 7v5l3 2" stroke="#6B4C38" stroke-width="1.6" stroke-linecap="round"/></svg>2 hr</span>
-            <span class="inline-flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M16 14a4 4 0 10-8 0M12 10a3 3 0 100-6 3 3 0 000 6zM4 20c0-2.8 3.6-5 8-5s8 2.2 8 5" stroke="#6B4C38" stroke-width="1.6" stroke-linecap="round"/></svg>Serves 10</span>
-          </div>
-        </div>
-      </article>
-
-      <!-- Salad -->
-      <article class="recipe-card reveal bg-tan-raised rounded-[6px] overflow-hidden shadow-card flex flex-col" style="--d:200ms">
-        <div class="card-image aspect-[4/3]">
-          <img src="images/salad.jpg" alt="Mango avocado summer salad with cilantro and lime in a cream bowl" class="w-full h-full object-cover" loading="lazy"/>
-        </div>
-        <div class="p-7 flex-1 flex flex-col">
-          <span class="eyebrow">Salad · Summer</span>
-          <h3 class="display text-2xl md:text-[26px] mt-3 font-semibold text-brown-ink">Mango Avocado Summer Salad</h3>
-          <p class="mt-3 text-mid-brown">Ripe mango, buttery avocado, cilantro, a generous squeeze of lime. Bright, cold, and five minutes from your cutting board.</p>
-          <div class="mt-6 flex items-center gap-5 ui text-sm text-mid-brown">
-            <span class="inline-flex items-center gap-2" title="Difficulty easy">
-              <span class="dot on"></span><span class="dot"></span><span class="dot"></span>
-            </span>
-            <span class="inline-flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#6B4C38" stroke-width="1.6"/><path d="M12 7v5l3 2" stroke="#6B4C38" stroke-width="1.6" stroke-linecap="round"/></svg>10 min</span>
-            <span class="inline-flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M16 14a4 4 0 10-8 0M12 10a3 3 0 100-6 3 3 0 000 6zM4 20c0-2.8 3.6-5 8-5s8 2.2 8 5" stroke="#6B4C38" stroke-width="1.6" stroke-linecap="round"/></svg>Serves 4</span>
-          </div>
-        </div>
-      </article>
-    </div>
-  </div>
-</section>
-
-<!-- ============ FEATURED ============ -->
-<section id="featured" class="py-24 px-6 md:px-10 bg-tan-raised">
-  <div class="max-w-shell mx-auto">
-    <div class="reveal text-center mb-12">
-      <span class="eyebrow inline-flex items-center gap-2">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="#C4623A" aria-hidden="true"><path d="M12 2l2.39 7.36H22l-6.19 4.5L18.2 21 12 16.5 5.8 21l2.39-7.14L2 9.36h7.61L12 2z"/></svg>
-        Featured This Week
-      </span>
-      <h2 class="display text-4xl md:text-5xl lg:text-[56px] mt-4 font-bold text-brown-ink leading-tight">
-        The <span class="italic text-terracotta">Sunday</span> showstopper
-      </h2>
-    </div>
-
-    <article class="reveal recipe-card bg-cream rounded-[6px] overflow-hidden shadow-card grid lg:grid-cols-2">
-      <div class="card-image aspect-[16/10] lg:aspect-auto lg:min-h-[460px]">
-        <img src="images/featured.jpg" alt="Slow-roasted herbed lamb shoulder in a cast iron skillet, golden and crusted" class="w-full h-full object-cover" loading="lazy"/>
-      </div>
-      <div class="p-8 md:p-12 flex flex-col justify-center">
-        <span class="eyebrow">Mains · Sunday Roast</span>
-        <h3 class="display text-3xl md:text-4xl lg:text-[44px] mt-4 font-bold text-brown-ink leading-tight">
-          Slow-Roasted Herbed Lamb Shoulder
-        </h3>
-        <p class="mt-5 text-lg text-mid-brown leading-relaxed">
-          Six hours of rosemary, thyme, garlic, and patience. The kind of roast that fills the house with the smell of "come sit down, dinner's almost ready." Fall-apart tender. A recipe to hand down.
+        <p class="text-on-surface-variant max-w-2xl mx-auto text-lg tracking-tight">
+          The engine that transforms abstract vision into high-performance digital architecture.
+          No templates. No friction.
         </p>
-        <div class="mt-8 grid grid-cols-3 gap-6 py-6 border-y border-tan-raised">
-          <div>
-            <div class="ui text-xs text-mid-brown uppercase tracking-widest">Cook time</div>
-            <div class="display text-2xl text-brown-ink font-semibold mt-1">6 hours</div>
+      </div>
+
+      <!-- 4-step flow -->
+      <div class="relative">
+        <!-- Connector line (desktop) -->
+        <div class="hidden md:block absolute top-[3.5rem] left-0 w-full h-px line-connector opacity-20 z-0"></div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative z-10">
+
+          <div class="group flex flex-col items-start bg-surface-container p-8 border border-transparent hover:border-outline-variant transition-all duration-500 reveal glow-hover" style="transition-delay:0s;">
+            <div class="kinetic-gradient w-12 h-12 flex items-center justify-center mb-12 shadow-[0_0_15px_rgba(255,69,0,0.4)]">
+              <span class="text-xl font-black text-on-primary-fixed">01</span>
+            </div>
+            <h3 class="text-2xl font-black uppercase mb-4 tracking-tight">Write Your Brief</h3>
+            <p class="text-on-surface-variant leading-relaxed text-sm">
+              Describe your site in plain text. Our engine parses your intent, audience, and industry nuances.
+            </p>
+            <div class="mt-8 opacity-20 group-hover:opacity-100 transition-opacity">
+              <span class="material-symbols-outlined text-primary text-4xl glow-accent">edit_note</span>
+            </div>
           </div>
-          <div>
-            <div class="ui text-xs text-mid-brown uppercase tracking-widest">Serves</div>
-            <div class="display text-2xl text-brown-ink font-semibold mt-1">6–8</div>
+
+          <div class="group flex flex-col items-start bg-surface-container-high p-8 border border-transparent hover:border-outline-variant transition-all duration-500 reveal reveal-delay-1 glow-hover">
+            <div class="kinetic-gradient w-12 h-12 flex items-center justify-center mb-12 shadow-[0_0_15px_rgba(255,69,0,0.4)]">
+              <span class="text-xl font-black text-on-primary-fixed">02</span>
+            </div>
+            <h3 class="text-2xl font-black uppercase mb-4 tracking-tight">Design System Generated</h3>
+            <p class="text-on-surface-variant leading-relaxed text-sm">
+              Colors, fonts, icons, and tokens auto-created. A unique visual DNA forged specifically for your project.
+            </p>
+            <div class="mt-8 opacity-20 group-hover:opacity-100 transition-opacity">
+              <span class="material-symbols-outlined text-primary text-4xl glow-accent">palette</span>
+            </div>
           </div>
-          <div>
-            <div class="ui text-xs text-mid-brown uppercase tracking-widest">Difficulty</div>
-            <div class="mt-2 flex items-center gap-1.5">
-              <span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot"></span>
+
+          <div class="group flex flex-col items-start bg-surface-container p-8 border border-transparent hover:border-outline-variant transition-all duration-500 reveal reveal-delay-2 glow-hover">
+            <div class="kinetic-gradient w-12 h-12 flex items-center justify-center mb-12 shadow-[0_0_15px_rgba(255,69,0,0.4)]">
+              <span class="text-xl font-black text-on-primary-fixed">03</span>
+            </div>
+            <h3 class="text-2xl font-black uppercase mb-4 tracking-tight">Sections Built</h3>
+            <p class="text-on-surface-variant leading-relaxed text-sm">
+              Hero, about, features, gallery assembled. Logic-driven layout construction with brutalist precision.
+            </p>
+            <div class="mt-8 opacity-20 group-hover:opacity-100 transition-opacity">
+              <span class="material-symbols-outlined text-primary text-4xl glow-accent">architecture</span>
+            </div>
+          </div>
+
+          <div class="group flex flex-col items-start bg-surface-container-high p-8 border border-transparent hover:border-outline-variant transition-all duration-500 reveal reveal-delay-3 glow-hover">
+            <div class="kinetic-gradient w-12 h-12 flex items-center justify-center mb-12 shadow-[0_0_15px_rgba(255,69,0,0.4)]">
+              <span class="text-xl font-black text-on-primary-fixed">04</span>
+            </div>
+            <h3 class="text-2xl font-black uppercase mb-4 tracking-tight">Animations Applied</h3>
+            <p class="text-on-surface-variant leading-relaxed text-sm">
+              Scroll effects, hover states, cinematic motion added. The static frame becomes a living interface.
+            </p>
+            <div class="mt-8 opacity-20 group-hover:opacity-100 transition-opacity">
+              <span class="material-symbols-outlined text-primary text-4xl glow-accent">motion_mode</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Engineering Precision panel -->
+      <div class="mt-24 grid grid-cols-1 md:grid-cols-2 gap-16 items-center reveal">
+        <div>
+          <h3 class="text-4xl font-black uppercase mb-8 tracking-tighter leading-none">
+            Engineering <br/><span class="text-primary">Precision</span>
+          </h3>
+          <div class="space-y-6">
+            <div class="border-l-4 border-primary pl-6">
+              <p class="text-sm font-bold uppercase tracking-widest text-on-surface-variant mb-1">Latency</p>
+              <p class="text-3xl font-black">0.04ms Core Logic</p>
+            </div>
+            <div class="border-l-4 border-outline-variant pl-6">
+              <p class="text-sm font-bold uppercase tracking-widest text-on-surface-variant mb-1">Deployment</p>
+              <p class="text-3xl font-black">Instant Render</p>
+            </div>
+            <div class="border-l-4 border-outline-variant pl-6">
+              <p class="text-sm font-bold uppercase tracking-widest text-on-surface-variant mb-1">Code Output</p>
+              <p class="text-3xl font-black">Single HTML File</p>
             </div>
           </div>
         </div>
-        <a href="#about" class="btn-primary ui mt-8 inline-flex items-center gap-2 self-start px-7 py-4 rounded-full bg-terracotta text-cream font-semibold text-[15px] shadow-card">
-          Get the recipe
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-      </div>
-    </article>
-  </div>
-</section>
-
-<!-- ============ STATS ============ -->
-<section class="py-20 px-6 md:px-10 bg-cream border-y border-tan-raised">
-  <div class="max-w-shell mx-auto grid grid-cols-2 md:grid-cols-4 gap-10 text-center">
-    <div class="reveal">
-      <div class="stat-num display text-5xl md:text-6xl font-bold text-terracotta" data-count="248">0</div>
-      <div class="eyebrow mt-3">Recipes</div>
-    </div>
-    <div class="reveal">
-      <div class="stat-num display text-5xl md:text-6xl font-bold text-terracotta" data-count="18">0</div>
-      <div class="eyebrow mt-3">Categories</div>
-    </div>
-    <div class="reveal">
-      <div class="stat-num display text-5xl md:text-6xl font-bold text-terracotta" data-count="42000" data-suffix="+">0</div>
-      <div class="eyebrow mt-3">Happy Cooks</div>
-    </div>
-    <div class="reveal">
-      <div class="stat-num display text-5xl md:text-6xl font-bold text-terracotta" data-count="∞" data-literal="true">∞</div>
-      <div class="eyebrow mt-3">Good Meals</div>
-    </div>
-  </div>
-</section>
-
-<!-- ============ ABOUT ============ -->
-<section id="about" class="about-dark py-24 px-6 md:px-10">
-  <div class="max-w-shell mx-auto grid lg:grid-cols-2 gap-14 items-center">
-    <figure class="reveal relative rounded-[6px] overflow-hidden shadow-cardHover">
-      <img src="images/about.jpg" alt="Portrait of the home cook in their sunlit kitchen" class="w-full h-[520px] object-cover" loading="lazy"/>
-    </figure>
-    <div class="reveal">
-      <span class="eyebrow">My Story</span>
-      <h2 class="display text-4xl md:text-5xl lg:text-[56px] mt-4 font-bold leading-tight">
-        From my <span class="italic" style="color:#E8A582">kitchen</span> to yours
-      </h2>
-      <p class="mt-7 text-lg leading-relaxed text-cream/85">
-        I started cooking the way most of us did — out of necessity, on a Tuesday night, with whatever was in the fridge. Somewhere between the burnt pans and the "okay, that actually worked" dinners, it turned into the thing I look forward to most.
-      </p>
-      <p class="mt-5 text-lg leading-relaxed text-cream/85">
-        Every recipe here has been cooked more times than I can count. Some came from my grandmother. Some I made up on a slow Sunday. All of them are the kind of food I actually want to eat. Cook with love — warmth always wins.
-      </p>
-      <div class="mt-10 flex flex-wrap gap-4">
-        <a href="#recipes" class="btn-primary ui inline-flex items-center gap-2 px-7 py-4 rounded-full bg-terracotta text-cream font-semibold text-[15px]">
-          Start cooking
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-        <a href="#featured" class="btn-outline ui inline-flex items-center px-7 py-4 rounded-full border-2 border-cream/40 text-cream font-semibold text-[15px]">
-          This week's pick
-        </a>
+        <div class="bg-surface p-12 border border-outline-variant/20 relative overflow-hidden">
+          <div class="absolute top-0 right-0 p-4 opacity-10">
+            <span class="material-symbols-outlined text-6xl">terminal</span>
+          </div>
+          <p class="font-mono text-sm text-primary mb-4 uppercase tracking-widest">BUILD_LOG</p>
+          <div class="space-y-2 font-mono text-sm">
+            <p class="text-on-surface-variant"><span class="text-primary">▶</span> Parsing brief... <span class="text-white">done</span></p>
+            <p class="text-on-surface-variant"><span class="text-primary">▶</span> Generating design system... <span class="text-white">done</span></p>
+            <p class="text-on-surface-variant"><span class="text-primary">▶</span> Assembling 8 sections... <span class="text-white">done</span></p>
+            <p class="text-on-surface-variant"><span class="text-primary">▶</span> Applying animations... <span class="text-white">done</span></p>
+            <p class="text-on-surface-variant"><span class="text-primary">▶</span> Optimizing assets... <span class="text-white">done</span></p>
+            <p class="text-primary font-bold mt-4">BUILD_COMPLETE: 104KB | DOM_READY ✓</p>
+          </div>
+        </div>
       </div>
     </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       FEATURES — from Google Stitch
+  ══════════════════════════════════════ -->
+  <section id="features" class="py-24 px-6 md:px-12" style="background:#0e0e0e;">
+    <div class="max-w-7xl mx-auto">
+
+      <!-- Header -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20 reveal">
+        <div class="max-w-2xl">
+          <span class="text-primary font-bold tracking-widest text-xs uppercase mb-4 block">Engine Capabilities</span>
+          <h2 class="text-5xl md:text-7xl font-black tracking-tighter leading-none mb-6">
+            Kinetic<br/>Infrastructure
+          </h2>
+          <p class="text-on-surface-variant text-lg max-w-lg leading-relaxed">
+            The NovaMotion engine leverages AI-driven visual orchestration to assemble
+            high-fidelity animated interfaces in real-time.
+          </p>
+        </div>
+        <div class="flex flex-col items-start gap-2 border-l border-outline-variant/30 pl-8 h-fit reveal reveal-delay-2">
+          <span class="text-3xl font-black text-primary">V.2.0.4</span>
+          <span class="text-xs tracking-widest text-on-surface-variant uppercase">Core Build Status</span>
+        </div>
+      </div>
+
+      <!-- 2×2 features grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-px" style="background: rgba(72,72,71,0.2);">
+
+        <!-- Feature 1: Design System -->
+        <div class="feature-card bg-surface-container p-12 relative group transition-all duration-500 overflow-hidden reveal">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 -mr-16 -mt-16 rotate-45 transition-transform group-hover:scale-150"></div>
+          <div class="relative z-10">
+            <div class="w-14 h-14 bg-surface-container-high flex items-center justify-center mb-8 border border-outline-variant/20 transition-colors group-hover:border-primary/50">
+              <span class="material-symbols-outlined text-primary text-3xl glow-accent">palette</span>
+            </div>
+            <h3 class="text-2xl font-black text-on-surface mb-4">Design System</h3>
+            <p class="text-on-surface-variant leading-relaxed max-w-sm mb-8">
+              Auto-generated color palettes, typography, and spacing tokens. Orchestrate brand identity
+              with absolute geometric precision.
+            </p>
+            <ul class="space-y-3">
+              <li class="flex items-center text-xs tracking-widest uppercase font-bold text-on-surface/60">
+                <span class="w-1.5 h-1.5 bg-primary mr-3"></span>Dynamic Tokens
+              </li>
+              <li class="flex items-center text-xs tracking-widest uppercase font-bold text-on-surface/60">
+                <span class="w-1.5 h-1.5 bg-primary mr-3"></span>Variable Scales
+              </li>
+              <li class="flex items-center text-xs tracking-widest uppercase font-bold text-on-surface/60">
+                <span class="w-1.5 h-1.5 bg-primary mr-3"></span>Google Fonts Integration
+              </li>
+              <li class="flex items-center text-xs tracking-widest uppercase font-bold text-on-surface/60">
+                <span class="w-1.5 h-1.5 bg-primary mr-3"></span>SVG Icon Library
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Feature 2: Section Generator -->
+        <div class="feature-card bg-surface-container p-12 relative group transition-all duration-500 overflow-hidden reveal reveal-delay-1">
+          <div class="absolute bottom-0 left-0 w-48 h-48 bg-primary/5 -ml-24 -mb-24 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div class="relative z-10">
+            <div class="w-14 h-14 bg-surface-container-high flex items-center justify-center mb-8 border border-outline-variant/20 transition-colors group-hover:border-primary/50">
+              <span class="material-symbols-outlined text-primary text-3xl glow-accent">layers</span>
+            </div>
+            <h3 class="text-2xl font-black text-on-surface mb-4">Section Generator</h3>
+            <p class="text-on-surface-variant leading-relaxed max-w-sm mb-8">
+              Hero, about, features, and testimonials built instantly. High-end UI patterns deployed
+              via algorithmic layout engines.
+            </p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-3 py-1 bg-surface-container-highest text-xs font-bold text-primary tracking-tight uppercase">Hero</span>
+              <span class="px-3 py-1 bg-surface-container-highest text-xs font-bold text-primary tracking-tight uppercase">Gallery</span>
+              <span class="px-3 py-1 bg-surface-container-highest text-xs font-bold text-primary tracking-tight uppercase">Bento</span>
+              <span class="px-3 py-1 bg-surface-container-highest text-xs font-bold text-primary tracking-tight uppercase">Contact</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feature 3: Image Generation -->
+        <div class="feature-card bg-surface-container p-12 relative group transition-all duration-500 overflow-hidden reveal reveal-delay-2">
+          <div class="relative z-10">
+            <div class="w-14 h-14 bg-surface-container-high flex items-center justify-center mb-8 border border-outline-variant/20 transition-colors group-hover:border-primary/50">
+              <span class="material-symbols-outlined text-primary text-3xl glow-accent">image</span>
+            </div>
+            <h3 class="text-2xl font-black text-on-surface mb-4">Image Generation</h3>
+            <p class="text-on-surface-variant leading-relaxed max-w-sm mb-8">
+              AI-generated hero images and illustrations baked into the core. Visual assets that
+              match your color palette and brand mood perfectly.
+            </p>
+            <!-- SVG image preview strips -->
+            <div class="grid grid-cols-3 gap-2 h-16">
+              <div class="overflow-hidden" style="background: linear-gradient(135deg, rgba(255,69,0,0.2), rgba(0,0,0,0.8));">
+                <svg class="w-full h-full" viewBox="0 0 80 64"><circle cx="40" cy="32" r="20" fill="rgba(255,69,0,0.3)"/></svg>
+              </div>
+              <div class="overflow-hidden" style="background: linear-gradient(45deg, rgba(0,0,0,0.9), rgba(255,143,112,0.15));">
+                <svg class="w-full h-full" viewBox="0 0 80 64"><rect x="20" y="15" width="40" height="34" fill="none" stroke="rgba(255,143,112,0.4)" stroke-width="1"/></svg>
+              </div>
+              <div class="overflow-hidden" style="background: linear-gradient(225deg, rgba(255,107,0,0.25), rgba(0,0,0,0.9));">
+                <svg class="w-full h-full" viewBox="0 0 80 64"><polygon points="40,5 75,55 5,55" fill="none" stroke="rgba(255,69,0,0.4)" stroke-width="1"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feature 4: Final Assembly -->
+        <div class="feature-card bg-surface-container p-12 relative group transition-all duration-500 overflow-hidden reveal reveal-delay-3">
+          <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div class="relative z-10">
+            <div class="w-14 h-14 bg-surface-container-high flex items-center justify-center mb-8 border border-outline-variant/20 transition-colors group-hover:border-primary/50">
+              <span class="material-symbols-outlined text-primary text-3xl glow-accent">rocket</span>
+            </div>
+            <h3 class="text-2xl font-black text-on-surface mb-4">Final Assembly</h3>
+            <p class="text-on-surface-variant leading-relaxed max-w-sm mb-8">
+              Everything combined into one polished, high-performance HTML file. No bloat,
+              no extra dependencies. Just pure code.
+            </p>
+            <div class="bg-surface-container-lowest p-4 border border-outline-variant/10">
+              <code class="text-xs text-primary/80 font-mono">BUILD_COMPLETE: 104KB | DOM_READY ✓</code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats strip -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12 py-16 border-t border-outline-variant/20 mt-8 reveal">
+        <div class="flex flex-col gap-2">
+          <span class="text-4xl font-black text-on-surface">1.2ms</span>
+          <p class="text-xs tracking-widest text-on-surface-variant uppercase font-bold">Latency Per Asset</p>
+        </div>
+        <div class="flex flex-col gap-2">
+          <span class="text-4xl font-black text-on-surface">13</span>
+          <p class="text-xs tracking-widest text-on-surface-variant uppercase font-bold">Supported Stacks</p>
+        </div>
+        <div class="flex flex-col gap-2">
+          <span class="text-4xl font-black text-on-surface">0px</span>
+          <p class="text-xs tracking-widest text-on-surface-variant uppercase font-bold">Border Radius Integrity</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       GALLERY
+  ══════════════════════════════════════ -->
+  <section id="gallery" class="py-24 px-6 md:px-12" style="background:#111111;">
+    <div class="max-w-7xl mx-auto">
+
+      <div class="mb-16 reveal">
+        <span class="text-primary font-bold tracking-[0.3em] uppercase text-xs mb-4 block">Built With NovaMotion</span>
+        <h2 class="text-5xl md:text-7xl font-black tracking-tighter leading-none mb-6">
+          Generated<br/><span class="kinetic-gradient-text">Concepts</span>
+        </h2>
+        <p class="text-on-surface-variant text-lg max-w-2xl">
+          A selection of cinematic websites assembled by the NovaMotion engine from plain-text briefs.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- Card 1 -->
+        <div class="gallery-card reveal" style="transition-delay:0s;">
+          <div class="h-56 relative overflow-hidden"
+               style="background: linear-gradient(135deg, #0a0018 0%, #1a0a2e 50%, #0a0a0a 100%);">
+            <!-- SVG mockup: SaaS dashboard dark purple -->
+            <svg class="absolute inset-0 w-full h-full" viewBox="0 0 360 224" fill="none">
+              <rect width="360" height="224" fill="none"/>
+              <!-- Nav -->
+              <rect x="0" y="0" width="360" height="32" fill="rgba(20,10,40,0.9)"/>
+              <rect x="16" y="10" width="60" height="12" rx="0" fill="rgba(139,92,246,0.5)"/>
+              <rect x="260" y="10" width="80" height="12" rx="0" fill="rgba(139,92,246,0.2)"/>
+              <!-- Hero text -->
+              <rect x="32" y="56" width="180" height="20" rx="0" fill="rgba(255,255,255,0.85)"/>
+              <rect x="32" y="84" width="140" height="20" rx="0" fill="rgba(255,255,255,0.7)"/>
+              <rect x="32" y="112" width="100" height="8" rx="0" fill="rgba(255,255,255,0.3)"/>
+              <!-- CTA -->
+              <rect x="32" y="128" width="80" height="24" rx="0" fill="rgba(139,92,246,0.8)"/>
+              <rect x="124" y="128" width="80" height="24" rx="0" fill="rgba(255,255,255,0.1)" stroke="rgba(139,92,246,0.4)" stroke-width="1"/>
+              <!-- Visual element -->
+              <rect x="240" y="48" width="100" height="160" rx="0" fill="rgba(139,92,246,0.08)" stroke="rgba(139,92,246,0.2)" stroke-width="1"/>
+              <circle cx="290" cy="128" r="40" fill="rgba(139,92,246,0.1)" stroke="rgba(139,92,246,0.3)" stroke-width="1"/>
+              <!-- Glow -->
+              <ellipse cx="290" cy="128" rx="60" ry="60" fill="rgba(139,92,246,0.07)"/>
+            </svg>
+          </div>
+          <div class="p-5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-widest text-primary">SaaS Platform</span>
+              <span class="text-xs font-mono text-on-surface-variant">Brief → 0.4s</span>
+            </div>
+            <h4 class="font-black text-white text-lg uppercase tracking-tight">PulseMetrics</h4>
+            <p class="text-on-surface-variant text-sm mt-1">Dark analytics dashboard with purple accents and animated data visualizations.</p>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="gallery-card reveal reveal-delay-1">
+          <div class="h-56 relative overflow-hidden"
+               style="background: linear-gradient(135deg, #0a1a0a 0%, #0f2d1a 50%, #0a0a0a 100%);">
+            <svg class="absolute inset-0 w-full h-full" viewBox="0 0 360 224" fill="none">
+              <!-- Nav -->
+              <rect x="0" y="0" width="360" height="32" fill="rgba(10,25,10,0.95)"/>
+              <rect x="16" y="10" width="70" height="12" rx="0" fill="rgba(16,185,129,0.5)"/>
+              <!-- Hero -->
+              <rect x="32" y="56" width="160" height="22" rx="0" fill="rgba(255,255,255,0.9)"/>
+              <rect x="32" y="86" width="130" height="14" rx="0" fill="rgba(255,255,255,0.5)"/>
+              <rect x="32" y="116" width="90" height="28" rx="0" fill="rgba(16,185,129,0.8)"/>
+              <!-- Feature cards -->
+              <rect x="32" y="160" width="80" height="50" rx="0" fill="rgba(16,185,129,0.1)" stroke="rgba(16,185,129,0.2)" stroke-width="1"/>
+              <rect x="124" y="160" width="80" height="50" rx="0" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.15)" stroke-width="1"/>
+              <rect x="216" y="160" width="80" height="50" rx="0" fill="rgba(16,185,129,0.06)" stroke="rgba(16,185,129,0.1)" stroke-width="1"/>
+              <!-- Glow -->
+              <ellipse cx="200" cy="100" rx="100" ry="60" fill="rgba(16,185,129,0.05)"/>
+            </svg>
+          </div>
+          <div class="p-5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-widest text-primary">Agency</span>
+              <span class="text-xs font-mono text-on-surface-variant">Brief → 0.4s</span>
+            </div>
+            <h4 class="font-black text-white text-lg uppercase tracking-tight">Verdant Studio</h4>
+            <p class="text-on-surface-variant text-sm mt-1">Eco-focused creative agency with emerald accents and cinematic scroll reveals.</p>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="gallery-card reveal reveal-delay-2">
+          <div class="h-56 relative overflow-hidden"
+               style="background: linear-gradient(135deg, #1a0a0a 0%, #2d1010 50%, #0a0a0a 100%);">
+            <svg class="absolute inset-0 w-full h-full" viewBox="0 0 360 224" fill="none">
+              <!-- Nav -->
+              <rect x="0" y="0" width="360" height="32" fill="rgba(26,10,10,0.95)"/>
+              <rect x="16" y="10" width="55" height="12" rx="0" fill="rgba(255,69,0,0.6)"/>
+              <!-- Full-bleed hero text -->
+              <rect x="32" y="52" width="200" height="28" rx="0" fill="rgba(255,255,255,0.95)"/>
+              <rect x="32" y="88" width="160" height="28" rx="0" fill="rgba(255,69,0,0.85)"/>
+              <rect x="32" y="124" width="120" height="10" rx="0" fill="rgba(255,255,255,0.3)"/>
+              <rect x="32" y="148" width="90" height="28" rx="0" fill="rgba(255,69,0,0.7)"/>
+              <!-- Geometric element -->
+              <polygon points="280,48 350,180 210,180" fill="none" stroke="rgba(255,69,0,0.2)" stroke-width="1"/>
+              <polygon points="295,80 340,165 250,165" fill="rgba(255,69,0,0.06)" stroke="rgba(255,69,0,0.15)" stroke-width="1"/>
+              <!-- Glow -->
+              <ellipse cx="290" cy="140" rx="60" ry="50" fill="rgba(255,69,0,0.08)"/>
+            </svg>
+          </div>
+          <div class="p-5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-widest text-primary">Portfolio</span>
+              <span class="text-xs font-mono text-on-surface-variant">Brief → 0.4s</span>
+            </div>
+            <h4 class="font-black text-white text-lg uppercase tracking-tight">Ignition Studio</h4>
+            <p class="text-on-surface-variant text-sm mt-1">Bold creative portfolio with kinetic brutalist grid and red-orange motion design.</p>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="gallery-card reveal reveal-delay-1">
+          <div class="h-56 relative overflow-hidden"
+               style="background: linear-gradient(135deg, #0a0a18 0%, #141428 50%, #0a0a0a 100%);">
+            <svg class="absolute inset-0 w-full h-full" viewBox="0 0 360 224" fill="none">
+              <!-- Nav -->
+              <rect x="0" y="0" width="360" height="32" fill="rgba(10,10,26,0.95)"/>
+              <rect x="16" y="10" width="65" height="12" rx="0" fill="rgba(99,102,241,0.6)"/>
+              <!-- Center hero -->
+              <rect x="80" y="52" width="200" height="18" rx="0" fill="rgba(255,255,255,0.9)"/>
+              <rect x="100" y="78" width="160" height="12" rx="0" fill="rgba(255,255,255,0.4)"/>
+              <rect x="130" y="104" width="100" height="28" rx="0" fill="rgba(99,102,241,0.8)"/>
+              <!-- Pricing cards -->
+              <rect x="20" y="152" width="100" height="60" rx="0" fill="rgba(99,102,241,0.08)" stroke="rgba(99,102,241,0.2)" stroke-width="1"/>
+              <rect x="130" y="144" width="100" height="68" rx="0" fill="rgba(99,102,241,0.15)" stroke="rgba(99,102,241,0.4)" stroke-width="1"/>
+              <rect x="240" y="152" width="100" height="60" rx="0" fill="rgba(99,102,241,0.08)" stroke="rgba(99,102,241,0.15)" stroke-width="1"/>
+              <!-- Glow -->
+              <ellipse cx="180" cy="90" rx="100" ry="60" fill="rgba(99,102,241,0.07)"/>
+            </svg>
+          </div>
+          <div class="p-5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-widest text-primary">SaaS Landing</span>
+              <span class="text-xs font-mono text-on-surface-variant">Brief → 0.4s</span>
+            </div>
+            <h4 class="font-black text-white text-lg uppercase tracking-tight">NexusAI</h4>
+            <p class="text-on-surface-variant text-sm mt-1">AI tool landing with indigo palette, pricing tiers, and floating element animations.</p>
+          </div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="gallery-card reveal reveal-delay-2">
+          <div class="h-56 relative overflow-hidden"
+               style="background: linear-gradient(135deg, #0a0f1a 0%, #0f1a2d 50%, #0a0a0a 100%);">
+            <svg class="absolute inset-0 w-full h-full" viewBox="0 0 360 224" fill="none">
+              <!-- Nav -->
+              <rect x="0" y="0" width="360" height="32" fill="rgba(10,15,26,0.95)"/>
+              <rect x="16" y="10" width="70" height="12" rx="0" fill="rgba(56,189,248,0.5)"/>
+              <!-- Split layout -->
+              <rect x="0" y="32" width="180" height="192" fill="rgba(10,20,35,0.5)"/>
+              <rect x="20" y="64" width="140" height="20" rx="0" fill="rgba(255,255,255,0.9)"/>
+              <rect x="20" y="92" width="120" height="14" rx="0" fill="rgba(56,189,248,0.7)"/>
+              <rect x="20" y="114" width="100" height="10" rx="0" fill="rgba(255,255,255,0.3)"/>
+              <rect x="20" y="140" width="80" height="26" rx="0" fill="rgba(56,189,248,0.8)"/>
+              <!-- Right visual -->
+              <rect x="186" y="36" width="174" height="188" fill="rgba(56,189,248,0.04)"/>
+              <circle cx="273" cy="130" r="55" fill="none" stroke="rgba(56,189,248,0.15)" stroke-width="1"/>
+              <circle cx="273" cy="130" r="35" fill="rgba(56,189,248,0.08)" stroke="rgba(56,189,248,0.25)" stroke-width="1"/>
+              <circle cx="273" cy="130" r="15" fill="rgba(56,189,248,0.2)"/>
+            </svg>
+          </div>
+          <div class="p-5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-widest text-primary">Tech Product</span>
+              <span class="text-xs font-mono text-on-surface-variant">Brief → 0.4s</span>
+            </div>
+            <h4 class="font-black text-white text-lg uppercase tracking-tight">Orbital API</h4>
+            <p class="text-on-surface-variant text-sm mt-1">Developer-focused API landing with cyan accents and animated code previews.</p>
+          </div>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="gallery-card reveal reveal-delay-3">
+          <div class="h-56 relative overflow-hidden"
+               style="background: linear-gradient(135deg, #1a0d00 0%, #2d1a00 50%, #0a0a0a 100%);">
+            <svg class="absolute inset-0 w-full h-full" viewBox="0 0 360 224" fill="none">
+              <!-- Nav -->
+              <rect x="0" y="0" width="360" height="32" fill="rgba(26,13,0,0.95)"/>
+              <rect x="16" y="10" width="65" height="12" rx="0" fill="rgba(251,191,36,0.5)"/>
+              <!-- Full hero -->
+              <rect x="32" y="52" width="220" height="24" rx="0" fill="rgba(255,255,255,0.95)"/>
+              <rect x="32" y="84" width="180" height="16" rx="0" fill="rgba(251,191,36,0.7)"/>
+              <rect x="32" y="108" width="130" height="10" rx="0" fill="rgba(255,255,255,0.3)"/>
+              <rect x="32" y="132" width="100" height="28" rx="0" fill="rgba(251,191,36,0.75)"/>
+              <rect x="144" y="132" width="100" height="28" rx="0" fill="rgba(255,255,255,0.08)" stroke="rgba(251,191,36,0.3)" stroke-width="1"/>
+              <!-- Decorative grid -->
+              <rect x="260" y="48" width="84" height="168" fill="rgba(251,191,36,0.04)" stroke="rgba(251,191,36,0.1)" stroke-width="1"/>
+              <line x1="260" y1="104" x2="344" y2="104" stroke="rgba(251,191,36,0.1)" stroke-width="1"/>
+              <line x1="260" y1="160" x2="344" y2="160" stroke="rgba(251,191,36,0.1)" stroke-width="1"/>
+              <line x1="302" y1="48" x2="302" y2="216" stroke="rgba(251,191,36,0.08)" stroke-width="1"/>
+            </svg>
+          </div>
+          <div class="p-5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-widest text-primary">E-Commerce</span>
+              <span class="text-xs font-mono text-on-surface-variant">Brief → 0.4s</span>
+            </div>
+            <h4 class="font-black text-white text-lg uppercase tracking-tight">GoldForge</h4>
+            <p class="text-on-surface-variant text-sm mt-1">Luxury product store with amber gold palette and kinetic hover reveal effects.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       REVIEWS — from Google Stitch
+  ══════════════════════════════════════ -->
+  <section id="reviews" class="py-24 px-6 md:px-12" style="background:#0a0a0a;">
+    <div class="max-w-7xl mx-auto">
+
+      <div class="mb-20 reveal">
+        <div class="inline-block border border-outline-variant px-4 py-1 mb-6 text-primary text-xs uppercase tracking-[0.2em] font-bold">
+          User Feedback
+        </div>
+        <h2 class="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-none mb-8">
+          The Engine of<br/><span class="text-primary">Innovation.</span>
+        </h2>
+        <p class="text-on-surface-variant text-lg max-w-2xl leading-relaxed">
+          Creators, founders, and engineers are redefining the web with NovaMotion.
+          Kinetic Brutalism meets high-performance motion design.
+        </p>
+      </div>
+
+      <!-- Testimonials -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-outline-variant/20">
+
+        <div class="bg-surface-container p-10 border-r border-outline-variant/30 flex flex-col justify-between min-h-[400px] group hover:bg-surface-container-high transition-all duration-500 reveal">
+          <div>
+            <div class="flex mb-8 space-x-1">
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+            </div>
+            <blockquote class="text-2xl font-medium leading-snug text-white">
+              "NovaMotion turned my rough brief into a fully animated landing page in minutes. Absolutely cinematic."
+            </blockquote>
+          </div>
+          <div class="mt-12 flex items-center space-x-4">
+            <!-- SVG avatar -->
+            <div class="w-16 h-16 rounded-full border-2 border-outline-variant overflow-hidden flex-shrink-0"
+                 style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
+              <svg viewBox="0 0 64 64" class="w-full h-full">
+                <circle cx="32" cy="24" r="12" fill="rgba(255,143,112,0.3)"/>
+                <ellipse cx="32" cy="58" rx="20" ry="14" fill="rgba(255,143,112,0.2)"/>
+              </svg>
+            </div>
+            <div>
+              <div class="font-black text-white uppercase tracking-wider">Alex R.</div>
+              <div class="text-on-surface-variant text-xs uppercase tracking-widest">Startup Founder</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-surface-container p-10 border-r border-outline-variant/30 flex flex-col justify-between min-h-[400px] group hover:bg-surface-container-high transition-all duration-500 reveal reveal-delay-1">
+          <div>
+            <div class="flex mb-8 space-x-1">
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+            </div>
+            <blockquote class="text-2xl font-medium leading-snug text-white">
+              "I've never seen a site builder produce this level of motion design automatically. It's like magic."
+            </blockquote>
+          </div>
+          <div class="mt-12 flex items-center space-x-4">
+            <div class="w-16 h-16 rounded-full border-2 border-outline-variant overflow-hidden flex-shrink-0"
+                 style="background: linear-gradient(135deg, #1a0a1a, #2d1a2d);">
+              <svg viewBox="0 0 64 64" class="w-full h-full">
+                <circle cx="32" cy="24" r="12" fill="rgba(255,107,0,0.35)"/>
+                <ellipse cx="32" cy="58" rx="20" ry="14" fill="rgba(255,107,0,0.2)"/>
+              </svg>
+            </div>
+            <div>
+              <div class="font-black text-white uppercase tracking-wider">Priya K.</div>
+              <div class="text-on-surface-variant text-xs uppercase tracking-widest">Product Designer</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-surface-container p-10 flex flex-col justify-between min-h-[400px] group hover:bg-surface-container-high transition-all duration-500 reveal reveal-delay-2">
+          <div>
+            <div class="flex mb-8 space-x-1">
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+            </div>
+            <blockquote class="text-2xl font-medium leading-snug text-white">
+              "From brief to live site with scroll animations and a custom design system. NovaMotion is the future."
+            </blockquote>
+          </div>
+          <div class="mt-12 flex items-center space-x-4">
+            <div class="w-16 h-16 rounded-full border-2 border-outline-variant overflow-hidden flex-shrink-0"
+                 style="background: linear-gradient(135deg, #0a1a0a, #0f2d14);">
+              <svg viewBox="0 0 64 64" class="w-full h-full">
+                <circle cx="32" cy="24" r="12" fill="rgba(255,143,112,0.3)"/>
+                <ellipse cx="32" cy="58" rx="20" ry="14" fill="rgba(255,143,112,0.15)"/>
+              </svg>
+            </div>
+            <div>
+              <div class="font-black text-white uppercase tracking-wider">Jordan M.</div>
+              <div class="text-on-surface-variant text-xs uppercase tracking-widest">Developer</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Featured quote -->
+      <div class="mt-20 p-16 bg-surface-container-low border border-outline-variant/10 relative overflow-hidden reveal">
+        <div class="absolute -right-20 -top-20 opacity-[0.06]">
+          <span class="material-symbols-outlined" style="font-size: 300px;">format_quote</span>
+        </div>
+        <div class="relative z-10 max-w-3xl">
+          <h3 class="text-4xl font-black uppercase tracking-tight mb-6">
+            Built for the <br/><span class="text-primary">Next Web.</span>
+          </h3>
+          <p class="text-xl italic text-on-surface-variant leading-relaxed">
+            "We didn't just want another drag-and-drop tool. We wanted an orchestration layer
+            for the visual web. NovaMotion is that layer."
+          </p>
+          <div class="mt-8 flex items-center space-x-4">
+            <div class="w-12 h-0.5 kinetic-gradient"></div>
+            <span class="text-xs uppercase tracking-[0.3em] font-bold">Engineering Team @ NovaMotion</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       CONTACT / CTA
+  ══════════════════════════════════════ -->
+  <!-- ══════════════════════════════════════
+       BUILDER ENGINE
+  ══════════════════════════════════════ -->
+  <section id="builder" class="py-0 relative">
+
+    <!-- Top status bar -->
+    <div class="flex items-center justify-between px-8 py-3 border-b" style="background:#050505;border-color:rgba(72,72,71,0.3)">
+      <div class="flex items-center gap-3">
+        <span class="w-2 h-2 kinetic-gradient pulse-glow"></span>
+        <span class="font-mono text-xs font-bold uppercase tracking-[0.2em]" style="color:#ff4500">ENGINE_STATUS: ONLINE</span>
+      </div>
+      <span class="font-mono text-xs" style="color:#484847">BUILD_V.2.0.4 — KINETIC BRUTALISM ENGINE</span>
+    </div>
+
+    <!-- Section header -->
+    <div class="px-8 py-16 reveal" style="background:#080808;border-bottom:1px solid rgba(72,72,71,0.2)">
+      <div class="max-w-7xl mx-auto">
+        <span class="text-primary font-bold tracking-[0.3em] uppercase text-xs mb-4 block">Live Builder</span>
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <h2 class="text-5xl md:text-7xl font-black tracking-tighter leading-none">
+            Build Your<br/><span class="kinetic-gradient-text">Website Now.</span>
+          </h2>
+          <p class="text-on-surface-variant max-w-sm text-base leading-relaxed md:text-right">
+            Describe your vision in plain text.<br/>
+            The engine handles design, sections, and animations — automatically.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main builder panel -->
+    <div id="nb-panel" class="max-w-7xl mx-auto px-8 py-12">
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+
+        <!-- LEFT: Input panel (3/5) -->
+        <div class="lg:col-span-3 flex flex-col gap-0" style="background:#111111;border:1px solid rgba(72,72,71,0.25)">
+
+          <!-- Tabs -->
+          <div class="flex gap-6 px-6 pt-5 pb-0 border-b" style="border-color:rgba(72,72,71,0.25)">
+            <button class="nb-tab" data-tab="brief" data-active="true" onclick="window.novaBuilder.switchTab('brief')">Brief</button>
+            <button class="nb-tab" data-tab="design" data-active="false" onclick="window.novaBuilder.switchTab('design')">Design Tokens</button>
+            <button class="nb-tab" data-tab="output" data-active="false" onclick="window.novaBuilder.switchTab('output')">Output</button>
+          </div>
+
+          <!-- Brief panel -->
+          <div class="nb-panel p-6" data-panel="brief">
+            <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-3">Your Website Vision</label>
+            <textarea
+              id="nb-brief"
+              class="nb-textarea"
+              placeholder="Describe your website vision...&#10;&#10;Examples:&#10;• A dark SaaS landing page for 'TaskFlow', a project management tool. Modern, minimal, purple accent.&#10;• A warm Italian restaurant called 'Trattoria Bella'. Cozy, earthy, with menu and reservations.&#10;• A portfolio for a freelance UX designer. Clean, light, showcasing 6 case studies."
+              rows="8"
+            ></textarea>
+            <div id="nb-error"></div>
+
+            <!-- Examples -->
+            <div class="mt-4">
+              <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Quick Examples:</p>
+              <div>
+                <button class="nb-example-pill" onclick="window.novaBuilder.useExample('A dark SaaS landing page for \'TaskFlow\', a project management platform. Modern, minimal, blue accent colors.')">TaskFlow SaaS</button>
+                <button class="nb-example-pill" onclick="window.novaBuilder.useExample('A warm Italian restaurant called \'Bella Vista\'. Cozy and rustic, earthy tones, features menu, gallery, and reservations.')">Bella Vista Restaurant</button>
+                <button class="nb-example-pill" onclick="window.novaBuilder.useExample('A portfolio for a freelance UX designer named Alex. Clean, light minimal design with a teal accent. Showcases case studies.')">Designer Portfolio</button>
+                <button class="nb-example-pill" onclick="window.novaBuilder.useExample('A brutalist creative agency called \'VOID Studio\'. Dark, bold, black and orange. Services: branding, web, motion.')">VOID Agency</button>
+                <button class="nb-example-pill" onclick="window.novaBuilder.useExample('A luxury jewelry brand called \'Lumière\'. Elegant, premium, gold accent on deep black. Product showcase and boutique locator.')">Lumière Luxury</button>
+              </div>
+            </div>
+
+            <p class="font-mono text-xs mt-4" style="color:#484847">⌘+Enter to launch</p>
+          </div>
+
+          <!-- Design tokens panel -->
+          <div class="nb-panel p-6 font-mono text-xs" data-panel="design" style="display:none">
+            <p class="text-on-surface-variant mb-4">Design tokens are auto-generated from your brief. They appear here after building.</p>
+            <div id="nb-design-tokens" style="color:#adaaaa;line-height:2">
+              <span style="color:#484847">Run a build to see generated tokens...</span>
+            </div>
+          </div>
+
+          <!-- Output source panel -->
+          <div class="nb-panel p-6" data-panel="output" style="display:none">
+            <p class="text-on-surface-variant mb-4 text-xs">Generated HTML source appears here after building.</p>
+            <div id="nb-source-preview" style="color:#adaaaa;font-family:'JetBrains Mono',monospace;font-size:11px;max-height:320px;overflow-y:auto;line-height:1.6">
+              <span style="color:#484847">Run a build to see source...</span>
+            </div>
+          </div>
+
+          <!-- Launch button -->
+          <div class="px-6 pb-6 pt-2 mt-auto">
+            <button
+              id="nb-launch-btn"
+              class="btn-primary w-full justify-center text-sm tracking-widest"
+              style="padding:1rem;font-size:13px;letter-spacing:0.15em"
+            >
+              LAUNCH ENGINE
+              <span class="material-symbols-outlined text-base">bolt</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- RIGHT: Terminal + progress (2/5) -->
+        <div class="lg:col-span-2 flex flex-col gap-4">
+
+          <!-- Terminal header -->
+          <div style="background:#0a0a0a;border:1px solid rgba(72,72,71,0.25)">
+            <div class="flex items-center justify-between px-4 py-3 border-b" style="border-color:rgba(72,72,71,0.2)">
+              <span class="font-mono text-xs font-bold" style="color:#ff4500">BUILD_LOG</span>
+              <div class="flex gap-2">
+                <span class="w-2 h-2" style="background:#1a1a1a;border:1px solid rgba(72,72,71,0.4)"></span>
+                <span class="w-2 h-2" style="background:#1a1a1a;border:1px solid rgba(72,72,71,0.4)"></span>
+                <span class="w-2 h-2" style="background:#1a1a1a;border:1px solid rgba(72,72,71,0.4)"></span>
+              </div>
+            </div>
+            <div id="nb-terminal" style="min-height:180px;padding:16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.8;color:#484847;display:block">
+              <div style="color:#484847">▶ Awaiting brief input...</div>
+              <div style="color:#484847">  Type your vision and click LAUNCH ENGINE.</div>
+            </div>
+          </div>
+
+          <!-- Progress -->
+          <div style="background:#0a0a0a;border:1px solid rgba(72,72,71,0.25);padding:16px">
+            <div class="flex justify-between items-center mb-2">
+              <span class="font-mono text-xs font-bold uppercase tracking-widest" style="color:#484847">Build Progress</span>
+              <span id="nb-progress-label" class="font-mono text-xs font-bold" style="color:#ff4500">0%</span>
+            </div>
+            <div id="nb-progress-track">
+              <div id="nb-progress-bar"></div>
+            </div>
+          </div>
+
+          <!-- Actions (shown after build) -->
+          <div id="nb-actions" style="background:#0a0a0a;border:1px solid rgba(72,72,71,0.25);padding:16px;flex-wrap:wrap;gap:10px">
+            <button id="nb-download-btn" class="btn-primary flex-1 justify-center" style="font-size:11px;padding:12px;min-width:120px">
+              <span class="material-symbols-outlined text-sm">download</span>
+              Download HTML
+            </button>
+            <button id="nb-open-btn" class="btn-secondary flex-1 justify-center" style="font-size:11px;padding:12px;min-width:120px">
+              <span class="material-symbols-outlined text-sm">open_in_new</span>
+              Open Preview
+            </button>
+          </div>
+
+          <!-- Info card -->
+          <div style="background:#0a0a0a;border:1px solid rgba(72,72,71,0.25);padding:20px">
+            <p class="font-mono text-xs font-bold uppercase tracking-widest mb-3" style="color:#484847">What gets generated:</p>
+            <ul class="space-y-2">
+              <li class="font-mono text-xs" style="color:#767575"><span style="color:#ff4500">▶</span> Hero, About, Features, Testimonials, Contact, Footer</li>
+              <li class="font-mono text-xs" style="color:#767575"><span style="color:#ff4500">▶</span> Auto design system — colors, fonts, spacing, icons</li>
+              <li class="font-mono text-xs" style="color:#767575"><span style="color:#ff4500">▶</span> Scroll-triggered animations + hover effects</li>
+              <li class="font-mono text-xs" style="color:#767575"><span style="color:#ff4500">▶</span> Fully responsive, single HTML file</li>
+              <li class="font-mono text-xs" style="color:#767575"><span style="color:#ff4500">▶</span> No dependencies — open in any browser</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview zone (shown after build) -->
+      <div id="nb-preview-zone" class="mt-8">
+        <div class="flex items-center justify-between px-5 py-3 border-b" style="background:#050505;border-color:rgba(72,72,71,0.3)">
+          <div class="flex items-center gap-3">
+            <span class="w-2 h-2 kinetic-gradient pulse-glow"></span>
+            <span class="font-mono text-xs font-bold uppercase tracking-widest" style="color:#ff4500">PREVIEW</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span id="nb-preview-label" class="font-mono text-xs" style="color:#484847">Generated site</span>
+            <button id="nb-open-btn-2" class="btn-secondary" style="font-size:10px;padding:6px 14px" onclick="window.novaBuilder.openNew()">
+              <span class="material-symbols-outlined text-sm">open_in_new</span> Full Screen
+            </button>
+          </div>
+        </div>
+        <iframe id="nb-iframe" title="Generated website preview"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="py-32 px-6 md:px-12 relative overflow-hidden" style="background:#000000;">
+
+    <!-- Background glow -->
+    <div class="absolute inset-0 pointer-events-none"
+         style="background: radial-gradient(ellipse at 50% 0%, rgba(255,69,0,0.12) 0%, transparent 60%);"></div>
+
+    <div class="max-w-4xl mx-auto text-center relative z-10">
+      <div class="reveal">
+        <span class="text-primary font-bold tracking-[0.3em] uppercase text-xs mb-6 block">Get Started</span>
+        <h2 class="text-6xl md:text-8xl font-black tracking-tighter leading-none mb-8">
+          Ready to<br/><span class="kinetic-gradient-text">Launch?</span>
+        </h2>
+        <p class="text-xl text-on-surface-variant max-w-2xl mx-auto leading-relaxed mb-12">
+          Describe your vision. NovaMotion handles the design system, the sections,
+          the animations — everything. Ship in minutes.
+        </p>
+      </div>
+
+      <!-- Email form -->
+      <form class="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto mb-12 reveal reveal-delay-1" onsubmit="return false;">
+        <input
+          type="email"
+          placeholder="you@yourcompany.com"
+          class="flex-1 bg-surface-container border border-outline-variant/40 text-white px-5 py-4 text-sm font-body focus:outline-none focus:border-primary transition-colors"
+          style="font-family: 'Space Grotesk', sans-serif;"
+        />
+        <button type="submit" class="btn-primary whitespace-nowrap">
+          Start Building
+          <span class="material-symbols-outlined text-sm">arrow_forward</span>
+        </button>
+      </form>
+
+      <!-- Alt CTA -->
+      <div class="flex flex-wrap gap-6 justify-center items-center reveal reveal-delay-2">
+        <a href="#" class="btn-secondary text-sm">
+          <span class="material-symbols-outlined text-base">play_arrow</span>
+          Watch Demo
+        </a>
+        <a href="#" class="text-primary font-bold uppercase tracking-widest text-xs flex items-center gap-2 hover:gap-4 transition-all">
+          View Docs <span class="material-symbols-outlined text-sm">open_in_new</span>
+        </a>
+      </div>
+
+      <!-- Trust badges -->
+      <div class="mt-20 grid grid-cols-3 gap-px max-w-lg mx-auto reveal reveal-delay-3" style="background: rgba(72,72,71,0.2);">
+        <div class="p-5 text-center" style="background:#000;">
+          <div class="text-xl font-black text-white mb-1">10K+</div>
+          <div class="text-xs uppercase tracking-widest text-on-surface-variant">Sites Built</div>
+        </div>
+        <div class="p-5 text-center" style="background:#000;">
+          <div class="text-xl font-black text-white mb-1">99%</div>
+          <div class="text-xs uppercase tracking-widest text-on-surface-variant">Uptime</div>
+        </div>
+        <div class="p-5 text-center" style="background:#000;">
+          <div class="text-xl font-black text-white mb-1">4.9★</div>
+          <div class="text-xs uppercase tracking-widest text-on-surface-variant">Rating</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════ -->
+  <footer class="w-full border-t py-16 px-8" style="background:#000000; border-color: rgba(72,72,71,0.2);">
+    <div class="max-w-7xl mx-auto">
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+        <!-- Brand -->
+        <div class="md:col-span-2">
+          <div class="text-2xl font-black tracking-tighter mb-4">
+            <span class="kinetic-gradient-text">Nova</span>Motion
+          </div>
+          <p class="text-on-surface-variant text-sm leading-relaxed max-w-sm">
+            The world's first cinematic web engine. Turn plain-text briefs into
+            fully animated, production-ready websites — automatically.
+          </p>
+          <!-- Social links -->
+          <div class="flex gap-4 mt-6">
+            <a href="#" class="w-10 h-10 border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary transition-colors">
+              <span class="material-symbols-outlined text-base">language</span>
+            </a>
+            <a href="#" class="w-10 h-10 border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary transition-colors">
+              <span class="material-symbols-outlined text-base">chat</span>
+            </a>
+            <a href="#" class="w-10 h-10 border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary transition-colors">
+              <span class="material-symbols-outlined text-base">code</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Product -->
+        <div>
+          <h4 class="text-xs font-black uppercase tracking-widest mb-6 text-white">Product</h4>
+          <ul class="space-y-3 text-sm text-on-surface-variant">
+            <li><a href="#" class="hover:text-primary transition-colors">Features</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Gallery</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Pricing</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Changelog</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Roadmap</a></li>
+          </ul>
+        </div>
+
+        <!-- Company -->
+        <div>
+          <h4 class="text-xs font-black uppercase tracking-widest mb-6 text-white">Company</h4>
+          <ul class="space-y-3 text-sm text-on-surface-variant">
+            <li><a href="#" class="hover:text-primary transition-colors">About</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Documentation</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Privacy Policy</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Terms of Service</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">System Status</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Bottom bar -->
+      <div class="flex flex-col md:flex-row justify-between items-center pt-8 border-t gap-4" style="border-color: rgba(72,72,71,0.2);">
+        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+          © 2025 NOVAMOTION ENGINE — ENGINEERED FOR KINETIC BRUTALISM
+        </p>
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 kinetic-gradient pulse-glow"></span>
+          <span class="text-xs uppercase tracking-widest text-on-surface-variant font-bold">All Systems Operational</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ══════════════════════════════════════
+       LOGIN MODAL
+  ══════════════════════════════════════ -->
+  <div id="login-modal">
+    <div id="login-box">
+      <div class="flex justify-between items-center mb-8">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-[0.2em] text-primary font-mono mb-1">NovaMotion</div>
+          <h3 class="text-2xl font-black tracking-tight">Sign In</h3>
+        </div>
+        <button id="close-login-btn" style="background:none;border:none;color:#767575;cursor:pointer;font-size:20px">✕</button>
+      </div>
+      <form id="login-form" class="space-y-6">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Email</label>
+          <input id="login-email" type="email" placeholder="you@company.com" class="login-input" required autocomplete="email"/>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Password</label>
+          <input id="login-password" type="password" placeholder="••••••••" class="login-input" required autocomplete="current-password"/>
+        </div>
+        <p id="login-error" class="text-xs font-mono" style="color:#ff716c;min-height:16px"></p>
+        <button type="submit" class="btn-primary w-full justify-center" style="font-size:12px;padding:14px;letter-spacing:0.15em">
+          ACCESS ENGINE
+          <span class="material-symbols-outlined text-sm">arrow_forward</span>
+        </button>
+      </form>
+      <p class="text-xs text-on-surface-variant mt-6 text-center font-mono">
+        New account? Just enter any email + password (4+ chars) to register.
+      </p>
+    </div>
   </div>
-</section>
 
-</main>
-
-<!-- ============ FOOTER ============ -->
-<footer class="bg-cream border-t border-tan-raised py-14 px-6 md:px-10">
-  <div class="max-w-shell mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-    <a href="#top" class="display text-2xl font-semibold text-brown-ink inline-link">
-      Kitchen <span class="italic text-terracotta">Stories</span>
-    </a>
-    <ul class="flex flex-wrap gap-8 ui text-sm text-mid-brown">
-      <li><a href="#recipes" class="hover:text-terracotta transition-colors inline-link">Recipes</a></li>
-      <li><a href="#featured" class="hover:text-terracotta transition-colors inline-link">Featured</a></li>
-      <li><a href="#about" class="hover:text-terracotta transition-colors inline-link">My Story</a></li>
-    </ul>
-    <p class="ui text-sm text-mid-brown">© <span id="yr">2026</span> Kitchen Stories — Cook with love.</p>
+  <!-- ══════════════════════════════════════
+       PROJECTS PANEL
+  ══════════════════════════════════════ -->
+  <div id="projects-panel">
+    <div class="flex justify-between items-center mb-6 pb-4 border-b" style="border-color:rgba(72,72,71,0.3)">
+      <div>
+        <div class="text-xs font-bold uppercase tracking-[0.2em] text-primary font-mono mb-1">NovaMotion</div>
+        <h3 class="text-lg font-black tracking-tight">Saved Projects</h3>
+      </div>
+      <button id="close-projects-btn" style="background:none;border:none;color:#767575;cursor:pointer;font-size:20px">✕</button>
+    </div>
+    <div id="projects-list"></div>
   </div>
-</footer>
 
-<script>
-(function(){
-  // Year
-  document.getElementById('yr').textContent = new Date().getFullYear();
+  <!-- ══════════════════════════════════════
+       TOAST
+  ══════════════════════════════════════ -->
+  <div id="nova-toast"></div>
 
-  // Hero load animation
-  requestAnimationFrame(function(){ document.body.classList.add('loaded'); });
-
-  // Sticky nav shadow
-  var nav = document.getElementById('sitenav');
-  var onScroll = function(){ nav.classList.toggle('stuck', window.scrollY > 80); };
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
-
-  // Section reveal
-  var revealEls = document.querySelectorAll('.reveal');
-  revealEls.forEach(function(el, i){
-    if (el.closest('.grid')) {
-      var sibs = el.parentNode.querySelectorAll(':scope > .reveal');
-      var idx = Array.prototype.indexOf.call(sibs, el);
-      if (idx >= 0) el.style.transitionDelay = (idx * 100) + 'ms';
-    }
-  });
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
-    });
-  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-  revealEls.forEach(function(el){ io.observe(el); });
-
-  // Active nav link by section
-  var links = document.querySelectorAll('.nav-link[data-section]');
-  var sections = Array.prototype.map.call(links, function(l){ return document.getElementById(l.dataset.section); });
-  var navIO = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if (e.isIntersecting) {
-        links.forEach(function(l){ l.classList.toggle('active', l.dataset.section === e.target.id); });
+  <!-- ══════════════════════════════════════
+       JAVASCRIPT
+  ══════════════════════════════════════ -->
+  <script>
+    // ── Navbar scroll effect ──────────────────────────────────
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 40) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
       }
-    });
-  }, { threshold: 0.45 });
-  sections.forEach(function(s){ if (s) navIO.observe(s); });
+    }, { passive: true });
 
-  // Stats count-up
-  var statEls = document.querySelectorAll('.stat-num[data-count]');
-  var statIO = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if (!e.isIntersecting) return;
-      var el = e.target;
-      if (el.dataset.literal === 'true') { statIO.unobserve(el); return; }
-      var target = parseInt(el.dataset.count, 10);
-      var suffix = el.dataset.suffix || '';
-      var dur = 1600, start = performance.now();
-      function tick(now){
-        var p = Math.min(1, (now - start) / dur);
-        var eased = 1 - Math.pow(1 - p, 3);
-        var val = Math.floor(target * eased);
-        el.textContent = val.toLocaleString() + (p === 1 ? suffix : '');
-        if (p < 1) requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
-      statIO.unobserve(el);
+    // ── Scroll reveal with IntersectionObserver ───────────────
+    const revealEls = document.querySelectorAll('.reveal, .reveal-scale');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: '0px 0px -40px 0px'
     });
-  }, { threshold: 0.5 });
-  statEls.forEach(function(el){ statIO.observe(el); });
-})();
-</script>
+
+    revealEls.forEach(el => revealObserver.observe(el));
+
+    // ── Smooth active nav link ───────────────────────────────
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('nav a[href^="#"]');
+
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(link => {
+            link.classList.remove('text-white');
+            link.classList.add('text-on-surface-variant');
+            if (link.getAttribute('href') === '#' + entry.target.id) {
+              link.classList.remove('text-on-surface-variant');
+              link.classList.add('text-white');
+            }
+          });
+        }
+      });
+    }, { threshold: 0.4 });
+
+    sections.forEach(s => sectionObserver.observe(s));
+
+    // ── Hero elements entrance ───────────────────────────────
+    window.addEventListener('DOMContentLoaded', () => {
+      // Stagger hero reveals on load
+      const heroReveals = document.querySelectorAll('#hero .reveal');
+      heroReveals.forEach((el, i) => {
+        setTimeout(() => el.classList.add('visible'), 200 + i * 150);
+      });
+    });
+
+    // ── Tilt effect on gallery cards ────────────────────────
+    document.querySelectorAll('.gallery-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        card.style.transform = `translateY(-6px) rotateX(${y * -4}deg) rotateY(${x * 4}deg)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+  </script>
+
+  <!-- Builder Engine -->
+  <script src="script.js"></script>
+
 
 </body>
 </html>
