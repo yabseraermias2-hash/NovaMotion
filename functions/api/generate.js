@@ -71,6 +71,18 @@ const SYSTEM_PROMPT = [
   'SEO: <title>, meta description, og:title, og:description, og:image (use a Pollinations URL), theme-color.',
   '',
   'TARGET: 700–1500 lines, 50–110KB. Density and richness MATTER — a sparse site is a failed site. The user typed a brief and you turned it into a portfolio-worthy product page they will brag about. Build it like Emergent.sh, Framer, or a top Awwwards entry would. NO shortcuts, NO empty sections, NO placeholder content.',
+  '',
+  'CRITICAL — ANTI-SKELETON RULE: If you sense you are running out of output budget, DROP later sections entirely rather than leaving them empty. An empty <section><h2>Pricing</h2></section> is FORBIDDEN — either fill it completely (3+ price tiers with features, CTAs, descriptions) or do not include a Pricing section at all. Every section you open you MUST close with full, rich content: real headlines, real body copy (2–4 paragraphs or 3–6 cards), real images, real CTAs. A site with 6 deep sections beats a site with 11 skeleton sections.',
+  '',
+  'SECTION DEPTH CHECKLIST (fill every one you include):',
+  '- About/Story: 3–4 paragraphs of original prose, 1 large image, 2–3 stat callouts',
+  '- Features/Process: 3–6 cards each with image, title, 2-line description',
+  '- Gallery/Showcase: 6–9 items each with image, title, meta line, hover state',
+  '- Pricing: 3 tiers each with name, price, 5–7 feature bullets, CTA',
+  '- Testimonials: 3 full quotes (2–3 sentences each), name, role, avatar image',
+  '- FAQ: 5–7 real questions with 2–4 sentence answers',
+  '- Contact: form fields + location/hours/contact info',
+  '- Footer: 4 columns of real links',
 ].join('\n');
 
 export async function onRequestPost(context) {
@@ -101,8 +113,8 @@ export async function onRequestPost(context) {
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: userMsg },
       ],
-      max_tokens: 8192,
-      temperature: 0.7,
+      max_tokens: 16384,
+      temperature: 0.75,
     });
 
     let html = aiResponse?.response || aiResponse?.result?.response || '';
