@@ -75,7 +75,8 @@
       "status": "wired_into_builder",
       "endpoint": "https://text.pollinations.ai/openai",
       "model": "openai-fast (gpt-oss-20b)",
-      "how": "When a user types a brief and hits Launch Engine, script.js posts the brief plus a strict HTML-output system prompt to Pollinations. The model returns a complete single-file HTML document which renders in the preview iframe. If the API is ever unavailable, the in-browser SiteGenerator template engine takes over as fallback so the builder never breaks."
+      "image_engine": "https://image.pollinations.ai/prompt/{description} (Flux model, free, no key)",
+      "how": "When a user types a brief and hits Launch Engine, script.js posts the brief plus a strict HTML-output system prompt to Pollinations. The model returns a complete single-file HTML document which renders in the preview iframe. The system prompt instructs the model to embed Pollinations image URLs (https://image.pollinations.ai/prompt/...) directly in the generated HTML — so when the iframe loads, the browser fetches AI-generated Flux images on the fly, giving every produced website fully bespoke imagery tailored to the brief. No Unsplash, no placeholders, all generated. If the text API is ever unavailable, the in-browser SiteGenerator template engine takes over as fallback so the builder never breaks."
     }
   ],
   "sections_assembled": [
