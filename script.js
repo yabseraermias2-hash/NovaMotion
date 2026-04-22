@@ -1245,24 +1245,55 @@ class NovaBuilder {
     };
     const fallbackDesc = (emoji) => emojiMap[emoji] || (briefHint + ' ' + emoji + ' photographic');
 
+    // Emoji unicode ranges combined into one class
+    const emojiClass = '[\\u{1F300}-\\u{1FAFF}\\u{2600}-\\u{27BF}\\u{1F900}-\\u{1F9FF}\\u{1F600}-\\u{1F64F}\\u{1F680}-\\u{1F6FF}\\u{2300}-\\u{23FF}\\u{2B00}-\\u{2BFF}\\u{1F000}-\\u{1F2FF}]';
+    const emojiSeq = '(?:' + emojiClass + '\\uFE0F?(?:\\u200D' + emojiClass + '\\uFE0F?)*)';
+
     // PASS A: emoji wrapped in any single inline/block tag like <span>🍕</span> or <div class=...>🍕</div>
     html = html.replace(
-      /<(span|div|p|i|h[1-6]|li|td|button|a)([^>]*?)>\s*([\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}])\u{FE0F}?\s*<\/\1>/gu,
-      (_full, tag, attrs, emoji) => {
+      new RegExp('<(span|div|p|i|h[1-6]|li|td|button|a|figure|article|section)([^>]*?)>\\s*' + emojiSeq + '\\s*</\\1>', 'gu'),
+      (_full, tag, attrs) => {
+        const m = _full.match(new RegExp(emojiSeq, 'u'));
+        const emoji = m ? m[0] : '';
         const imgUrl = polUrl(fallbackDesc(emoji), 600, 600);
         return '<' + tag + attrs + '><img src="' + imgUrl + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"/></' + tag + '>';
       }
     );
 
-    // PASS B: standalone emoji that's the only content between any two tags
-    // e.g. <li>🍕</li> with nested whitespace, or emoji with variation selector
+    // PASS B: emoji sandwiched between any two tags (handles multi-emoji and surrounding whitespace)
     html = html.replace(
-      />(\s*)([\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}])\u{FE0F}?(\s*)</gu,
-      (_full, sp1, emoji, sp2) => {
-        const imgUrl = polUrl(fallbackDesc(emoji), 400, 400);
+      new RegExp('>(\\s*)(' + emojiSeq + '(?:\\s*' + emojiSeq + ')*)(\\s*)<', 'gu'),
+      (_full, sp1, emojis, sp2) => {
+        const first = emojis.match(new RegExp(emojiSeq, 'u'));
+        const e = first ? first[0] : '';
+        const imgUrl = polUrl(fallbackDesc(e), 400, 400);
         return '>' + sp1 + '<img src="' + imgUrl + '" alt="" loading="lazy" style="display:inline-block;width:64px;height:64px;object-fit:cover;vertical-align:middle;"/>' + sp2 + '<';
       }
     );
+
+    // PASS C (NUCLEAR): walk the body and replace every remaining emoji character outside <script>/<style>
+    // with an inline image. Catches emoji embedded in text like "Margherita 🍕 Classica".
+    const stripRanges = [];
+    const skipRe = /<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi;
+    let mm;
+    while ((mm = skipRe.exec(html)) !== null) {
+      stripRanges.push([mm.index, mm.index + mm[0].length]);
+    }
+    const inSkip = (idx) => stripRanges.some(([a, b]) => idx >= a && idx < b);
+    const emojiSeqRe = new RegExp(emojiSeq, 'gu');
+    let out = '';
+    let last = 0;
+    let m2;
+    while ((m2 = emojiSeqRe.exec(html)) !== null) {
+      if (inSkip(m2.index)) continue;
+      const e = m2[0];
+      const imgUrl = polUrl(fallbackDesc(e.split(/‍/)[0]), 200, 200);
+      out += html.slice(last, m2.index);
+      out += '<img src="' + imgUrl + '" alt="" loading="lazy" style="display:inline-block;width:1.4em;height:1.4em;object-fit:cover;vertical-align:-0.25em;border-radius:4px;"/>';
+      last = m2.index + e.length;
+    }
+    out += html.slice(last);
+    html = out;
 
     // If the document has fewer than 3 <img> tags, inject a hero fallback
     const imgCount = (html.match(/<img\b/gi) || []).length;
