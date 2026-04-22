@@ -66,8 +66,8 @@
       "tool": "Nano Banana 2 (Gemini 3.1 Flash Image Preview via infsh)",
       "role": "Image generation",
       "status": "used_extensively",
-      "images_generated": 15,
-      "how": "Replaced every placeholder/SVG mockup with real cinematic imagery. Generated: 1 hero backdrop, 6 gallery-card website mockups, 3 editorial testimonial portraits (Alex R., Priya K., Jordan M.), 1 about-section backdrop, 3 about bento-card visuals (brief-to-beauty wireframe, neural assembly circuit, ships-animated light trails), and 1 features image-generation strip — all resized to lean JPEGs (37KB–511KB) for fast loads. No fallback to flat SVGs."
+      "images_generated": 18,
+      "how": "Replaced every placeholder/SVG mockup with real cinematic imagery. Generated: 1 hero backdrop, 6 gallery-card website mockups, 3 editorial testimonial portraits (Alex R., Priya K., Jordan M.), 4 cinematic section parallax backdrops (about, how-it-works, builder, contact CTA), 3 about bento-card visuals (brief-to-beauty wireframe, neural assembly circuit, ships-animated light trails), and 1 features image-generation strip — all resized to lean JPEGs (37KB–523KB) for fast loads. No fallback to flat SVGs."
     },
     {
       "tool": "Pollinations.ai (free GPT-OSS 20B, no key required)",
@@ -105,10 +105,13 @@
     { "file": "images/about-brief.jpg",        "role": "About bento — Brief-to-Beauty visual","source": "Nano Banana 2", "dims": "1200x800" },
     { "file": "images/about-assembly.jpg",     "role": "About bento — Neural assembly visual","source": "Nano Banana 2", "dims": "1600x900" },
     { "file": "images/about-shipped.jpg",      "role": "About bento — Light-trails visual",  "source": "Nano Banana 2", "dims": "1600x900" },
-    { "file": "images/feature-imggen.jpg",     "role": "Features card — Image-gen strip",    "source": "Nano Banana 2", "dims": "1600x400" }
+    { "file": "images/feature-imggen.jpg",     "role": "Features card — Image-gen strip",    "source": "Nano Banana 2", "dims": "1600x400" },
+    { "file": "images/how-bg.jpg",             "role": "How-it-works parallax backdrop",     "source": "Nano Banana 2", "dims": "1920x1080" },
+    { "file": "images/builder-bg.jpg",         "role": "Builder section parallax backdrop",  "source": "Nano Banana 2", "dims": "2200x944" },
+    { "file": "images/cta-bg.jpg",             "role": "Contact CTA parallax backdrop",      "source": "Nano Banana 2", "dims": "2200x944" }
   ],
   "animations": [
-    "Cinematic scroll parallax: hero backdrop drifts at 0.35x, about backdrop at 0.18x, floating shards at -0.4x to +0.5x (rAF-throttled, reduced-motion honored)",
+    "Cinematic viewport-anchored parallax on 6 section backdrops (hero 0.35x, about 0.18x, how 0.20x, builder 0.15x, contact 0.25x) plus 5 floating shards at -0.4x to +0.5x — GPU-accelerated translate3d, rAF-throttled, IntersectionObserver culled, offsets cached on resize, prefers-reduced-motion honored",
     "Hero headline reveal on load with staggered sub-elements (reveal-delay-1/2/3 chain)",
     "IntersectionObserver scroll-reveals on every section (threshold 0.15, once)",
     "Gallery cards: hover lift -6px + glow, mousemove parallax tilt",
