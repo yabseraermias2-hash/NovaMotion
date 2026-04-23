@@ -206,37 +206,46 @@ export async function onRequestPost(context) {
 // Call Google AI Studio (Gemini 2.5 Pro) with the same system + user prompts.
 // Returns the extracted HTML string, or empty string on no output.
 async function callGemini(apiKey, systemPrompt, userMsg) {
-  const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=' + encodeURIComponent(apiKey);
-  const payload = {
-    system_instruction: { parts: [{ text: systemPrompt }] },
-    contents: [{ role: 'user', parts: [{ text: userMsg }] }],
-    generationConfig: {
-      temperature: 0.75,
-      maxOutputTokens: 32000,
-      responseMimeType: 'text/plain',
-    },
-    safetySettings: [
-      { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
-      { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
-      { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
-      { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
-    ],
-  };
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    throw new Error('Gemini API ' + res.status);
+  // Try models in order: preferred → safe fallbacks.
+  const models = ['gemini-2.5-pro', 'gemini-1.5-pro-latest', 'gemini-1.5-flash-latest'];
+  let lastErr = null;
+  for (const model of models) {
+    try {
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(apiKey);
+      // Gemini v1beta uses camelCase `systemInstruction`, not snake_case.
+      // Safety settings and responseMimeType omitted — they're unnecessary
+      // and BLOCK_NONE requires special account perms.
+      const payload = {
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ role: 'user', parts: [{ text: userMsg }] }],
+        generationConfig: {
+          temperature: 0.75,
+          maxOutputTokens: 16000,
+        },
+      };
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const bodyTxt = await res.text().catch(() => '');
+        lastErr = new Error('Gemini ' + model + ' ' + res.status + ': ' + bodyTxt.slice(0, 200));
+        continue;
+      }
+      const j = await res.json();
+      const parts = j?.candidates?.[0]?.content?.parts || [];
+      let text = parts.map(p => p?.text || '').join('').trim();
+      text = text.replace(/^```(?:html)?\s*/i, '').replace(/\s*```$/i, '').trim();
+      const docIdx = text.search(/<!DOCTYPE\s+html/i);
+      if (docIdx > 0) text = text.slice(docIdx);
+      if (text && text.length > 500) return text;
+      lastErr = new Error('Gemini ' + model + ' returned empty/short output');
+    } catch (e) {
+      lastErr = e;
+    }
   }
-  const j = await res.json();
-  const parts = j?.candidates?.[0]?.content?.parts || [];
-  let text = parts.map(p => p?.text || '').join('').trim();
-  text = text.replace(/^```(?:html)?\s*/i, '').replace(/\s*```$/i, '').trim();
-  const docIdx = text.search(/<!DOCTYPE\s+html/i);
-  if (docIdx > 0) text = text.slice(docIdx);
-  return text;
+  throw lastErr || new Error('All Gemini models failed');
 }
 
 export async function onRequestOptions() {
