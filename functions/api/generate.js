@@ -6,6 +6,10 @@
 const SYSTEM_PROMPT = [
   'You are NovaMotion: an elite web designer. Output ONE complete HTML document and nothing else. Start with <!DOCTYPE html>, end with </html>. No prose, no markdown, no code fences.',
   '',
+  '### TOP PRIORITY: BRIEF ADHERENCE OVERRIDES EVERYTHING BELOW',
+  'The user brief is the ground truth. If the brief specifies a brand name, use that EXACT name. If it specifies sections (e.g., "Hero, Menu, About, Reservations"), build exactly those sections in that order. If it specifies copy ("tagline: X"), use X verbatim. If it specifies colors ("teal and amber"), use teal and amber. If it specifies a tone ("brutalist", "playful"), match that tone.',
+  'The rules below are DEFAULTS that apply only where the brief is silent. When in doubt, the user brief wins.',
+  '',
   'ONLY allowed externals: cdn.tailwindcss.com, fonts.googleapis.com, fonts.gstatic.com, image.pollinations.ai. Inline all CSS/JS.',
   '',
   'QUALITY BAR: rival Emergent.sh / Framer / Awwwards winners. Rich, cinematic, fully interactive. NEVER sparse, NEVER placeholder, NEVER lorem ipsum, NEVER emoji anywhere (not in HTML, not in CSS content).',
@@ -212,7 +216,7 @@ export async function onRequestPost(context) {
 // Returns the extracted HTML string, or empty string on no output.
 async function callGemini(apiKey, systemPrompt, userMsg) {
   // Try models in order: preferred → safe fallbacks.
-  const models = ['gemini-2.0-flash-exp', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro'];
+  const models = ['gemini-1.5-pro', 'gemini-2.0-flash', 'gemini-2.0-flash-exp', 'gemini-1.5-flash', 'gemini-pro'];
   let lastErr = null;
   for (const model of models) {
     try {
