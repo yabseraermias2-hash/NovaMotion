@@ -89,7 +89,10 @@ export async function onRequestPost(context) {
   const name = (body.name || 'Untitled').toString();
   const type = (body.type || 'website').toString();
   const referenceUrl = (body.referenceUrl || '').toString().trim();
-  const geminiKey = (body.geminiKey || '').toString().trim();
+  // Prefer BYOK key from the request body; fall back to the server-side
+  // Cloudflare Pages env var so every user of the deployed site
+  // automatically gets Gemini 2.5 Pro quality without pasting their own key.
+  const geminiKey = (body.geminiKey || env.GEMINI_API_KEY || '').toString().trim();
 
   // If a reference URL was provided, scrape it with Firecrawl and extract
   // design cues (colors, fonts, layout patterns, tone of voice) that we
