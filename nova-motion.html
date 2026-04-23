@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NovaMotion — The Cinematic Web Engine</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background":               "#0e0e0e",
+            "surface":                  "#0e0e0e",
+            "surface-dim":              "#0e0e0e",
+            "surface-container-lowest": "#000000",
+            "surface-container-low":    "#131313",
+            "surface-container":        "#1a1919",
+            "surface-container-high":   "#20201f",
+            "surface-container-highest":"#262626",
+            "surface-bright":           "#2c2c2c",
+            "surface-variant":          "#262626",
+            "surface-tint":             "#ff8f70",
+            "on-surface":               "#ffffff",
+            "on-surface-variant":       "#adaaaa",
+            "outline":                  "#767575",
+            "outline-variant":          "#484847",
+            "primary":                  "#ff8f70",
+            "primary-container":        "#ff7852",
+            "primary-dim":              "#ff734c",
+            "primary-fixed":            "#ff7852",
+            "primary-fixed-dim":        "#ff5d2e",
+            "on-primary":               "#5c1300",
+            "on-primary-container":     "#480d00",
+            "on-primary-fixed":         "#000000",
+            "secondary":                "#fc7c7c",
+            "secondary-container":      "#842327",
+            "on-secondary":             "#53000b",
+            "error":                    "#ff716c",
+            "error-container":          "#9f0519",
+            "on-error":                 "#490006",
+            "inverse-surface":          "#fcf9f8",
+            "inverse-primary":          "#b22e00",
+          },
+          borderRadius: {
+            DEFAULT: "0px",
+            sm: "0px",
+            md: "0px",
+            lg: "0px",
+            xl: "0px",
+            "2xl": "0px",
+            full: "9999px",
+          },
+          fontFamily: {
+            display: ["Space Grotesk", "sans-serif"],
+            headline: ["Space Grotesk", "sans-serif"],
+            body: ["Space Grotesk", "sans-serif"],
+            label: ["Space Grotesk", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"],
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* ─── Reset & Globals ─── */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: #0e0e0e;
+      color: #ffffff;
+      font-family: 'Space Grotesk', sans-serif;
+      overflow-x: hidden;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      line-height: 1;
+    }
+
+    /* ─── Kinetic Gradient ─── */
+    .kinetic-gradient {
+      background: linear-gradient(135deg, #ff4500 0%, #ff6b00 100%);
+    }
+    .kinetic-gradient-text {
+      background: linear-gradient(135deg, #ff4500 0%, #ff8f70 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ─── Glow Effects ─── */
+    .glow-accent { filter: drop-shadow(0 0 8px #ff8f70); }
+    .glow-hover:hover { box-shadow: 0 0 30px rgba(255, 143, 112, 0.2); }
+    .glow-text { text-shadow: 0 0 40px rgba(255, 69, 0, 0.5); }
+
+    /* ─── Connector Line ─── */
+    .line-connector {
+      background: repeating-linear-gradient(
+        90deg,
+        transparent, transparent 10px,
+        #484847 10px, #484847 20px
+      );
+    }
+
+    /* ─── Feature Card ─── */
+    .feature-card {
+      transition: box-shadow 0.4s ease, transform 0.4s ease;
+    }
+    .feature-card:hover {
+      box-shadow: 0 0 30px rgba(255, 143, 112, 0.1);
+      transform: translateY(-2px);
+    }
+
+    /* ─── Hero Floating Shapes ─── */
+    @keyframes float-a {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50%       { transform: translateY(-24px) rotate(5deg); }
+    }
+    @keyframes float-b {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50%       { transform: translateY(18px) rotate(-4deg); }
+    }
+    @keyframes float-c {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33%       { transform: translate(12px, -10px) rotate(6deg); }
+      66%       { transform: translate(-8px, 8px) rotate(-3deg); }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.4; }
+      50%       { opacity: 0.8; }
+    }
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    @keyframes scan-line {
+      0%   { transform: translateY(-100%); opacity: 0; }
+      10%  { opacity: 0.6; }
+      90%  { opacity: 0.6; }
+      100% { transform: translateY(100vh); opacity: 0; }
+    }
+
+    .float-a { animation: float-a 7s ease-in-out infinite; }
+    .float-b { animation: float-b 9s ease-in-out infinite; }
+    .float-c { animation: float-c 11s ease-in-out infinite; }
+    .pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+    .spin-slow  { animation: spin-slow 20s linear infinite; }
+    .scan-line  { animation: scan-line 6s linear infinite; }
+
+    /* ─── Scroll Reveal ─── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+    .reveal-scale {
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal-scale.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* ─── Navbar scroll effect ─── */
+    #navbar {
+      transition: background 0.4s ease, backdrop-filter 0.4s ease, box-shadow 0.4s ease;
+    }
+    #navbar.scrolled {
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 1px 0 rgba(72, 72, 71, 0.4);
+    }
+
+    /* ─── CTA Button ─── */
+    .btn-primary {
+      background: linear-gradient(135deg, #ff4500 0%, #ff6b00 100%);
+      color: #000;
+      font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.875rem 2rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: none;
+      cursor: pointer;
+      transition: filter 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    }
+    .btn-primary:hover {
+      filter: brightness(1.1);
+      transform: scale(1.02);
+      box-shadow: 0 0 30px rgba(255, 69, 0, 0.4);
+    }
+    .btn-primary:active { transform: scale(0.97); }
+
+    .btn-secondary {
+      background: transparent;
+      color: #ffffff;
+      font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.875rem 2rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: 1px solid rgba(72, 72, 71, 0.6);
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+    }
+    .btn-secondary:hover {
+      background: rgba(44, 44, 44, 0.8);
+      border-color: rgba(255, 143, 112, 0.4);
+      transform: scale(1.02);
+    }
+    .btn-secondary:active { transform: scale(0.97); }
+
+    /* ─── Gallery card ─── */
+    .gallery-card {
+      background: #111111;
+      border: 1px solid rgba(72, 72, 71, 0.3);
+      overflow: hidden;
+      transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.3s ease;
+    }
+    .gallery-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 24px rgba(255, 69, 0, 0.1);
+      border-color: rgba(255, 143, 112, 0.3);
+    }
+
+    /* ─── Hero grid background ─── */
+    .hero-grid {
+      background-image:
+        linear-gradient(rgba(72, 72, 71, 0.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(72, 72, 71, 0.12) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    /* ─── Builder section ─── */
+    #builder { background: #080808; }
+
+    .nb-textarea {
+      width: 100%;
+      background: #131313;
+      color: #ffffff;
+      border: 2px solid rgba(72,72,71,0.4);
+      padding: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      line-height: 1.7;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
+      min-height: 180px;
+    }
+    .nb-textarea:focus {
+      border-color: #ff4500;
+      box-shadow: 0 0 0 3px rgba(255,69,0,0.12), 0 0 20px rgba(255,69,0,0.08);
+      background: #181818;
+    }
+    .nb-textarea::placeholder { color: #484847; }
+
+    .nb-tab {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: #767575;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 10px 0;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .nb-tab[data-active="true"] { color: #ff4500; border-bottom-color: #ff4500; }
+    .nb-tab:hover { color: #ffffff; }
+
+    #nb-terminal {
+      background: #0a0a0a;
+      border: 1px solid rgba(72,72,71,0.3);
+      padding: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.8;
+      max-height: 260px;
+      overflow-y: auto;
+      display: none;
+    }
+    #nb-terminal .log-line { color: #adaaaa; }
+    #nb-terminal .log-line:last-child { color: #ff8f70; }
+
+    #nb-progress-track {
+      height: 3px;
+      background: rgba(72,72,71,0.3);
+      margin-top: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    #nb-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #ff4500, #ff8f70);
+      width: 0%;
+      transition: width 0.5s ease;
+      box-shadow: 0 0 12px rgba(255,69,0,0.6);
+    }
+    @keyframes progress-pulse {
+      0%,100% { opacity: 1; } 50% { opacity: 0.6; }
+    }
+    #nb-progress-bar { animation: progress-pulse 1.5s ease-in-out infinite; }
+
+    #nb-preview-zone {
+      display: none;
+      border-top: 1px solid rgba(72,72,71,0.3);
+      padding-top: 0;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    #nb-preview-zone.visible { opacity: 1; transform: none; }
+
+    #nb-iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+      background: #fff;
+      display: block;
+    }
+
+    .nb-example-pill {
+      display: inline-block;
+      padding: 6px 14px;
+      background: rgba(26,25,25,0.8);
+      border: 1px solid rgba(72,72,71,0.3);
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      color: #adaaaa;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      margin: 4px;
+    }
+    .nb-example-pill:hover { border-color: rgba(255,69,0,0.4); color: #ffffff; }
+
+    #nb-error {
+      color: #ff716c;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      opacity: 0;
+      transition: opacity 0.3s;
+      min-height: 16px;
+      margin-top: 8px;
+    }
+
+    #nb-actions { display: none; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+    /* ─── Login Modal ─── */
+    #login-modal {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center;
+    }
+    #login-modal.open { display: flex; }
+    #login-box {
+      background: #111111;
+      border: 1px solid rgba(72,72,71,0.4);
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+    }
+    .login-input {
+      width: 100%;
+      background: #1a1919;
+      border: none;
+      border-bottom: 2px solid rgba(72,72,71,0.5);
+      color: #fff;
+      padding: 14px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .login-input:focus { border-bottom-color: #ff4500; }
+    .login-input::placeholder { color: #484847; }
+
+    /* ─── Projects Panel ─── */
+    #projects-panel {
+      position: fixed; top: 0; right: -400px; width: 380px; height: 100vh;
+      background: #0e0e0e; border-left: 1px solid rgba(72,72,71,0.3);
+      z-index: 150; overflow-y: auto; padding: 24px;
+      transition: right 0.35s cubic-bezier(0.4,0,0.2,1);
+    }
+    #projects-panel.open { right: 0; }
+
+    /* ─── Toast ─── */
+    #nova-toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: #1a1919; border: 1px solid rgba(72,72,71,0.5);
+      color: #fff; padding: 12px 24px; font-size: 13px;
+      font-family: 'Space Grotesk', sans-serif; font-weight: 600;
+      z-index: 300; transition: transform 0.3s ease;
+      white-space: nowrap; pointer-events: none;
+    }
+    #nova-toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ─── Reduced motion ─── */
+    @media (prefers-reduced-motion: reduce) {
+      .reveal, .reveal-scale {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
+      .float-a, .float-b, .float-c, .pulse-glow, .spin-slow, .scan-line {
+        animation: none !important;
+      }
+      .btn-primary:hover, .btn-secondary:hover,
+      .gallery-card:hover, .feature-card:hover { transform: none; }
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary selection:text-on-primary">
+
+  <!-- ══════════════════════════════════════
+       NAVBAR
+  ══════════════════════════════════════ -->
+  <nav id="navbar" class="fixed top-0 w-full z-50 flex justify-between items-center px-8 h-20">
+    <a href="#" class="text-xl font-bold tracking-tighter text-white uppercase font-headline flex items-center gap-2">
+      <span class="kinetic-gradient-text">Nova</span><span>Motion</span>
+    </a>
+    <div class="hidden md:flex items-center gap-8 text-sm font-label uppercase tracking-widest">
+      <a href="#about"    class="text-on-surface-variant hover:text-white transition-colors duration-200">About</a>
+      <a href="#how"      class="text-on-surface-variant hover:text-white transition-colors duration-200">How It Works</a>
+      <a href="#features" class="text-on-surface-variant hover:text-white transition-colors duration-200">Features</a>
+      <a href="#gallery"  class="text-on-surface-variant hover:text-white transition-colors duration-200">Gallery</a>
+      <a href="#builder"  class="text-on-surface-variant hover:text-white transition-colors duration-200">Builder</a>
+    </div>
+    <div class="flex items-center gap-3">
+      <!-- User label (shown when logged in) -->
+      <span id="nav-user-label" class="text-xs font-bold uppercase tracking-widest text-primary hidden sm:block"></span>
+      <!-- Projects link (logged-in only) -->
+      <a href="#" id="nav-projects-link" class="text-on-surface-variant hover:text-white transition-colors text-xs font-bold uppercase tracking-widest hidden" style="display:none">
+        <span class="material-symbols-outlined text-base align-middle" style="vertical-align:middle">folder_open</span>
+        Projects
+      </a>
+      <!-- Login -->
+      <button id="nav-login-btn" class="btn-secondary text-xs hidden sm:inline-flex" style="padding:0.6rem 1.2rem">
+        Login
+        <span class="material-symbols-outlined text-sm">person</span>
+      </button>
+      <!-- Logout -->
+      <button id="nav-logout-btn" class="btn-secondary text-xs hidden" style="padding:0.6rem 1.2rem;display:none">
+        Sign Out
+      </button>
+      <!-- CTA -->
+      <a href="#builder" class="btn-primary text-xs hidden sm:inline-flex">
+        Launch Engine
+        <span class="material-symbols-outlined text-sm">bolt</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════
+       HERO
+  ══════════════════════════════════════ -->
+  <section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden hero-grid">
+
+    <!-- Cinematic AI-generated backdrop (parallax) -->
+    <div class="absolute inset-0 pointer-events-none will-change-transform" aria-hidden="true" data-parallax="0.35" style="transform: translate3d(0,0,0);">
+      <img src="images/hero-bg.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-60 scale-110"/>
+      <div class="absolute inset-0" style="background:radial-gradient(ellipse at center, rgba(14,14,14,0.35) 0%, rgba(14,14,14,0.75) 55%, rgba(14,14,14,0.95) 100%);"></div>
+    </div>
+
+    <!-- Background glow orbs -->
+    <div class="absolute inset-0 pointer-events-none">
+      <!-- Primary glow -->
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full pulse-glow"
+           style="background: radial-gradient(ellipse at center, rgba(255,69,0,0.18) 0%, rgba(255,107,0,0.08) 40%, transparent 70%);"></div>
+      <!-- Secondary glow top-right -->
+      <div class="absolute -top-32 right-0 w-[500px] h-[500px] rounded-full"
+           style="background: radial-gradient(ellipse, rgba(255,69,0,0.08) 0%, transparent 70%);"></div>
+      <!-- Scan line effect -->
+      <div class="scan-line absolute left-0 w-full h-px"
+           style="background: linear-gradient(90deg, transparent, rgba(255,143,112,0.4), transparent);"></div>
+    </div>
+
+    <!-- Floating abstract shapes -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+      <!-- Large rotating ring top-right -->
+      <div class="float-a absolute -top-20 right-12 w-96 h-96 opacity-10 will-change-transform" data-parallax="-0.25"
+           style="border: 1px solid #ff8f70; border-radius: 0;">
+        <div class="spin-slow w-full h-full"
+             style="border: 1px solid rgba(255,69,0,0.3); transform: rotate(45deg);"></div>
+      </div>
+      <!-- Medium square bottom-left -->
+      <div class="float-b absolute bottom-24 -left-12 w-64 h-64 opacity-[0.07] will-change-transform" data-parallax="0.15"
+           style="background: linear-gradient(135deg, #ff4500, transparent); border: 1px solid rgba(255,69,0,0.3);"></div>
+      <!-- Small accent top-left -->
+      <div class="float-c absolute top-32 left-1/4 w-4 h-4 kinetic-gradient opacity-60 will-change-transform" data-parallax="-0.4"></div>
+      <div class="float-a absolute top-48 right-1/3 w-2 h-2 bg-primary opacity-80 will-change-transform" data-parallax="0.5"
+           style="animation-delay: 2s;"></div>
+      <div class="float-b absolute bottom-1/3 right-20 w-3 h-3 kinetic-gradient opacity-50 will-change-transform" data-parallax="-0.3"
+           style="animation-delay: 4s;"></div>
+      <!-- Diagonal accent lines -->
+      <div class="absolute top-0 left-0 w-full h-full opacity-[0.04]"
+           style="background: repeating-linear-gradient(-45deg, transparent, transparent 80px, #ff4500 80px, #ff4500 81px);"></div>
+    </div>
+
+    <!-- Hero content -->
+    <div class="relative z-10 text-center px-6 max-w-6xl mx-auto pt-20">
+      <!-- Badge -->
+      <div class="inline-flex items-center gap-2 border border-outline-variant px-4 py-1.5 mb-8 reveal" style="background: rgba(26,25,25,0.8);">
+        <span class="w-2 h-2 kinetic-gradient pulse-glow"></span>
+        <span class="text-xs font-bold uppercase tracking-[0.3em] text-on-surface-variant">Kinetic Brutalism Engine — V.2.0.4</span>
+      </div>
+
+      <!-- Headline -->
+      <h1 class="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tighter leading-none mb-6 reveal reveal-delay-1 glow-text">
+        Build Websites<br/>
+        <span class="kinetic-gradient-text">That Move.</span>
+      </h1>
+
+      <!-- Subtitle -->
+      <p class="text-lg md:text-xl text-on-surface-variant max-w-2xl mx-auto leading-relaxed mb-10 reveal reveal-delay-2">
+        Describe your vision in plain text. NovaMotion engineers the design system,
+        assembles the sections, and ships a fully animated website — automatically.
+      </p>
+
+      <!-- CTAs -->
+      <div class="flex flex-wrap gap-4 justify-center reveal reveal-delay-3">
+        <a href="#contact" class="btn-primary">
+          Launch Engine
+          <span class="material-symbols-outlined text-base">bolt</span>
+        </a>
+        <a href="#how" class="btn-secondary">
+          See How It Works
+          <span class="material-symbols-outlined text-base">play_arrow</span>
+        </a>
+      </div>
+
+      <!-- Stats strip -->
+      <div class="mt-20 grid grid-cols-2 sm:grid-cols-4 gap-px reveal reveal-delay-4"
+           style="background: rgba(72,72,71,0.2);">
+        <div class="px-8 py-5 text-left" style="background:#0e0e0e;">
+          <div class="text-2xl font-black text-white">0.4s</div>
+          <div class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mt-1">Assembly Time</div>
+        </div>
+        <div class="px-8 py-5 text-left" style="background:#0e0e0e;">
+          <div class="text-2xl font-black text-white">∞</div>
+          <div class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mt-1">Motion Layers</div>
+        </div>
+        <div class="px-8 py-5 text-left" style="background:#0e0e0e;">
+          <div class="text-2xl font-black text-white">99/100</div>
+          <div class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mt-1">Lighthouse Score</div>
+        </div>
+        <div class="px-8 py-5 text-left" style="background:#0e0e0e;">
+          <div class="text-2xl font-black text-white">Active</div>
+          <div class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mt-1">Global CDN</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40">
+      <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Scroll</span>
+      <div class="w-px h-8 kinetic-gradient"></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       ABOUT — from Google Stitch
+  ══════════════════════════════════════ -->
+  <section id="about" class="relative py-24 px-6 md:px-12 overflow-hidden" style="background:#111111;">
+    <!-- Parallax cinematic backdrop -->
+    <div class="absolute inset-0 pointer-events-none will-change-transform" aria-hidden="true" data-parallax="0.18" style="transform: translate3d(0,0,0);">
+      <img src="images/about-bg.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-25 scale-110"/>
+      <div class="absolute inset-0" style="background:linear-gradient(180deg, rgba(17,17,17,0.85) 0%, rgba(17,17,17,0.55) 50%, rgba(17,17,17,0.95) 100%);"></div>
+    </div>
+    <div class="relative max-w-7xl mx-auto overflow-hidden">
+
+      <!-- Section header -->
+      <div class="relative mb-24 flex flex-col md:flex-row items-end justify-between gap-8 border-b border-outline-variant pb-12" style="border-color: rgba(72,72,71,0.2);">
+        <div class="max-w-2xl reveal">
+          <span class="text-primary font-bold tracking-[0.3em] uppercase text-sm mb-4 block">Engine Identity</span>
+          <h2 class="text-6xl md:text-8xl font-black tracking-tighter leading-none mb-8">What Is<br/>NovaMotion?</h2>
+          <p class="text-on-surface-variant text-xl md:text-2xl font-light leading-relaxed max-w-xl">
+            The world's first cinematic web engine. We don't build pages;
+            we engineer digital experiences that move with intent.
+          </p>
+        </div>
+        <div class="hidden lg:block reveal reveal-delay-2">
+          <div class="w-32 h-32 border flex items-center justify-center relative" style="border-color: rgba(255,143,112,0.3);">
+            <div class="absolute inset-0" style="background: rgba(255,143,112,0.05);"></div>
+            <span class="material-symbols-outlined text-primary text-4xl glow-accent">bolt</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bento grid -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+
+        <!-- Card 1: Brief to Beauty -->
+        <div class="md:col-span-4 bg-surface-container border border-outline-variant/20 p-8 flex flex-col justify-between group hover:bg-surface-bright transition-all duration-500 reveal glow-hover"
+             style="border-color:rgba(72,72,71,0.2);">
+          <div>
+            <div class="w-12 h-12 bg-surface-container-high flex items-center justify-center mb-12 border-l-4 border-primary">
+              <span class="material-symbols-outlined text-primary text-2xl glow-accent">auto_awesome</span>
+            </div>
+            <h3 class="text-3xl font-black tracking-tight mb-4 uppercase">Brief to Beauty</h3>
+            <p class="text-on-surface-variant leading-relaxed">
+              Describe your vision in plain text. Our linguistic engine translates
+              your intent into high-fidelity structural logic instantly.
+            </p>
+          </div>
+          <!-- AI-generated cinematic illustration -->
+          <div class="mt-12 h-40 w-full bg-surface-container-lowest relative overflow-hidden">
+            <img src="images/about-brief.jpg" alt="Brief-to-website translation visual" class="absolute inset-0 w-full h-full object-cover" loading="lazy"/>
+            <div class="absolute inset-0" style="background:linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(0,0,0,0.45) 100%);"></div>
+          </div>
+        </div>
+
+        <!-- Card 2: AI-Powered Assembly -->
+        <div class="md:col-span-8 bg-surface-container border border-outline-variant/20 p-8 flex flex-col md:flex-row gap-8 group hover:bg-surface-bright transition-all duration-500 reveal reveal-delay-1 glow-hover"
+             style="border-color:rgba(72,72,71,0.2);">
+          <div class="flex-1 flex flex-col justify-between">
+            <div>
+              <div class="w-12 h-12 bg-surface-container-high flex items-center justify-center mb-12 border-l-4 border-primary">
+                <span class="material-symbols-outlined text-primary text-2xl glow-accent">architecture</span>
+              </div>
+              <h3 class="text-4xl font-black tracking-tight mb-6 uppercase">AI-Powered Assembly</h3>
+              <p class="text-on-surface-variant text-lg leading-relaxed mb-8">
+                Design systems, component libraries, and layout sections are generated automatically
+                through a recursive neural assembly process. No templates, just pure mathematical precision.
+              </p>
+            </div>
+            <button class="self-start text-primary font-black uppercase tracking-widest text-sm flex items-center gap-2 group/btn">
+              Explore the Core
+              <span class="material-symbols-outlined text-sm group-hover/btn:translate-x-2 transition-transform">arrow_forward</span>
+            </button>
+          </div>
+          <!-- AI-generated neural circuit illustration -->
+          <div class="flex-1 h-64 md:h-auto bg-surface-container-lowest relative overflow-hidden min-h-[240px]">
+            <img src="images/about-assembly.jpg" alt="Neural assembly circuit visualization" class="absolute inset-0 w-full h-full object-cover" loading="lazy"/>
+            <div class="absolute inset-0" style="background:linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.5) 100%);"></div>
+          </div>
+        </div>
+
+        <!-- Card 3: Ships Animated -->
+        <div class="md:col-span-12 bg-surface-container border border-outline-variant/20 p-10 flex flex-col md:flex-row items-center gap-12 group hover:bg-surface-bright transition-all duration-500 reveal reveal-delay-2 glow-hover"
+             style="border-color:rgba(72,72,71,0.2);">
+          <div class="flex-1 order-2 md:order-1">
+            <div class="w-12 h-12 bg-surface-container-high flex items-center justify-center mb-8 border-l-4 border-primary">
+              <span class="material-symbols-outlined text-primary text-2xl glow-accent">movie_filter</span>
+            </div>
+            <h3 class="text-4xl md:text-5xl font-black tracking-tighter mb-6 uppercase leading-tight">Ships Animated</h3>
+            <p class="text-on-surface-variant text-xl leading-relaxed max-w-2xl">
+              Static is obsolete. Every page deployed via NovaMotion arrives with native scroll triggers,
+              kinetic hover states, and cinematic transitions baked into the source code. It's not a website; it's a performance.
+            </p>
+          </div>
+          <div class="w-full md:w-1/3 aspect-video bg-surface-container-lowest relative overflow-hidden order-1 md:order-2"
+               style="border: 1px solid rgba(72,72,71,0.1);">
+            <!-- AI-generated long-exposure light trails -->
+            <img src="images/about-shipped.jpg" alt="Cinematic light trails representing motion" class="absolute inset-0 w-full h-full object-cover" loading="lazy"/>
+            <!-- Overlay gradient -->
+            <div class="absolute inset-0 bg-gradient-to-t from-surface-container via-transparent to-transparent"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 reveal">
+        <div class="bg-surface-container-low p-6 flex flex-col gap-2">
+          <span class="text-on-surface-variant text-xs uppercase tracking-widest">Performance</span>
+          <span class="text-3xl font-black text-white">99/100</span>
+        </div>
+        <div class="bg-surface-container-low p-6 flex flex-col gap-2">
+          <span class="text-on-surface-variant text-xs uppercase tracking-widest">Assembly Time</span>
+          <span class="text-3xl font-black text-white">0.4s</span>
+        </div>
+        <div class="bg-surface-container-low p-6 flex flex-col gap-2">
+          <span class="text-on-surface-variant text-xs uppercase tracking-widest">Motion Layers</span>
+          <span class="text-3xl font-black text-white">Infinite</span>
+        </div>
+        <div class="bg-surface-container-low p-6 flex flex-col gap-2">
+          <span class="text-on-surface-variant text-xs uppercase tracking-widest">Global CDN</span>
+          <span class="text-3xl font-black text-white">Active</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       HOW IT WORKS — from Google Stitch
+  ══════════════════════════════════════ -->
+  <section id="how" class="relative py-24 px-6 md:px-12 overflow-hidden" style="background: #0a0a0a;">
+    <div class="absolute inset-0 pointer-events-none will-change-transform" aria-hidden="true" data-parallax="0.2" style="transform: translate3d(0,0,0);">
+      <img src="images/how-bg.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-20 scale-110"/>
+      <div class="absolute inset-0" style="background:linear-gradient(180deg, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0.5) 50%, rgba(10,10,10,0.95) 100%);"></div>
+    </div>
+    <div class="relative">
+    <div class="max-w-7xl mx-auto">
+
+      <!-- Header -->
+      <div class="text-center mb-16 reveal">
+        <span class="text-primary font-bold tracking-[0.3em] uppercase text-xs mb-4 block">The Process</span>
+        <h2 class="text-5xl md:text-7xl font-black tracking-tighter leading-none mb-6">
+          Kinetic <span class="kinetic-gradient-text">Workflow</span>
+        </h2>
+        <p class="text-on-surface-variant max-w-2xl mx-auto text-lg tracking-tight">
+          The engine that transforms abstract vision into high-performance digital architecture.
+          No templates. No friction.
+        </p>
+      </div>
+
+      <!-- 4-step flow -->
+      <div class="relative">
+        <!-- Connector line (desktop) -->
+        <div class="hidden md:block absolute top-[3.5rem] left-0 w-full h-px line-connector opacity-20 z-0"></div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative z-10">
+
+          <div class="group flex flex-col items-start bg-surface-container p-8 border border-transparent hover:border-outline-variant transition-all duration-500 reveal glow-hover" style="transition-delay:0s;">
+            <div class="kinetic-gradient w-12 h-12 flex items-center justify-center mb-12 shadow-[0_0_15px_rgba(255,69,0,0.4)]">
+              <span class="text-xl font-black text-on-primary-fixed">01</span>
+            </div>
+            <h3 class="text-2xl font-black uppercase mb-4 tracking-tight">Write Your Brief</h3>
+            <p class="text-on-surface-variant leading-relaxed text-sm">
+              Describe your site in plain text. Our engine parses your intent, audience, and industry nuances.
+            </p>
+            <div class="mt-8 opacity-20 group-hover:opacity-100 transition-opacity">
+              <span class="material-symbols-outlined text-primary text-4xl glow-accent">edit_note</span>
+            </div>
+          </div>
+
+          <div class="group flex flex-col items-start bg-surface-container-high p-8 border border-transparent hover:border-outline-variant transition-all duration-500 reveal reveal-delay-1 glow-hover">
+            <div class="kinetic-gradient w-12 h-12 flex items-center justify-center mb-12 shadow-[0_0_15px_rgba(255,69,0,0.4)]">
+              <span class="text-xl font-black text-on-primary-fixed">02</span>
+            </div>
+            <h3 class="text-2xl font-black uppercase mb-4 tracking-tight">Design System Generated</h3>
+            <p class="text-on-surface-variant leading-relaxed text-sm">
+              Colors, fonts, icons, and tokens auto-created. A unique visual DNA forged specifically for your project.
+            </p>
+            <div class="mt-8 opacity-20 group-hover:opacity-100 transition-opacity">
+              <span class="material-symbols-outlined text-primary text-4xl glow-accent">palette</span>
+            </div>
+          </div>
+
+          <div class="group flex flex-col items-start bg-surface-container p-8 border border-transparent hover:border-outline-variant transition-all duration-500 reveal reveal-delay-2 glow-hover">
+            <div class="kinetic-gradient w-12 h-12 flex items-center justify-center mb-12 shadow-[0_0_15px_rgba(255,69,0,0.4)]">
+              <span class="text-xl font-black text-on-primary-fixed">03</span>
+            </div>
+            <h3 class="text-2xl font-black uppercase mb-4 tracking-tight">Sections Built</h3>
+            <p class="text-on-surface-variant leading-relaxed text-sm">
+              Hero, about, features, gallery assembled. Logic-driven layout construction with brutalist precision.
+            </p>
+            <div class="mt-8 opacity-20 group-hover:opacity-100 transition-opacity">
+              <span class="material-symbols-outlined text-primary text-4xl glow-accent">architecture</span>
+            </div>
+          </div>
+
+          <div class="group flex flex-col items-start bg-surface-container-high p-8 border border-transparent hover:border-outline-variant transition-all duration-500 reveal reveal-delay-3 glow-hover">
+            <div class="kinetic-gradient w-12 h-12 flex items-center justify-center mb-12 shadow-[0_0_15px_rgba(255,69,0,0.4)]">
+              <span class="text-xl font-black text-on-primary-fixed">04</span>
+            </div>
+            <h3 class="text-2xl font-black uppercase mb-4 tracking-tight">Animations Applied</h3>
+            <p class="text-on-surface-variant leading-relaxed text-sm">
+              Scroll effects, hover states, cinematic motion added. The static frame becomes a living interface.
+            </p>
+            <div class="mt-8 opacity-20 group-hover:opacity-100 transition-opacity">
+              <span class="material-symbols-outlined text-primary text-4xl glow-accent">motion_mode</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Engineering Precision panel -->
+      <div class="mt-24 grid grid-cols-1 md:grid-cols-2 gap-16 items-center reveal">
+        <div>
+          <h3 class="text-4xl font-black uppercase mb-8 tracking-tighter leading-none">
+            Engineering <br/><span class="text-primary">Precision</span>
+          </h3>
+          <div class="space-y-6">
+            <div class="border-l-4 border-primary pl-6">
+              <p class="text-sm font-bold uppercase tracking-widest text-on-surface-variant mb-1">Latency</p>
+              <p class="text-3xl font-black">0.04ms Core Logic</p>
+            </div>
+            <div class="border-l-4 border-outline-variant pl-6">
+              <p class="text-sm font-bold uppercase tracking-widest text-on-surface-variant mb-1">Deployment</p>
+              <p class="text-3xl font-black">Instant Render</p>
+            </div>
+            <div class="border-l-4 border-outline-variant pl-6">
+              <p class="text-sm font-bold uppercase tracking-widest text-on-surface-variant mb-1">Code Output</p>
+              <p class="text-3xl font-black">Single HTML File</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-surface p-12 border border-outline-variant/20 relative overflow-hidden">
+          <div class="absolute top-0 right-0 p-4 opacity-10">
+            <span class="material-symbols-outlined text-6xl">terminal</span>
+          </div>
+          <p class="font-mono text-sm text-primary mb-4 uppercase tracking-widest">BUILD_LOG</p>
+          <div class="space-y-2 font-mono text-sm">
+            <p class="text-on-surface-variant"><span class="text-primary">▶</span> Parsing brief... <span class="text-white">done</span></p>
+            <p class="text-on-surface-variant"><span class="text-primary">▶</span> Generating design system... <span class="text-white">done</span></p>
+            <p class="text-on-surface-variant"><span class="text-primary">▶</span> Assembling 8 sections... <span class="text-white">done</span></p>
+            <p class="text-on-surface-variant"><span class="text-primary">▶</span> Applying animations... <span class="text-white">done</span></p>
+            <p class="text-on-surface-variant"><span class="text-primary">▶</span> Optimizing assets... <span class="text-white">done</span></p>
+            <p class="text-primary font-bold mt-4">BUILD_COMPLETE: 104KB | DOM_READY ✓</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       FEATURES — from Google Stitch
+  ══════════════════════════════════════ -->
+  <section id="features" class="py-24 px-6 md:px-12" style="background:#0e0e0e;">
+    <div class="max-w-7xl mx-auto">
+
+      <!-- Header -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20 reveal">
+        <div class="max-w-2xl">
+          <span class="text-primary font-bold tracking-widest text-xs uppercase mb-4 block">Engine Capabilities</span>
+          <h2 class="text-5xl md:text-7xl font-black tracking-tighter leading-none mb-6">
+            Kinetic<br/>Infrastructure
+          </h2>
+          <p class="text-on-surface-variant text-lg max-w-lg leading-relaxed">
+            The NovaMotion engine leverages AI-driven visual orchestration to assemble
+            high-fidelity animated interfaces in real-time.
+          </p>
+        </div>
+        <div class="flex flex-col items-start gap-2 border-l border-outline-variant/30 pl-8 h-fit reveal reveal-delay-2">
+          <span class="text-3xl font-black text-primary">V.2.0.4</span>
+          <span class="text-xs tracking-widest text-on-surface-variant uppercase">Core Build Status</span>
+        </div>
+      </div>
+
+      <!-- 2×2 features grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-px" style="background: rgba(72,72,71,0.2);">
+
+        <!-- Feature 1: Design System -->
+        <div class="feature-card bg-surface-container p-12 relative group transition-all duration-500 overflow-hidden reveal">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 -mr-16 -mt-16 rotate-45 transition-transform group-hover:scale-150"></div>
+          <div class="relative z-10">
+            <div class="w-14 h-14 bg-surface-container-high flex items-center justify-center mb-8 border border-outline-variant/20 transition-colors group-hover:border-primary/50">
+              <span class="material-symbols-outlined text-primary text-3xl glow-accent">palette</span>
+            </div>
+            <h3 class="text-2xl font-black text-on-surface mb-4">Design System</h3>
+            <p class="text-on-surface-variant leading-relaxed max-w-sm mb-8">
+              Auto-generated color palettes, typography, and spacing tokens. Orchestrate brand identity
+              with absolute geometric precision.
+            </p>
+            <ul class="space-y-3">
+              <li class="flex items-center text-xs tracking-widest uppercase font-bold text-on-surface/60">
+                <span class="w-1.5 h-1.5 bg-primary mr-3"></span>Dynamic Tokens
+              </li>
+              <li class="flex items-center text-xs tracking-widest uppercase font-bold text-on-surface/60">
+                <span class="w-1.5 h-1.5 bg-primary mr-3"></span>Variable Scales
+              </li>
+              <li class="flex items-center text-xs tracking-widest uppercase font-bold text-on-surface/60">
+                <span class="w-1.5 h-1.5 bg-primary mr-3"></span>Google Fonts Integration
+              </li>
+              <li class="flex items-center text-xs tracking-widest uppercase font-bold text-on-surface/60">
+                <span class="w-1.5 h-1.5 bg-primary mr-3"></span>SVG Icon Library
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Feature 2: Section Generator -->
+        <div class="feature-card bg-surface-container p-12 relative group transition-all duration-500 overflow-hidden reveal reveal-delay-1">
+          <div class="absolute bottom-0 left-0 w-48 h-48 bg-primary/5 -ml-24 -mb-24 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div class="relative z-10">
+            <div class="w-14 h-14 bg-surface-container-high flex items-center justify-center mb-8 border border-outline-variant/20 transition-colors group-hover:border-primary/50">
+              <span class="material-symbols-outlined text-primary text-3xl glow-accent">layers</span>
+            </div>
+            <h3 class="text-2xl font-black text-on-surface mb-4">Section Generator</h3>
+            <p class="text-on-surface-variant leading-relaxed max-w-sm mb-8">
+              Hero, about, features, and testimonials built instantly. High-end UI patterns deployed
+              via algorithmic layout engines.
+            </p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-3 py-1 bg-surface-container-highest text-xs font-bold text-primary tracking-tight uppercase">Hero</span>
+              <span class="px-3 py-1 bg-surface-container-highest text-xs font-bold text-primary tracking-tight uppercase">Gallery</span>
+              <span class="px-3 py-1 bg-surface-container-highest text-xs font-bold text-primary tracking-tight uppercase">Bento</span>
+              <span class="px-3 py-1 bg-surface-container-highest text-xs font-bold text-primary tracking-tight uppercase">Contact</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feature 3: Image Generation -->
+        <div class="feature-card bg-surface-container p-12 relative group transition-all duration-500 overflow-hidden reveal reveal-delay-2">
+          <div class="relative z-10">
+            <div class="w-14 h-14 bg-surface-container-high flex items-center justify-center mb-8 border border-outline-variant/20 transition-colors group-hover:border-primary/50">
+              <span class="material-symbols-outlined text-primary text-3xl glow-accent">image</span>
+            </div>
+            <h3 class="text-2xl font-black text-on-surface mb-4">Image Generation</h3>
+            <p class="text-on-surface-variant leading-relaxed max-w-sm mb-8">
+              AI-generated hero images and illustrations baked into the core. Visual assets that
+              match your color palette and brand mood perfectly.
+            </p>
+            <!-- AI-generated preview strip -->
+            <div class="h-16 w-full overflow-hidden bg-black">
+              <img src="images/feature-imggen.jpg" alt="Sample AI-generated visuals" class="w-full h-full object-cover" loading="lazy"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feature 4: Final Assembly -->
+        <div class="feature-card bg-surface-container p-12 relative group transition-all duration-500 overflow-hidden reveal reveal-delay-3">
+          <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div class="relative z-10">
+            <div class="w-14 h-14 bg-surface-container-high flex items-center justify-center mb-8 border border-outline-variant/20 transition-colors group-hover:border-primary/50">
+              <span class="material-symbols-outlined text-primary text-3xl glow-accent">rocket</span>
+            </div>
+            <h3 class="text-2xl font-black text-on-surface mb-4">Final Assembly</h3>
+            <p class="text-on-surface-variant leading-relaxed max-w-sm mb-8">
+              Everything combined into one polished, high-performance HTML file. No bloat,
+              no extra dependencies. Just pure code.
+            </p>
+            <div class="bg-surface-container-lowest p-4 border border-outline-variant/10">
+              <code class="text-xs text-primary/80 font-mono">BUILD_COMPLETE: 104KB | DOM_READY ✓</code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats strip -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12 py-16 border-t border-outline-variant/20 mt-8 reveal">
+        <div class="flex flex-col gap-2">
+          <span class="text-4xl font-black text-on-surface">1.2ms</span>
+          <p class="text-xs tracking-widest text-on-surface-variant uppercase font-bold">Latency Per Asset</p>
+        </div>
+        <div class="flex flex-col gap-2">
+          <span class="text-4xl font-black text-on-surface">13</span>
+          <p class="text-xs tracking-widest text-on-surface-variant uppercase font-bold">Supported Stacks</p>
+        </div>
+        <div class="flex flex-col gap-2">
+          <span class="text-4xl font-black text-on-surface">0px</span>
+          <p class="text-xs tracking-widest text-on-surface-variant uppercase font-bold">Border Radius Integrity</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       GALLERY
+  ══════════════════════════════════════ -->
+  <section id="gallery" class="py-24 px-6 md:px-12" style="background:#111111;">
+    <div class="max-w-7xl mx-auto">
+
+      <div class="mb-16 reveal">
+        <span class="text-primary font-bold tracking-[0.3em] uppercase text-xs mb-4 block">Built With NovaMotion</span>
+        <h2 class="text-5xl md:text-7xl font-black tracking-tighter leading-none mb-6">
+          Generated<br/><span class="kinetic-gradient-text">Concepts</span>
+        </h2>
+        <p class="text-on-surface-variant text-lg max-w-2xl">
+          A selection of cinematic websites assembled by the NovaMotion engine from plain-text briefs.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- Card 1 -->
+        <div class="gallery-card reveal" style="transition-delay:0s;">
+          <div class="h-56 relative overflow-hidden"
+               style="background: linear-gradient(135deg, #0a0018 0%, #1a0a2e 50%, #0a0a0a 100%);">
+            <img src="images/gal-1-pulsemetrics.jpg" alt="PulseMetrics analytics dashboard mockup generated by NovaMotion" class="absolute inset-0 w-full h-full object-cover" loading="lazy"/>
+            <div class="absolute inset-0 pointer-events-none" style="background:linear-gradient(180deg, rgba(10,0,24,0) 60%, rgba(10,0,24,0.55) 100%);"></div>
+          </div>
+          <div class="p-5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-widest text-primary">SaaS Platform</span>
+              <span class="text-xs font-mono text-on-surface-variant">Brief → 0.4s</span>
+            </div>
+            <h4 class="font-black text-white text-lg uppercase tracking-tight">PulseMetrics</h4>
+            <p class="text-on-surface-variant text-sm mt-1">Dark analytics dashboard with purple accents and animated data visualizations.</p>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="gallery-card reveal reveal-delay-1">
+          <div class="h-56 relative overflow-hidden"
+               style="background: linear-gradient(135deg, #0a1a0a 0%, #0f2d1a 50%, #0a0a0a 100%);">
+            <img src="images/gal-2-verdant.jpg" alt="Verdant Studio eco-focused agency website mockup" class="absolute inset-0 w-full h-full object-cover" loading="lazy"/>
+            <div class="absolute inset-0 pointer-events-none" style="background:linear-gradient(180deg, rgba(10,26,10,0) 60%, rgba(10,26,10,0.55) 100%);"></div>
+          </div>
+          <div class="p-5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-widest text-primary">Agency</span>
+              <span class="text-xs font-mono text-on-surface-variant">Brief → 0.4s</span>
+            </div>
+            <h4 class="font-black text-white text-lg uppercase tracking-tight">Verdant Studio</h4>
+            <p class="text-on-surface-variant text-sm mt-1">Eco-focused creative agency with emerald accents and cinematic scroll reveals.</p>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="gallery-card reveal reveal-delay-2">
+          <div class="h-56 relative overflow-hidden"
+               style="background: linear-gradient(135deg, #1a0a0a 0%, #2d1010 50%, #0a0a0a 100%);">
+            <img src="images/gal-3-ignition.jpg" alt="Ignition Studio brutalist portfolio website mockup" class="absolute inset-0 w-full h-full object-cover" loading="lazy"/>
+            <div class="absolute inset-0 pointer-events-none" style="background:linear-gradient(180deg, rgba(26,10,10,0) 60%, rgba(26,10,10,0.55) 100%);"></div>
+          </div>
+          <div class="p-5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-widest text-primary">Portfolio</span>
+              <span class="text-xs font-mono text-on-surface-variant">Brief → 0.4s</span>
+            </div>
+            <h4 class="font-black text-white text-lg uppercase tracking-tight">Ignition Studio</h4>
+            <p class="text-on-surface-variant text-sm mt-1">Bold creative portfolio with kinetic brutalist grid and red-orange motion design.</p>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="gallery-card reveal reveal-delay-1">
+          <div class="h-56 relative overflow-hidden"
+               style="background: linear-gradient(135deg, #0a0a18 0%, #141428 50%, #0a0a0a 100%);">
+            <img src="images/gal-4-nexusai.jpg" alt="NexusAI indigo AI SaaS landing page mockup" class="absolute inset-0 w-full h-full object-cover" loading="lazy"/>
+            <div class="absolute inset-0 pointer-events-none" style="background:linear-gradient(180deg, rgba(10,10,26,0) 60%, rgba(10,10,26,0.55) 100%);"></div>
+          </div>
+          <div class="p-5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-widest text-primary">SaaS Landing</span>
+              <span class="text-xs font-mono text-on-surface-variant">Brief → 0.4s</span>
+            </div>
+            <h4 class="font-black text-white text-lg uppercase tracking-tight">NexusAI</h4>
+            <p class="text-on-surface-variant text-sm mt-1">AI tool landing with indigo palette, pricing tiers, and floating element animations.</p>
+          </div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="gallery-card reveal reveal-delay-2">
+          <div class="h-56 relative overflow-hidden"
+               style="background: linear-gradient(135deg, #0a0f1a 0%, #0f1a2d 50%, #0a0a0a 100%);">
+            <img src="images/gal-5-orbital.jpg" alt="Orbital API developer platform landing page mockup" class="absolute inset-0 w-full h-full object-cover" loading="lazy"/>
+            <div class="absolute inset-0 pointer-events-none" style="background:linear-gradient(180deg, rgba(10,15,26,0) 60%, rgba(10,15,26,0.55) 100%);"></div>
+          </div>
+          <div class="p-5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-widest text-primary">Tech Product</span>
+              <span class="text-xs font-mono text-on-surface-variant">Brief → 0.4s</span>
+            </div>
+            <h4 class="font-black text-white text-lg uppercase tracking-tight">Orbital API</h4>
+            <p class="text-on-surface-variant text-sm mt-1">Developer-focused API landing with cyan accents and animated code previews.</p>
+          </div>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="gallery-card reveal reveal-delay-3">
+          <div class="h-56 relative overflow-hidden"
+               style="background: linear-gradient(135deg, #1a0d00 0%, #2d1a00 50%, #0a0a0a 100%);">
+            <img src="images/gal-6-goldforge.jpg" alt="GoldForge luxury product e-commerce website mockup" class="absolute inset-0 w-full h-full object-cover" loading="lazy"/>
+            <div class="absolute inset-0 pointer-events-none" style="background:linear-gradient(180deg, rgba(26,13,0,0) 60%, rgba(26,13,0,0.6) 100%);"></div>
+          </div>
+          <div class="p-5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-widest text-primary">E-Commerce</span>
+              <span class="text-xs font-mono text-on-surface-variant">Brief → 0.4s</span>
+            </div>
+            <h4 class="font-black text-white text-lg uppercase tracking-tight">GoldForge</h4>
+            <p class="text-on-surface-variant text-sm mt-1">Luxury product store with amber gold palette and kinetic hover reveal effects.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       REVIEWS — from Google Stitch
+  ══════════════════════════════════════ -->
+  <section id="reviews" class="py-24 px-6 md:px-12" style="background:#0a0a0a;">
+    <div class="max-w-7xl mx-auto">
+
+      <div class="mb-20 reveal">
+        <div class="inline-block border border-outline-variant px-4 py-1 mb-6 text-primary text-xs uppercase tracking-[0.2em] font-bold">
+          User Feedback
+        </div>
+        <h2 class="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-none mb-8">
+          The Engine of<br/><span class="text-primary">Innovation.</span>
+        </h2>
+        <p class="text-on-surface-variant text-lg max-w-2xl leading-relaxed">
+          Creators, founders, and engineers are redefining the web with NovaMotion.
+          Kinetic Brutalism meets high-performance motion design.
+        </p>
+      </div>
+
+      <!-- Testimonials -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-outline-variant/20">
+
+        <div class="bg-surface-container p-10 border-r border-outline-variant/30 flex flex-col justify-between min-h-[400px] group hover:bg-surface-container-high transition-all duration-500 reveal">
+          <div>
+            <div class="flex mb-8 space-x-1">
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+            </div>
+            <blockquote class="text-2xl font-medium leading-snug text-white">
+              "NovaMotion turned my rough brief into a fully animated landing page in minutes. Absolutely cinematic."
+            </blockquote>
+          </div>
+          <div class="mt-12 flex items-center space-x-4">
+            <!-- SVG avatar -->
+            <div class="w-16 h-16 rounded-full border-2 border-outline-variant overflow-hidden flex-shrink-0">
+              <img src="images/avatar-alex.jpg" alt="Portrait of Alex R., startup founder" class="w-full h-full object-cover" loading="lazy"/>
+            </div>
+            <div>
+              <div class="font-black text-white uppercase tracking-wider">Alex R.</div>
+              <div class="text-on-surface-variant text-xs uppercase tracking-widest">Startup Founder</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-surface-container p-10 border-r border-outline-variant/30 flex flex-col justify-between min-h-[400px] group hover:bg-surface-container-high transition-all duration-500 reveal reveal-delay-1">
+          <div>
+            <div class="flex mb-8 space-x-1">
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+            </div>
+            <blockquote class="text-2xl font-medium leading-snug text-white">
+              "I've never seen a site builder produce this level of motion design automatically. It's like magic."
+            </blockquote>
+          </div>
+          <div class="mt-12 flex items-center space-x-4">
+            <div class="w-16 h-16 rounded-full border-2 border-outline-variant overflow-hidden flex-shrink-0">
+              <img src="images/avatar-priya.jpg" alt="Portrait of Priya K., product designer" class="w-full h-full object-cover" loading="lazy"/>
+            </div>
+            <div>
+              <div class="font-black text-white uppercase tracking-wider">Priya K.</div>
+              <div class="text-on-surface-variant text-xs uppercase tracking-widest">Product Designer</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-surface-container p-10 flex flex-col justify-between min-h-[400px] group hover:bg-surface-container-high transition-all duration-500 reveal reveal-delay-2">
+          <div>
+            <div class="flex mb-8 space-x-1">
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+            </div>
+            <blockquote class="text-2xl font-medium leading-snug text-white">
+              "From brief to live site with scroll animations and a custom design system. NovaMotion is the future."
+            </blockquote>
+          </div>
+          <div class="mt-12 flex items-center space-x-4">
+            <div class="w-16 h-16 rounded-full border-2 border-outline-variant overflow-hidden flex-shrink-0">
+              <img src="images/avatar-jordan.jpg" alt="Portrait of Jordan M., developer" class="w-full h-full object-cover" loading="lazy"/>
+            </div>
+            <div>
+              <div class="font-black text-white uppercase tracking-wider">Jordan M.</div>
+              <div class="text-on-surface-variant text-xs uppercase tracking-widest">Developer</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Featured quote -->
+      <div class="mt-20 p-16 bg-surface-container-low border border-outline-variant/10 relative overflow-hidden reveal">
+        <div class="absolute -right-20 -top-20 opacity-[0.06]">
+          <span class="material-symbols-outlined" style="font-size: 300px;">format_quote</span>
+        </div>
+        <div class="relative z-10 max-w-3xl">
+          <h3 class="text-4xl font-black uppercase tracking-tight mb-6">
+            Built for the <br/><span class="text-primary">Next Web.</span>
+          </h3>
+          <p class="text-xl italic text-on-surface-variant leading-relaxed">
+            "We didn't just want another drag-and-drop tool. We wanted an orchestration layer
+            for the visual web. NovaMotion is that layer."
+          </p>
+          <div class="mt-8 flex items-center space-x-4">
+            <div class="w-12 h-0.5 kinetic-gradient"></div>
+            <span class="text-xs uppercase tracking-[0.3em] font-bold">Engineering Team @ NovaMotion</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       CONTACT / CTA
+  ══════════════════════════════════════ -->
+  <!-- ══════════════════════════════════════
+       BUILDER ENGINE
+  ══════════════════════════════════════ -->
+  <section id="builder" class="py-0 relative overflow-hidden">
+
+    <!-- Cinematic AI backdrop with parallax -->
+    <div class="absolute inset-0 pointer-events-none will-change-transform" aria-hidden="true" data-parallax="0.15" style="transform: translate3d(0,0,0);">
+      <img src="images/builder-bg.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-15 scale-110"/>
+      <div class="absolute inset-0" style="background:linear-gradient(180deg, rgba(8,8,8,0.92) 0%, rgba(8,8,8,0.7) 50%, rgba(8,8,8,0.95) 100%);"></div>
+    </div>
+    <div class="relative">
+
+    <!-- Top status bar -->
+    <div class="flex items-center justify-between px-8 py-3 border-b" style="background:#050505;border-color:rgba(72,72,71,0.3)">
+      <div class="flex items-center gap-3">
+        <span class="w-2 h-2 kinetic-gradient pulse-glow"></span>
+        <span class="font-mono text-xs font-bold uppercase tracking-[0.2em]" style="color:#ff4500">ENGINE_STATUS: ONLINE</span>
+      </div>
+      <span class="font-mono text-xs" style="color:#484847">BUILD_V.2.0.4 — KINETIC BRUTALISM ENGINE</span>
+    </div>
+
+    <!-- Section header -->
+    <div class="px-8 py-16 reveal" style="background:#080808;border-bottom:1px solid rgba(72,72,71,0.2)">
+      <div class="max-w-7xl mx-auto">
+        <span class="text-primary font-bold tracking-[0.3em] uppercase text-xs mb-4 block">Live Builder</span>
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <h2 class="text-5xl md:text-7xl font-black tracking-tighter leading-none">
+            Build Your<br/><span class="kinetic-gradient-text">Website Now.</span>
+          </h2>
+          <p class="text-on-surface-variant max-w-sm text-base leading-relaxed md:text-right">
+            Describe your vision in plain text.<br/>
+            The engine handles design, sections, and animations — automatically.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main builder panel -->
+    <div id="nb-panel" class="max-w-7xl mx-auto px-8 py-12">
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+
+        <!-- LEFT: Input panel (3/5) -->
+        <div class="lg:col-span-3 flex flex-col gap-0" style="background:#111111;border:1px solid rgba(72,72,71,0.25)">
+
+          <!-- Tabs -->
+          <div class="flex gap-6 px-6 pt-5 pb-0 border-b" style="border-color:rgba(72,72,71,0.25)">
+            <button class="nb-tab" data-tab="brief" data-active="true" onclick="window.novaBuilder.switchTab('brief')">Brief</button>
+            <button class="nb-tab" data-tab="design" data-active="false" onclick="window.novaBuilder.switchTab('design')">Design Tokens</button>
+            <button class="nb-tab" data-tab="output" data-active="false" onclick="window.novaBuilder.switchTab('output')">Output</button>
+          </div>
+
+          <!-- Brief panel -->
+          <div class="nb-panel p-6" data-panel="brief">
+            <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-3">Your Website Vision</label>
+            <textarea
+              id="nb-brief"
+              class="nb-textarea"
+              placeholder="Describe your website vision...&#10;&#10;Examples:&#10;• A dark SaaS landing page for 'TaskFlow', a project management tool. Modern, minimal, purple accent.&#10;• A warm Italian restaurant called 'Trattoria Bella'. Cozy, earthy, with menu and reservations.&#10;• A portfolio for a freelance UX designer. Clean, light, showcasing 6 case studies."
+              rows="8"
+            ></textarea>
+            <div id="nb-error"></div>
+
+            <!-- Examples -->
+            <div class="mt-4">
+              <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Quick Examples:</p>
+              <div>
+                <button class="nb-example-pill" onclick="window.novaBuilder.useExample('A dark SaaS landing page for \'TaskFlow\', a project management platform. Modern, minimal, blue accent colors.')">TaskFlow SaaS</button>
+                <button class="nb-example-pill" onclick="window.novaBuilder.useExample('A warm Italian restaurant called \'Bella Vista\'. Cozy and rustic, earthy tones, features menu, gallery, and reservations.')">Bella Vista Restaurant</button>
+                <button class="nb-example-pill" onclick="window.novaBuilder.useExample('A portfolio for a freelance UX designer named Alex. Clean, light minimal design with a teal accent. Showcases case studies.')">Designer Portfolio</button>
+                <button class="nb-example-pill" onclick="window.novaBuilder.useExample('A brutalist creative agency called \'VOID Studio\'. Dark, bold, black and orange. Services: branding, web, motion.')">VOID Agency</button>
+                <button class="nb-example-pill" onclick="window.novaBuilder.useExample('A luxury jewelry brand called \'Lumière\'. Elegant, premium, gold accent on deep black. Product showcase and boutique locator.')">Lumière Luxury</button>
+              </div>
+            </div>
+
+            <p class="font-mono text-xs mt-4" style="color:#484847">⌘+Enter to launch</p>
+          </div>
+
+          <!-- Design tokens panel -->
+          <div class="nb-panel p-6 font-mono text-xs" data-panel="design" style="display:none">
+            <p class="text-on-surface-variant mb-4">Design tokens are auto-generated from your brief. They appear here after building.</p>
+            <div id="nb-design-tokens" style="color:#adaaaa;line-height:2">
+              <span style="color:#484847">Run a build to see generated tokens...</span>
+            </div>
+          </div>
+
+          <!-- Output source panel -->
+          <div class="nb-panel p-6" data-panel="output" style="display:none">
+            <p class="text-on-surface-variant mb-4 text-xs">Generated HTML source appears here after building.</p>
+            <div id="nb-source-preview" style="color:#adaaaa;font-family:'JetBrains Mono',monospace;font-size:11px;max-height:320px;overflow-y:auto;line-height:1.6">
+              <span style="color:#484847">Run a build to see source...</span>
+            </div>
+          </div>
+
+          <!-- Launch button -->
+          <div class="px-6 pb-6 pt-2 mt-auto">
+            <button
+              id="nb-launch-btn"
+              class="btn-primary w-full justify-center text-sm tracking-widest"
+              style="padding:1rem;font-size:13px;letter-spacing:0.15em"
+            >
+              LAUNCH ENGINE
+              <span class="material-symbols-outlined text-base">bolt</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- RIGHT: Terminal + progress (2/5) -->
+        <div class="lg:col-span-2 flex flex-col gap-4">
+
+          <!-- Terminal header -->
+          <div style="background:#0a0a0a;border:1px solid rgba(72,72,71,0.25)">
+            <div class="flex items-center justify-between px-4 py-3 border-b" style="border-color:rgba(72,72,71,0.2)">
+              <span class="font-mono text-xs font-bold" style="color:#ff4500">BUILD_LOG</span>
+              <div class="flex gap-2">
+                <span class="w-2 h-2" style="background:#1a1a1a;border:1px solid rgba(72,72,71,0.4)"></span>
+                <span class="w-2 h-2" style="background:#1a1a1a;border:1px solid rgba(72,72,71,0.4)"></span>
+                <span class="w-2 h-2" style="background:#1a1a1a;border:1px solid rgba(72,72,71,0.4)"></span>
+              </div>
+            </div>
+            <div id="nb-terminal" style="min-height:180px;padding:16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.8;color:#484847;display:block">
+              <div style="color:#484847">▶ Awaiting brief input...</div>
+              <div style="color:#484847">  Type your vision and click LAUNCH ENGINE.</div>
+            </div>
+          </div>
+
+          <!-- Progress -->
+          <div style="background:#0a0a0a;border:1px solid rgba(72,72,71,0.25);padding:16px">
+            <div class="flex justify-between items-center mb-2">
+              <span class="font-mono text-xs font-bold uppercase tracking-widest" style="color:#484847">Build Progress</span>
+              <span id="nb-progress-label" class="font-mono text-xs font-bold" style="color:#ff4500">0%</span>
+            </div>
+            <div id="nb-progress-track">
+              <div id="nb-progress-bar"></div>
+            </div>
+          </div>
+
+          <!-- Actions (shown after build) -->
+          <div id="nb-actions" style="background:#0a0a0a;border:1px solid rgba(72,72,71,0.25);padding:16px;flex-wrap:wrap;gap:10px">
+            <button id="nb-download-btn" class="btn-primary flex-1 justify-center" style="font-size:11px;padding:12px;min-width:120px">
+              <span class="material-symbols-outlined text-sm">download</span>
+              Download HTML
+            </button>
+            <button id="nb-open-btn" class="btn-secondary flex-1 justify-center" style="font-size:11px;padding:12px;min-width:120px">
+              <span class="material-symbols-outlined text-sm">open_in_new</span>
+              Open Preview
+            </button>
+          </div>
+
+          <!-- Info card -->
+          <div style="background:#0a0a0a;border:1px solid rgba(72,72,71,0.25);padding:20px">
+            <p class="font-mono text-xs font-bold uppercase tracking-widest mb-3" style="color:#484847">What gets generated:</p>
+            <ul class="space-y-2">
+              <li class="font-mono text-xs" style="color:#767575"><span style="color:#ff4500">▶</span> Hero, About, Features, Testimonials, Contact, Footer</li>
+              <li class="font-mono text-xs" style="color:#767575"><span style="color:#ff4500">▶</span> Auto design system — colors, fonts, spacing, icons</li>
+              <li class="font-mono text-xs" style="color:#767575"><span style="color:#ff4500">▶</span> Scroll-triggered animations + hover effects</li>
+              <li class="font-mono text-xs" style="color:#767575"><span style="color:#ff4500">▶</span> Fully responsive, single HTML file</li>
+              <li class="font-mono text-xs" style="color:#767575"><span style="color:#ff4500">▶</span> No dependencies — open in any browser</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview zone (shown after build) -->
+      <div id="nb-preview-zone" class="mt-8">
+        <div class="flex items-center justify-between px-5 py-3 border-b" style="background:#050505;border-color:rgba(72,72,71,0.3)">
+          <div class="flex items-center gap-3">
+            <span class="w-2 h-2 kinetic-gradient pulse-glow"></span>
+            <span class="font-mono text-xs font-bold uppercase tracking-widest" style="color:#ff4500">PREVIEW</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span id="nb-preview-label" class="font-mono text-xs" style="color:#484847">Generated site</span>
+            <button id="nb-open-btn-2" class="btn-secondary" style="font-size:10px;padding:6px 14px" onclick="window.novaBuilder.openNew()">
+              <span class="material-symbols-outlined text-sm">open_in_new</span> Full Screen
+            </button>
+          </div>
+        </div>
+        <iframe id="nb-iframe" title="Generated website preview"></iframe>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <section id="contact" class="py-32 px-6 md:px-12 relative overflow-hidden" style="background:#000000;">
+
+    <!-- Cinematic AI backdrop with parallax -->
+    <div class="absolute inset-0 pointer-events-none will-change-transform" aria-hidden="true" data-parallax="0.25" style="transform: translate3d(0,0,0);">
+      <img src="images/cta-bg.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-35 scale-110"/>
+      <div class="absolute inset-0" style="background:radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.85) 70%, rgba(0,0,0,1) 100%);"></div>
+    </div>
+
+    <!-- Background glow -->
+    <div class="absolute inset-0 pointer-events-none"
+         style="background: radial-gradient(ellipse at 50% 0%, rgba(255,69,0,0.18) 0%, transparent 60%);"></div>
+
+    <div class="max-w-4xl mx-auto text-center relative z-10">
+      <div class="reveal">
+        <span class="text-primary font-bold tracking-[0.3em] uppercase text-xs mb-6 block">Get Started</span>
+        <h2 class="text-6xl md:text-8xl font-black tracking-tighter leading-none mb-8">
+          Ready to<br/><span class="kinetic-gradient-text">Launch?</span>
+        </h2>
+        <p class="text-xl text-on-surface-variant max-w-2xl mx-auto leading-relaxed mb-12">
+          Describe your vision. NovaMotion handles the design system, the sections,
+          the animations — everything. Ship in minutes.
+        </p>
+      </div>
+
+      <!-- Email form -->
+      <form class="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto mb-12 reveal reveal-delay-1" onsubmit="return false;">
+        <input
+          type="email"
+          placeholder="you@yourcompany.com"
+          class="flex-1 bg-surface-container border border-outline-variant/40 text-white px-5 py-4 text-sm font-body focus:outline-none focus:border-primary transition-colors"
+          style="font-family: 'Space Grotesk', sans-serif;"
+        />
+        <button type="submit" class="btn-primary whitespace-nowrap">
+          Start Building
+          <span class="material-symbols-outlined text-sm">arrow_forward</span>
+        </button>
+      </form>
+
+      <!-- Alt CTA -->
+      <div class="flex flex-wrap gap-6 justify-center items-center reveal reveal-delay-2">
+        <a href="#" class="btn-secondary text-sm">
+          <span class="material-symbols-outlined text-base">play_arrow</span>
+          Watch Demo
+        </a>
+        <a href="#" class="text-primary font-bold uppercase tracking-widest text-xs flex items-center gap-2 hover:gap-4 transition-all">
+          View Docs <span class="material-symbols-outlined text-sm">open_in_new</span>
+        </a>
+      </div>
+
+      <!-- Trust badges -->
+      <div class="mt-20 grid grid-cols-3 gap-px max-w-lg mx-auto reveal reveal-delay-3" style="background: rgba(72,72,71,0.2);">
+        <div class="p-5 text-center" style="background:#000;">
+          <div class="text-xl font-black text-white mb-1">10K+</div>
+          <div class="text-xs uppercase tracking-widest text-on-surface-variant">Sites Built</div>
+        </div>
+        <div class="p-5 text-center" style="background:#000;">
+          <div class="text-xl font-black text-white mb-1">99%</div>
+          <div class="text-xs uppercase tracking-widest text-on-surface-variant">Uptime</div>
+        </div>
+        <div class="p-5 text-center" style="background:#000;">
+          <div class="text-xl font-black text-white mb-1">4.9★</div>
+          <div class="text-xs uppercase tracking-widest text-on-surface-variant">Rating</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════ -->
+  <footer class="w-full border-t py-16 px-8" style="background:#000000; border-color: rgba(72,72,71,0.2);">
+    <div class="max-w-7xl mx-auto">
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+        <!-- Brand -->
+        <div class="md:col-span-2">
+          <div class="text-2xl font-black tracking-tighter mb-4">
+            <span class="kinetic-gradient-text">Nova</span>Motion
+          </div>
+          <p class="text-on-surface-variant text-sm leading-relaxed max-w-sm">
+            The world's first cinematic web engine. Turn plain-text briefs into
+            fully animated, production-ready websites — automatically.
+          </p>
+          <!-- Social links -->
+          <div class="flex gap-4 mt-6">
+            <a href="#" class="w-10 h-10 border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary transition-colors">
+              <span class="material-symbols-outlined text-base">language</span>
+            </a>
+            <a href="#" class="w-10 h-10 border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary transition-colors">
+              <span class="material-symbols-outlined text-base">chat</span>
+            </a>
+            <a href="#" class="w-10 h-10 border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary transition-colors">
+              <span class="material-symbols-outlined text-base">code</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Product -->
+        <div>
+          <h4 class="text-xs font-black uppercase tracking-widest mb-6 text-white">Product</h4>
+          <ul class="space-y-3 text-sm text-on-surface-variant">
+            <li><a href="#" class="hover:text-primary transition-colors">Features</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Gallery</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Pricing</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Changelog</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Roadmap</a></li>
+          </ul>
+        </div>
+
+        <!-- Company -->
+        <div>
+          <h4 class="text-xs font-black uppercase tracking-widest mb-6 text-white">Company</h4>
+          <ul class="space-y-3 text-sm text-on-surface-variant">
+            <li><a href="#" class="hover:text-primary transition-colors">About</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Documentation</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Privacy Policy</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Terms of Service</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">System Status</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Bottom bar -->
+      <div class="flex flex-col md:flex-row justify-between items-center pt-8 border-t gap-4" style="border-color: rgba(72,72,71,0.2);">
+        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+          © 2025 NOVAMOTION ENGINE — CREATED BY <span class="text-primary">YABSERA KEBEDE</span>
+        </p>
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 kinetic-gradient pulse-glow"></span>
+          <span class="text-xs uppercase tracking-widest text-on-surface-variant font-bold">All Systems Operational</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ══════════════════════════════════════
+       LOGIN MODAL
+  ══════════════════════════════════════ -->
+  <div id="login-modal">
+    <div id="login-box">
+      <div class="flex justify-between items-center mb-8">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-[0.2em] text-primary font-mono mb-1">NovaMotion</div>
+          <h3 class="text-2xl font-black tracking-tight">Sign In</h3>
+        </div>
+        <button id="close-login-btn" style="background:none;border:none;color:#767575;cursor:pointer;font-size:20px">✕</button>
+      </div>
+      <form id="login-form" class="space-y-6">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Email</label>
+          <input id="login-email" type="email" placeholder="you@company.com" class="login-input" required autocomplete="email"/>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Password</label>
+          <input id="login-password" type="password" placeholder="••••••••" class="login-input" required autocomplete="current-password"/>
+        </div>
+        <p id="login-error" class="text-xs font-mono" style="color:#ff716c;min-height:16px"></p>
+        <button type="submit" class="btn-primary w-full justify-center" style="font-size:12px;padding:14px;letter-spacing:0.15em">
+          ACCESS ENGINE
+          <span class="material-symbols-outlined text-sm">arrow_forward</span>
+        </button>
+      </form>
+      <p class="text-xs text-on-surface-variant mt-6 text-center font-mono">
+        New account? Just enter any email + password (4+ chars) to register.
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       PROJECTS PANEL
+  ══════════════════════════════════════ -->
+  <div id="projects-panel">
+    <div class="flex justify-between items-center mb-6 pb-4 border-b" style="border-color:rgba(72,72,71,0.3)">
+      <div>
+        <div class="text-xs font-bold uppercase tracking-[0.2em] text-primary font-mono mb-1">NovaMotion</div>
+        <h3 class="text-lg font-black tracking-tight">Saved Projects</h3>
+      </div>
+      <button id="close-projects-btn" style="background:none;border:none;color:#767575;cursor:pointer;font-size:20px">✕</button>
+    </div>
+    <div id="projects-list"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       TOAST
+  ══════════════════════════════════════ -->
+  <div id="nova-toast"></div>
+
+  <!-- ══════════════════════════════════════
+       JAVASCRIPT
+  ══════════════════════════════════════ -->
+  <script>
+    // ── Navbar scroll effect ──────────────────────────────────
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 40) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    }, { passive: true });
+
+    // ── Scroll reveal with IntersectionObserver ───────────────
+    const revealEls = document.querySelectorAll('.reveal, .reveal-scale');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    revealEls.forEach(el => revealObserver.observe(el));
+
+    // ── Smooth active nav link ───────────────────────────────
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('nav a[href^="#"]');
+
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(link => {
+            link.classList.remove('text-white');
+            link.classList.add('text-on-surface-variant');
+            if (link.getAttribute('href') === '#' + entry.target.id) {
+              link.classList.remove('text-on-surface-variant');
+              link.classList.add('text-white');
+            }
+          });
+        }
+      });
+    }, { threshold: 0.4 });
+
+    sections.forEach(s => sectionObserver.observe(s));
+
+    // ── Hero elements entrance ───────────────────────────────
+    window.addEventListener('DOMContentLoaded', () => {
+      // Stagger hero reveals on load
+      const heroReveals = document.querySelectorAll('#hero .reveal');
+      heroReveals.forEach((el, i) => {
+        setTimeout(() => el.classList.add('visible'), 200 + i * 150);
+      });
+    });
+
+    // ── Cinematic parallax (viewport-anchored, GPU-smooth) ──
+    (() => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const nodes = document.querySelectorAll('[data-parallax]');
+      if (!nodes.length) return;
+      const items = [];
+      const measure = () => {
+        items.length = 0;
+        nodes.forEach(el => {
+          const rect = el.getBoundingClientRect();
+          items.push({
+            el,
+            speed: parseFloat(el.dataset.parallax) || 0,
+            anchor: rect.top + window.scrollY + rect.height / 2,
+            visible: false
+          });
+        });
+      };
+      const vh = () => window.innerHeight;
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          const item = items.find(i => i.el === e.target);
+          if (item) item.visible = e.isIntersecting;
+        });
+      }, { rootMargin: '20% 0px 20% 0px' });
+      let ticking = false;
+      const apply = () => {
+        const center = window.scrollY + vh() / 2;
+        for (const it of items) {
+          if (!it.visible) continue;
+          const offset = (center - it.anchor) * it.speed;
+          it.el.style.transform = `translate3d(0, ${offset.toFixed(2)}px, 0)`;
+        }
+        ticking = false;
+      };
+      const onScroll = () => {
+        if (!ticking) { requestAnimationFrame(apply); ticking = true; }
+      };
+      measure();
+      nodes.forEach(n => observer.observe(n));
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', () => { measure(); apply(); }, { passive: true });
+      window.addEventListener('load', () => { measure(); apply(); });
+      apply();
+    })();
+
+    // ── Tilt effect on gallery cards ────────────────────────
+    document.querySelectorAll('.gallery-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        card.style.transform = `translateY(-6px) rotateX(${y * -4}deg) rotateY(${x * 4}deg)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+  </script>
+
+  <!-- Builder Engine -->
+  <script src="script.js?v=6"></script>
+
+
+</body>
+</html>

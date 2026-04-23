@@ -2,11 +2,11 @@
   "site": "NovaMotion",
   "tagline": "Build Websites That Move.",
   "output": "index.html",
-  "generated_at": "2026-04-21T21:25:00-07:00",
+  "generated_at": "2026-04-23T09:30:00-07:00",
   "creator": "Yabsera Kebede",
   "pipeline": "animated-website",
   "product_summary": {
-    "what_it_is": "A live, AI-powered website builder. The user types a plain-text brief, NovaMotion engineers a design system, assembles cinematic sections, and ships a fully animated single-file website in seconds.",
+    "what_it_is": "A live, AI-powered website builder. The user types a plain-text brief (optionally with a reference URL), NovaMotion engineers a design system, assembles cinematic sections, and ships a fully animated single-file website in seconds.",
     "vibe": "Dark kinetic brutalism — #0e0e0e base, #ff4500 orange accent, zero border-radius, Space Grotesk headlines, JetBrains Mono terminal details.",
     "live_url": "https://novamotion.pages.dev",
     "repo": "https://github.com/yabseraermias2-hash/NovaMotion"
@@ -45,10 +45,11 @@
       "how": "Defined the kinetic-brutalist palette, typography pairing, motion tokens, and component vocabulary (cards, buttons, terminal, badges). Every section inherits its tokens."
     },
     {
-      "tool": "Firecrawl MCP",
-      "role": "Brand reference scrape",
-      "status": "available",
-      "how": "MCP installed and callable. Not invoked for this build because the design direction was already defined. Ready for any user brief that supplies a reference URL."
+      "tool": "Firecrawl MCP / Firecrawl API",
+      "role": "Reference-site scrape (brand-match mode)",
+      "status": "wired_into_builder",
+      "endpoint": "https://api.firecrawl.dev/v1/scrape (called server-side from functions/api/generate.js when FIRECRAWL_API_KEY is set and the user supplies a reference URL)",
+      "how": "When the brief includes a reference URL, the Pages Function scrapes the target, extracts title/markdown/screenshot signal, and appends a `=== REFERENCE SITE ===` block to the user message. The LLM is then instructed to match that site's vibe, palette, and section order for the new brief. Non-blocking: if the scrape fails or no key is configured, the build continues without the reference block."
     },
     {
       "tool": "21st.dev Magic MCP",
@@ -64,27 +65,48 @@
     },
     {
       "tool": "Nano Banana 2 (Gemini 3.1 Flash Image Preview via infsh)",
-      "role": "Image generation",
+      "role": "Image generation for the landing page",
       "status": "used_extensively",
       "images_generated": 18,
-      "how": "Replaced every placeholder/SVG mockup with real cinematic imagery. Generated: 1 hero backdrop, 6 gallery-card website mockups, 3 editorial testimonial portraits (Alex R., Priya K., Jordan M.), 4 cinematic section parallax backdrops (about, how-it-works, builder, contact CTA), 3 about bento-card visuals (brief-to-beauty wireframe, neural assembly circuit, ships-animated light trails), and 1 features image-generation strip — all resized to lean JPEGs (37KB–523KB) for fast loads. No fallback to flat SVGs."
+      "how": "Replaced every placeholder/SVG mockup with real cinematic imagery for index.html. Generated: 1 hero backdrop, 6 gallery-card website mockups, 3 editorial testimonial portraits (Alex R., Priya K., Jordan M.), 4 cinematic section parallax backdrops (about, how-it-works, builder, contact CTA), 3 about bento-card visuals (brief-to-beauty wireframe, neural assembly circuit, ships-animated light trails), and 1 features image-generation strip — all resized to lean JPEGs (37KB–523KB) for fast loads. No fallback to flat SVGs."
+    },
+    {
+      "tool": "Google Gemini 2.5 Pro (via Google AI Studio)",
+      "role": "PRIMARY live generation engine — tier 1 (BYOK)",
+      "status": "wired_into_builder",
+      "endpoint": "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent (called server-side from functions/api/generate.js)",
+      "models_tried_in_order": ["gemini-1.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-exp", "gemini-1.5-flash", "gemini-pro"],
+      "how": "When the user pastes their own Gemini API key (AIza... format) into the builder — it is stored locally in localStorage (`nm-gemini-key`) and sent with each /api/generate request — the function calls Gemini via Google AI Studio. This produces the highest-quality, most brief-faithful output. The function walks the model list above and returns the first that yields >500 chars. A server-side fallback via env.GEMINI_API_KEY is also supported if the project is configured without BYOK."
     },
     {
       "tool": "Cloudflare Workers AI (Llama 3.3 70B Instruct fp8-fast)",
-      "role": "PRIMARY live generation engine — tier 1",
+      "role": "FALLBACK generation engine — tier 2 when Gemini key is missing/invalid or Gemini fails",
       "status": "wired_into_builder",
       "endpoint": "/api/generate (Cloudflare Pages Function, same origin)",
       "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
-      "how": "A Pages Function at functions/api/generate.js receives the brief, prepends the NovaMotion system prompt (8–11 sections, custom palette, cinematic fonts, AI imagery, interactivity, cinematic animations), and calls the AI binding. Llama 3.3 70B is dramatically smarter than the previous 20B model and follows the full contract — produces 700–1500 line Emergent-tier output. Free tier: 10K requests/day. No API key in the browser. Requires one dashboard step: Pages → Settings → Functions → Bindings → add AI binding with variable name 'AI'."
+      "how": "functions/api/generate.js receives the brief (plus optional reference-site block from Firecrawl), prepends the NovaMotion system prompt (6–8 dense sections, custom 5-color palette, cinematic font pairing, 6–10 AI images, full interactivity, cinematic animations, 600–1200 dense lines), and calls env.AI.run with max_tokens 8000, temperature 0.75. Free tier: 10K requests/day. No API key in the browser. Requires one dashboard step: Pages → Settings → Functions → Bindings → add AI binding with variable name 'AI'."
     },
     {
-      "tool": "Pollinations.ai (free GPT-OSS 20B, no key required)",
-      "role": "FALLBACK generation engine — tier 2 if Workers AI fails",
+      "tool": "Pollinations.ai (free, no key)",
+      "role": "FALLBACK generation engine — tier 3 if both Gemini and Workers AI fail; ALSO default image backend for generated sites",
       "status": "wired_into_builder",
-      "endpoint": "https://text.pollinations.ai/openai (TIER 2 FALLBACK — primary is now Cloudflare Workers AI)",
-      "model": "openai-fast (gpt-oss-20b) — fallback only",
-      "image_engine": "https://image.pollinations.ai/prompt/{description} (Flux model, free, no key)",
-      "how": "When a user types a brief and hits Launch Engine, script.js posts the brief plus a strict HTML-output system prompt to Pollinations. The model returns a complete single-file HTML document which renders in the preview iframe. The system prompt is engineered to rival Emergent.sh / Framer / Webflow output — it demands 8–11 sections, a custom 5-color palette, cinematic font pairings (Space Grotesk + Inter, Fraunces + DM Sans, Bricolage + Geist, Bebas + Manrope), modern CSS effects (gradient text, glassmorphism, mesh gradients, grain overlays), 6–10 AI Pollinations images, full interactivity (hamburger nav, lightbox modals, working forms with validation, smooth scroll, keyboard support), cinematic animations (hero word-stagger, IntersectionObserver reveals, count-up stats, parallax, signature animated element), and 700–1500 lines / 50–110KB density. A post-processor (_forcePollinationsImages) then enforces the contract: rewrites every <img> to a Pollinations Flux URL, kills emoji-as-icon placeholders via a 50-entry emoji-to-photo map, and injects a hero image if fewer than 3 images are present. Every produced website ships with fully bespoke AI imagery tailored to the brief — no Unsplash, no placeholders, no emoji icons. If the text API is ever unavailable, the in-browser SiteGenerator template engine takes over as fallback so the builder never breaks."
+      "text_endpoint": "https://text.pollinations.ai/openai (tier 3 text fallback)",
+      "image_endpoint": "https://image.pollinations.ai/prompt/{description}?width=&height=&seed=&model=flux",
+      "how": "script.js posts the brief to Pollinations if both upstream engines are unavailable. Independently, the `_forcePollinationsImages` post-processor rewrites every <img> src in the generated HTML to a Pollinations Flux URL (preserving alt as the prompt), enforces 6–10 images via a hero-inject fallback, and kills emoji-as-icon placeholders using a 50-entry emoji-to-photo map (PASS A: emoji wrapped in tag → AI image; PASS B: standalone emoji in text → AI image; PASS C: emoji inside CSS `content:` → stripped). A lazy-load shim swaps data-nm-src → src on first paint so images stream in progressively."
+    },
+    {
+      "tool": "Cloudflare Workers AI — Flux-1-Schnell (image generation)",
+      "role": "Backup image engine — /api/image endpoint",
+      "status": "wired_into_builder",
+      "endpoint": "/api/image?prompt=...&w=&h=&seed= (Cloudflare Pages Function, same origin)",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "how": "New function at functions/api/image.js acts as a reliable JPEG backup when Pollinations rate-limits. Accepts a GET with prompt/w/h/seed, clamps dimensions to Flux-safe multiples of 64, runs 4-step schnell inference via env.AI, and streams image/jpeg back. Handles both ReadableStream and base64-payload response shapes. Same `AI` binding as /api/generate."
+    },
+    {
+      "tool": "SiteGenerator (client-side template engine in script.js)",
+      "role": "Offline fallback + instant preview seed",
+      "status": "wired_into_builder",
+      "how": "Before any network call, NovaBuilder parses the brief with SiteGenerator and paints a fully valid site into the iframe as a preview seed (so the user sees something in ~100ms). If every upstream AI engine fails, the SiteGenerator output is the final artifact so the builder never breaks. Detects 9 site types (saas, restaurant, portfolio, agency, ecommerce, startup, blog, fitness, professional) and maps each to its own theme, 5-color palette, Google Fonts pairing, layout archetype, and tagline pool."
     }
   ],
   "sections_assembled": [
@@ -95,7 +117,7 @@
     { "id": "features",     "notes": "Feature cards covering design tokens, scroll reveals, type systems, responsive, deploy pipeline." },
     { "id": "gallery",      "notes": "6 'Built with NovaMotion' concepts — PulseMetrics, Verdant Studio, Ignition Studio, NexusAI, Orbital API, GoldForge — each card uses a nano-banana-2 generated image." },
     { "id": "reviews",      "notes": "3 testimonials (Alex R. / Priya K. / Jordan M.) with role labels." },
-    { "id": "builder",      "notes": "LIVE builder — textarea for brief, animated terminal log, progress bar, preview iframe, download HTML. Calls Pollinations AI. Saves projects to localStorage when logged in." },
+    { "id": "builder",      "notes": "LIVE builder — textarea for brief, optional reference URL (Firecrawl) + optional Gemini key (BYOK), animated terminal log, progress bar, preview iframe, download HTML. Three-tier engine: Gemini 2.5 Pro → Workers AI Llama 3.3 70B → Pollinations, with SiteGenerator as offline fallback. Saves projects to localStorage when logged in." },
     { "id": "contact",      "notes": "Closing CTA with stats (10K+ sites, 99% uptime, 4.9 stars) and newsletter field." },
     { "id": "footer",       "notes": "Logo, nav, social, copyright." }
   ],
@@ -137,38 +159,51 @@
     "keyboard_navigable": true
   },
   "tech_stack": {
-    "html": "single self-contained index.html (~1800 lines)",
-    "js": "script.js — NovaAuth (localStorage login), NovaProjects (max 20 saved), NovaBuilder (orchestrator), SiteGenerator (fallback template engine)",
+    "html": "single self-contained index.html (1738 lines)",
+    "js": "script.js (1665 lines) — SiteGenerator (9-type template engine + offline fallback), NovaAuth (localStorage login), NovaProjects (max 20 saved), NovaBuilder (orchestrator: preview-seed → /api/generate → Pollinations → SiteGenerator waterfall, terminal log, progress bar, project save/load, Gemini-key management)",
+    "server": "Cloudflare Pages Functions — functions/api/generate.js (275 lines, Gemini 2.5 Pro + Workers AI Llama 3.3 70B + Firecrawl reference scrape) and functions/api/image.js (102 lines, Workers AI Flux-1-Schnell JPEG backup)",
     "css": "Tailwind CDN + scoped <style> block with CSS custom properties",
     "fonts": "Google Fonts — Space Grotesk, Inter, JetBrains Mono",
     "build_step": "none — open index.html or deploy the folder to any static host",
-    "hosting": "Cloudflare Pages"
+    "hosting": "Cloudflare Pages",
+    "cloudflare_bindings_required": ["AI"],
+    "cloudflare_env_vars_optional": ["FIRECRAWL_API_KEY (enables reference-URL scraping)", "GEMINI_API_KEY (server-side Gemini fallback when user BYOK is absent)"]
   },
   "assignment_compliance": {
     "starter_used": true,
     "skills_installed": 8,
-    "mandatory_mcps": { "stitch": "installed", "firecrawl": "installed" },
+    "mandatory_mcps": { "stitch": "installed", "firecrawl": "installed_and_wired_server_side" },
     "imagery_via_nano_banana_2": true,
     "flat_svg_fallback_bypassed": true
   },
   "generated_site_quality": {
     "benchmark": "Emergent.sh / Framer / Webflow / top Awwwards entries",
     "system_prompt_demands": [
-      "8–11 sections always (navbar, hero, trust strip, features, about, showcase, pricing/comparison, testimonials, FAQ, contact, footer)",
-      "Custom 5-color palette per brief (no defaults)",
-      "Cinematic font pairing from Google Fonts (Space Grotesk+Inter / Fraunces+DM Sans / Bricolage+Geist / Bebas+Manrope)",
-      "Modern CSS effects: gradient text, glassmorphism, mesh gradients, grain overlays, soft glows",
-      "6–10 AI-generated Pollinations Flux images with bespoke per-section prompts",
-      "Full interactivity: hamburger nav, lightbox, working forms with validation, smooth scroll, Escape-to-close, keyboard support",
-      "Cinematic animations: hero word-stagger, IntersectionObserver reveals, count-up stats, hero parallax, signature animated element",
-      "Mobile-first responsive at 375px / sm / lg / xl",
-      "700–1500 lines, 50–110KB density target"
+      "Brief adherence overrides every default (exact name, sections, copy, colors, tone as given)",
+      "Only allowed externals: cdn.tailwindcss.com, fonts.googleapis.com, fonts.gstatic.com, image.pollinations.ai — everything else inlined",
+      "Mandatory head: Tailwind CDN script + Google Fonts link for the 2 chosen fonts",
+      "Mandatory body opening: <nav> then <section> hero immediately (no spacers)",
+      "Hero lock-in: min-h-[85vh], two-column md:w-1/2, headline clamp(2.5rem,6vw,5.5rem), CTAs px-6 py-3 / min-width 140px / nowrap",
+      "6–8 dense sections (prefer dense over many): nav, hero, trust/stats, features, about, gallery/menu, pricing, testimonials, faq, contact, footer",
+      "Custom 5-color palette per brief (no defaults), :root CSS vars for every token",
+      "Cinematic font pairing from Google Fonts (Fraunces+DM Sans, Space Grotesk+Inter, Bricolage+Geist, Bebas+Manrope, Cormorant+Inter)",
+      "Modern CSS effects: gradient text, backdrop-blur, soft-glow shadows, mesh gradients, grain overlays",
+      "6–10 Pollinations Flux images with unique seeds, correct sizes (hero 1600x900, gallery 1200x800, card 800x600, menu 600x600, avatar 400x400), real alt text, lazy except hero",
+      "NO emoji anywhere (HTML or CSS content), NO stock photos, NO placeholders",
+      "Full interactivity: hamburger nav, lightbox, working forms (preventDefault + inline thanks), smooth scroll, Escape/Enter keyboard",
+      "Cinematic animations: hero word-stagger, IntersectionObserver reveals, 100ms card stagger, count-up stats, hero parallax, signature animated element, prefers-reduced-motion honored",
+      "Mobile-first responsive at 375px, semantic landmarks, ≥44px tap targets",
+      "SEO: <title>, meta description, og:title/og:description/og:image, theme-color",
+      "600–1200 dense lines, portfolio-grade"
     ],
     "post_processor_safety_net": [
-      "Rewrites every <img> src to a Pollinations Flux URL (preserving alt as prompt)",
-      "Kills emoji-as-icon placeholders via 50-entry emoji-to-photo map (PASS A: emoji wrapped in tag → AI image; PASS B: standalone emoji → AI image)",
+      "Strips markdown code fences and non-HTML preamble from LLM output",
+      "Injects Tailwind CDN + Google Fonts link + body background if the model omitted them",
+      "Rewrites every <img> src to a Pollinations Flux URL (preserving alt as prompt, unique seed per image)",
+      "Kills emoji-as-icon placeholders via 50-entry emoji-to-photo map (PASS A: emoji wrapped in tag → AI image; PASS B: standalone emoji in text → AI image; PASS C: emoji in CSS content → stripped)",
       "Injects hero image if document has fewer than 3 images",
-      "Cache-busted via script.js?v=6 to defeat browser cache"
+      "Lazy-load shim swaps data-nm-src → src on first paint for progressive streaming",
+      "Cache-busted via script.js?v=<n> query-string to defeat browser cache"
     ]
   }
 }

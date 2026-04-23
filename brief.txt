@@ -1,0 +1,56 @@
+Site name: NovaMotion
+Tagline: Build Websites That Move.
+Type: AI product landing page + live website builder (demo + working tool)
+Style: Dark kinetic brutalism — cinematic motion, zero border-radius, orange accent
+Palette:
+  - Base: #0e0e0e (near-black)
+  - Surface: #111111 / #1a1919
+  - Primary: #ff4500 (orange)
+  - Primary soft: #ff8f70
+  - Outline: #484847
+  - On-surface: #f5f5f5 / #9a9a98
+Fonts:
+  - Display: Space Grotesk (700/900) for headlines and wordmarks
+  - Body: Inter (300–600)
+  - Mono: JetBrains Mono (400–700) for terminal log and status chips
+
+Sections (in order):
+  1. Navbar — sticky, blur + shadow on scroll, logo + 4 links + Launch CTA
+  2. Hero — full viewport, AI-generated backdrop, glow orbs, floating shards, kinetic-gradient wordmark on "Move", 2 CTAs, status bar
+  3. About — dark split layout: engine description on the left, mini terminal log of the assembly process on the right
+  4. How It Works — 3-step flow (Brief → Engineer → Ship) with stat strip (0.4s assembly, 99/100 Lighthouse, infinite motion layers, active CDN)
+  5. Features — grid of feature cards: design tokens, scroll reveals, type systems, responsive, deploy pipeline
+  6. Gallery — 6 "Built with NovaMotion" concepts (PulseMetrics, Verdant Studio, Ignition Studio, NexusAI, Orbital API, GoldForge), each with its own cinematic image
+  7. Reviews — 3 editorial testimonials (Alex R., Priya K., Jordan M.) with portraits and role labels
+  8. Builder — LIVE builder: textarea for brief, optional reference URL (Firecrawl), optional Gemini key (BYOK), animated terminal log, progress bar, preview iframe, download HTML button
+  9. Contact — closing CTA with stats (10K+ sites, 99% uptime, 4.9 stars) and newsletter field
+  10. Footer — logo, nav, social, copyright
+
+Animations:
+  - Cinematic viewport-anchored parallax on 6 section backdrops (hero 0.35x, about 0.18x, how 0.20x, builder 0.15x, contact 0.25x) + 5 floating shards at -0.4x to +0.5x — GPU translate3d, rAF-throttled, IntersectionObserver culled
+  - Hero headline reveal on load, staggered sub-elements (reveal-delay-1/2/3)
+  - IntersectionObserver scroll-reveals on every section (threshold 0.15, once)
+  - Gallery cards hover lift -6px + glow, mousemove parallax tilt
+  - Navbar blur + shadow after 80px scroll
+  - Glow orbs pulse, scan line sweeps, shards drift (float-a/b/c keyframes)
+  - Builder terminal log types line-by-line, progress bar fills
+  - prefers-reduced-motion disables all motion
+
+Imagery: 18 cinematic AI images generated via Nano Banana 2 (Gemini 3.1 Flash Image Preview via infsh) — hero backdrop, 6 gallery mockups, 3 testimonial portraits, 4 parallax backdrops, 3 about bento visuals, 1 features strip. No flat SVGs, no placeholders, no emoji icons.
+
+Builder pipeline (for generated sites):
+  - Tier 1: Google Gemini 2.5 Pro (BYOK) via Google AI Studio — highest quality, brief-faithful
+  - Tier 2: Cloudflare Workers AI Llama 3.3 70B Instruct fp8-fast — free default
+  - Tier 3: Pollinations.ai text (gpt-oss-20b) — keyless fallback
+  - Offline: SiteGenerator client-side template engine (9 site types, type-aware palettes/fonts/layouts)
+  - Images: Pollinations Flux (keyless) with Workers AI Flux-1-Schnell backup at /api/image
+  - Reference URL (optional): Firecrawl scrape → appended as =/== REFERENCE SITE === block so the LLM matches the target vibe
+
+Tech stack:
+  - Single self-contained index.html, Tailwind CDN, Google Fonts
+  - script.js — SiteGenerator + NovaAuth + NovaProjects + NovaBuilder
+  - Cloudflare Pages Functions — /api/generate (Gemini + Workers AI + Firecrawl) and /api/image (Flux-1-Schnell)
+  - Bindings: AI (required); env: FIRECRAWL_API_KEY and GEMINI_API_KEY (optional)
+  - No build step. Deploy the folder to any static host.
+
+Reference vibe: Emergent.sh / Framer / Webflow / top Awwwards winners — rich, cinematic, fully interactive. Every generated site must rival this bar.
