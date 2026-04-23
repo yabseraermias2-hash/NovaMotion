@@ -150,13 +150,14 @@ export async function onRequestPost(context) {
 
   // BYOK path: user supplied a Google Gemini key → use Gemini 2.5 Pro
   // (free tier, far higher quality than Llama 3.3 70B for HTML).
-  if (geminiKey && /^AIza[\w-]{20,}$/.test(geminiKey)) {
+  let geminiError = '';
+  let geminiKeyPresent = !!geminiKey;
+  let geminiKeyValid = geminiKey && /^AIza[\w-]{20,}$/.test(geminiKey);
+  if (geminiKeyValid) {
     try {
       const html = await callGemini(geminiKey, SYSTEM_PROMPT, userMsg);
-      if (!html || html.length < 500) {
-        // Fall through to Workers AI if Gemini returned nothing useful
-      } else {
-        return new Response(JSON.stringify({ html, model: 'gemini-2.5-pro', engine: 'google-ai-studio' }), {
+      if (html && html.length > 500) {
+        return new Response(JSON.stringify({ html, model: 'gemini', engine: 'google-ai-studio' }), {
           headers: {
             'Content-Type': 'application/json',
             'Cache-Control': 'no-store',
@@ -164,10 +165,14 @@ export async function onRequestPost(context) {
           },
         });
       }
+      geminiError = 'Gemini returned empty/short output';
     } catch (err) {
-      // Gemini errored (bad key, quota, network) — silently fall through
-      // to the Workers AI path so the user still gets a site.
+      geminiError = err?.message || String(err);
     }
+  } else if (geminiKeyPresent) {
+    geminiError = 'Gemini key format invalid (must start with AIza)';
+  } else {
+    geminiError = 'No Gemini key in request or env';
   }
 
   // Default path: Cloudflare Workers AI Llama 3.3 70B
@@ -199,7 +204,7 @@ export async function onRequestPost(context) {
       },
     });
   } catch (err) {
-    return jsonError('Workers AI error: ' + (err?.message || String(err)), 502);
+    return jsonError('All engines failed. Gemini: ' + geminiError + ' | Workers AI: ' + (err?.message || String(err)), 502);
   }
 }
 
