@@ -1224,10 +1224,82 @@ class NovaBuilder {
     const docIdx = html.search(/<!DOCTYPE\s+html/i);
     if (docIdx > 0) html = html.slice(docIdx);
 
+    if (onProgress) onProgress(88, 'Ensuring baseline styles...');
+    html = this._ensureBaselineStyles(html, seed);
+
     if (onProgress) onProgress(90, 'Forcing AI imagery...');
     html = this._forcePollinationsImages(html, brief, seed);
 
     if (onProgress) onProgress(95, 'Validating output...');
+    return html;
+  }
+
+  // Safety net: guarantee Tailwind + a baseline stylesheet exist so the page
+  // never renders as raw unstyled HTML when the model forgets the CDN link
+  // or cuts off mid-<head>. Also ensures a sane body font + dark background
+  // so the output at least *looks* intentional even if Tailwind 404s.
+  _ensureBaselineStyles(html, seed) {
+    if (!html || typeof html !== 'string') return html;
+    const hasTailwind = /cdn\.tailwindcss\.com/i.test(html);
+    const hasGoogleFonts = /fonts\.googleapis\.com/i.test(html);
+    const hasHead = /<head\b[^>]*>/i.test(html);
+    const hasBodyBg = /<body[^>]*style=[^>]*background/i.test(html)
+      || /body\s*\{[^}]*background/i.test(html);
+
+    const injections = [];
+    if (!hasTailwind) {
+      injections.push('<script src="https://cdn.tailwindcss.com"></script>');
+    }
+    if (!hasGoogleFonts) {
+      injections.push('<link rel="preconnect" href="https://fonts.googleapis.com">');
+      injections.push('<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>');
+      injections.push('<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,wght@0,400;0,600;0,700;1,600&display=swap" rel="stylesheet">');
+    }
+
+    // Always add a baseline safety stylesheet — low specificity, so it only
+    // kicks in for things the AI forgot. It guarantees the page is readable
+    // even if Tailwind fails to load (blocked, offline preview, etc.).
+    const baseline = `
+<style id="nm-baseline">
+  /* NovaMotion baseline safety net — only fires if page CSS forgets basics */
+  html { scroll-behavior: smooth; }
+  body:not([style*="background"]) {
+    margin: 0;
+    background: #0b0b10;
+    color: #e8e8ee;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  body > *:not([class]) { max-width: 1200px; margin-left: auto; margin-right: auto; padding: 1rem; }
+  h1, h2, h3, h4 { font-family: 'Fraunces', Georgia, serif; line-height: 1.15; margin: 0.6em 0 0.4em; }
+  h1 { font-size: clamp(2.2rem, 5vw, 4.5rem); font-weight: 700; }
+  h2 { font-size: clamp(1.8rem, 3.5vw, 3rem); font-weight: 600; }
+  h3 { font-size: clamp(1.2rem, 2vw, 1.6rem); font-weight: 600; }
+  p { margin: 0 0 1em; }
+  a { color: inherit; }
+  img { max-width: 100%; height: auto; display: block; }
+  nav { display: flex; align-items: center; gap: 1.5rem; padding: 1rem 2rem; }
+  section { padding: clamp(2rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem); }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+</style>`;
+    injections.push(baseline);
+
+    const injection = injections.join('\n');
+
+    if (hasHead) {
+      // Insert right after <head> opens, so Tailwind gets priority loading
+      html = html.replace(/<head\b([^>]*)>/i, '<head$1>\n' + injection + '\n');
+    } else {
+      // No <head> at all — prepend to <html> or beginning
+      if (/<html\b[^>]*>/i.test(html)) {
+        html = html.replace(/<html\b([^>]*)>/i, '<html$1>\n<head>' + injection + '</head>\n');
+      } else {
+        html = '<!DOCTYPE html><html lang="en"><head>' + injection + '</head>' + html;
+      }
+    }
     return html;
   }
 
