@@ -89,6 +89,7 @@ export async function onRequestPost(context) {
   const name = (body.name || 'Untitled').toString();
   const type = (body.type || 'website').toString();
   const referenceUrl = (body.referenceUrl || '').toString().trim();
+  const geminiKey = (body.geminiKey || '').toString().trim();
 
   // If a reference URL was provided, scrape it with Firecrawl and extract
   // design cues (colors, fonts, layout patterns, tone of voice) that we
@@ -144,6 +145,29 @@ export async function onRequestPost(context) {
 
   const userMsg = `Brief:\n${brief}\n\nDetected site name: ${name}\nDetected type: ${type}${referenceBlock}\n\nReturn the complete single-file HTML now.`;
 
+  // BYOK path: user supplied a Google Gemini key → use Gemini 2.5 Pro
+  // (free tier, far higher quality than Llama 3.3 70B for HTML).
+  if (geminiKey && /^AIza[\w-]{20,}$/.test(geminiKey)) {
+    try {
+      const html = await callGemini(geminiKey, SYSTEM_PROMPT, userMsg);
+      if (!html || html.length < 500) {
+        // Fall through to Workers AI if Gemini returned nothing useful
+      } else {
+        return new Response(JSON.stringify({ html, model: 'gemini-2.5-pro', engine: 'google-ai-studio' }), {
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-store',
+            'Access-Control-Allow-Origin': '*',
+          },
+        });
+      }
+    } catch (err) {
+      // Gemini errored (bad key, quota, network) — silently fall through
+      // to the Workers AI path so the user still gets a site.
+    }
+  }
+
+  // Default path: Cloudflare Workers AI Llama 3.3 70B
   try {
     const aiResponse = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
       messages: [
@@ -174,6 +198,42 @@ export async function onRequestPost(context) {
   } catch (err) {
     return jsonError('Workers AI error: ' + (err?.message || String(err)), 502);
   }
+}
+
+// Call Google AI Studio (Gemini 2.5 Pro) with the same system + user prompts.
+// Returns the extracted HTML string, or empty string on no output.
+async function callGemini(apiKey, systemPrompt, userMsg) {
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=' + encodeURIComponent(apiKey);
+  const payload = {
+    system_instruction: { parts: [{ text: systemPrompt }] },
+    contents: [{ role: 'user', parts: [{ text: userMsg }] }],
+    generationConfig: {
+      temperature: 0.75,
+      maxOutputTokens: 32000,
+      responseMimeType: 'text/plain',
+    },
+    safetySettings: [
+      { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+    ],
+  };
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    throw new Error('Gemini API ' + res.status);
+  }
+  const j = await res.json();
+  const parts = j?.candidates?.[0]?.content?.parts || [];
+  let text = parts.map(p => p?.text || '').join('').trim();
+  text = text.replace(/^```(?:html)?\s*/i, '').replace(/\s*```$/i, '').trim();
+  const docIdx = text.search(/<!DOCTYPE\s+html/i);
+  if (docIdx > 0) text = text.slice(docIdx);
+  return text;
 }
 
 export async function onRequestOptions() {

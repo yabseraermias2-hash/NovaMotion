@@ -1000,7 +1000,7 @@ class NovaProjects {
 class NovaBuilder {
   constructor() { this.generatedHTML = null; this.generatedName = null; this.building = false; }
 
-  init() { this._bindUI(); this._updateAuthUI(); this._renderProjectsList(); }
+  init() { this._bindUI(); this._updateAuthUI(); this._renderProjectsList(); this._loadGeminiKey(); }
 
   async launch() {
     if (this.building) return;
@@ -1080,11 +1080,13 @@ class NovaBuilder {
       try {
         const refUrlEl = document.getElementById('nb-refurl');
         const referenceUrl = refUrlEl && refUrlEl.value && refUrlEl.value.trim() ? refUrlEl.value.trim() : '';
+        const geminiKey = this._getGeminiKey();
         if (referenceUrl && onProgress) onProgress(3, 'Scraping reference with Firecrawl...');
+        if (geminiKey && onProgress) onProgress(5, 'Calling NovaMotion AI engine (Gemini 2.5 Pro)...');
         cfRes = await fetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ brief, name: seed.name || 'Untitled', type: seed.type || 'website', referenceUrl }),
+          body: JSON.stringify({ brief, name: seed.name || 'Untitled', type: seed.type || 'website', referenceUrl, geminiKey }),
           signal: ctrl.signal,
         });
       } finally {
@@ -1316,11 +1318,17 @@ class NovaBuilder {
       const enriched = base + ' ' + (extra || '') + ' professional photograph cinematic lighting detailed';
       return enriched.replace(/\s+/g, ' ').slice(0, 220);
     };
+    // PRIMARY image source: our own /api/image endpoint (Workers AI Flux).
+    // First-party, no rate limits, reliable. We keep the name polUrl so
+    // downstream code doesn't have to change.
+    const apiBaseForImg = (typeof location !== 'undefined' && /^https?:/.test(location.origin))
+      ? location.origin
+      : 'https://novamotion.pages.dev';
     const polUrl = (prompt, w, h, extraHint) => {
       const idx = imgIndex++;
       const p = encodeURIComponent(enrichPrompt(prompt, extraHint));
       const s = 1000 + ((idx * 1009 + 7) % 8999);
-      return 'https://image.pollinations.ai/prompt/' + p + '?width=' + w + '&height=' + h + '&nologo=true&seed=' + s + '&model=flux';
+      return apiBaseForImg + '/api/image?prompt=' + p + '&w=' + w + '&h=' + h + '&seed=' + s;
     };
 
     // Rewrite every <img> that isn't already a Pollinations URL.
@@ -1338,9 +1346,12 @@ class NovaBuilder {
       const h = heightMatch ? Math.min(2000, parseInt(heightMatch[1])) : 800;
       const extra = 'variant' + imgIndex;
       let finalSrc;
+      // If the model emitted a Pollinations URL, extract its prompt and
+      // re-route through /api/image — never trust Pollinations anymore.
       if (src && /image\.pollinations\.ai/i.test(src)) {
-        // Already Pollinations — keep src but still tag for staggered loading / retry
-        finalSrc = src;
+        const m = src.match(/\/prompt\/([^?]+)/);
+        const extractedPrompt = m ? decodeURIComponent(m[1]) : (alt || briefHint);
+        finalSrc = polUrl(extractedPrompt, w, h, extra);
       } else {
         finalSrc = polUrl(alt || briefHint, w, h, extra);
       }
@@ -1461,66 +1472,28 @@ class NovaBuilder {
       html = html.replace(/<body([^>]*)>/i, '<body$1>' + heroTag);
     }
 
-    // INJECT LOADER: stagger Pollinations image loads and retry failures with new seeds.
-    // Pollinations' free tier rate-limits concurrent requests, so 6-10 simultaneous
-    // <img> fetches causes most to 502/timeout. This loader requests them 400ms apart,
-    // retries each failed image up to 3 times with a fresh seed, and then falls through
-    // to our first-party /api/image endpoint (Workers AI Flux) as a reliable backup.
-    //
-    // NOTE: the generated site is viewed via a blob: URL (origin "null"), so relative
-    // paths like "/api/image" don't resolve. We hard-inject the builder's origin.
-    const apiOrigin = (typeof location !== 'undefined' && /^https?:/.test(location.origin))
-      ? location.origin
-      : 'https://novamotion.pages.dev';
-
+    // INJECT LOADER: stagger /api/image (Workers AI Flux) loads.
+    // Workers AI is reliable — no retries needed, but we still stagger 300ms
+    // apart so the Pages Function isn't hit by 8 concurrent Flux requests.
+    // (Flux-schnell takes ~2-4s per image; serial-ish = faster total time.)
     const loader = `
 <script>
 (function(){
-  var API_ORIGIN = ${JSON.stringify(apiOrigin)};
-  function extractPrompt(u){
-    try {
-      var m = u.match(/\\/prompt\\/([^?]+)/);
-      return m ? decodeURIComponent(m[1]) : '';
-    } catch(e) { return ''; }
-  }
-  function workersAIUrl(prompt, w, h, seed){
-    return API_ORIGIN + '/api/image?prompt=' + encodeURIComponent(prompt)
-      + '&w=' + w + '&h=' + h + '&seed=' + seed;
-  }
   function go(){
     var imgs = Array.prototype.slice.call(document.querySelectorAll('img[data-nm-src]'));
     if (!imgs.length) return;
     imgs.forEach(function(img, i){
-      var original = img.getAttribute('data-nm-src');
-      var w = parseInt(img.getAttribute('data-nm-w') || '1200', 10);
-      var h = parseInt(img.getAttribute('data-nm-h') || '800', 10);
-      var prompt = extractPrompt(original);
-      var attempts = 0;
-      var MAX_POL = 3;
-      var triedWorkers = false;
-      function onFail(){
-        attempts++;
-        if (attempts <= MAX_POL) {
-          // Retry Pollinations with a fresh seed and backoff
-          var seed = 1000 + Math.floor(Math.random() * 8999);
-          var retry = original.replace(/([?&])seed=\\d+/, '$1seed=' + seed);
-          setTimeout(function(){ img.src = retry; }, 600 + attempts * 400);
-        } else if (!triedWorkers && prompt) {
-          // Fall through to Workers AI Flux (first-party, no rate limit)
-          triedWorkers = true;
-          var seed = 2000 + i * 37;
-          img.onerror = function(){
-            // If Workers AI ALSO fails, stop — leave the 1x1 placeholder.
-            img.onerror = null;
-          };
-          img.src = workersAIUrl(prompt, w, h, seed);
-        } else {
-          img.onerror = null;
-        }
-      }
-      img.onerror = onFail;
-      // Stagger initial load by 400ms per image to avoid hammering Pollinations
-      setTimeout(function(){ img.src = original; }, i * 400);
+      var src = img.getAttribute('data-nm-src');
+      // Simple fallback: if /api/image errors (AI binding down, rate limit),
+      // fade to a solid colored placeholder so nothing shows broken.
+      img.onerror = function(){
+        img.onerror = null;
+        var w = img.getAttribute('data-nm-w') || 1200;
+        var h = img.getAttribute('data-nm-h') || 800;
+        var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+w+' '+h+'"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1a1a24"/><stop offset="1" stop-color="#0b0b10"/></linearGradient></defs><rect width="100%" height="100%" fill="url(#g)"/></svg>';
+        img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+      };
+      setTimeout(function(){ img.src = src; }, i * 300);
     });
   }
   if (document.readyState === 'complete' || document.readyState === 'interactive') {
@@ -1587,6 +1560,29 @@ class NovaBuilder {
 
   deleteProject(id) { NovaProjects.delete(id); this._renderProjectsList(); }
   useExample(t) { const el = document.getElementById('nb-brief'); if (el) { el.value = t; el.focus(); } }
+
+  // BYOK Gemini — key stays in the user's browser only.
+  _getGeminiKey() {
+    try {
+      const el = document.getElementById('nb-gemini-key');
+      if (el && el.value && el.value.trim()) return el.value.trim();
+      return (localStorage.getItem('nm-gemini-key') || '').trim();
+    } catch (e) { return ''; }
+  }
+  saveGeminiKey(v) {
+    try {
+      const clean = (v || '').trim();
+      if (clean) localStorage.setItem('nm-gemini-key', clean);
+      else localStorage.removeItem('nm-gemini-key');
+    } catch (e) { /* ignore */ }
+  }
+  _loadGeminiKey() {
+    try {
+      const el = document.getElementById('nb-gemini-key');
+      const stored = localStorage.getItem('nm-gemini-key');
+      if (el && stored) el.value = stored;
+    } catch (e) { /* ignore */ }
+  }
   switchTab(tab) {
     document.querySelectorAll('.nb-tab').forEach(b => { b.dataset.active = (b.dataset.tab === tab).toString(); b.style.color = b.dataset.tab === tab ? '#ff4500' : ''; b.style.borderBottomColor = b.dataset.tab === tab ? '#ff4500' : 'transparent'; });
     document.querySelectorAll('.nb-panel').forEach(p => { p.style.display = p.dataset.panel === tab ? 'block' : 'none'; });

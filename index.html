@@ -1287,6 +1287,21 @@
               onblur="this.style.borderColor='#1f1f1f'"
             />
 
+            <!-- Gemini API key (optional, stored in localStorage) -->
+            <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mt-5 mb-2">
+              Premium AI <span style="color:#484847;font-weight:400;text-transform:none;letter-spacing:0">— optional, free Gemini 2.5 Pro key upgrades quality. Get one at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:#ff7a3d;text-decoration:underline">aistudio.google.com/apikey</a></span>
+            </label>
+            <input
+              id="nb-gemini-key"
+              type="password"
+              placeholder="AIza... (paste Google Gemini API key — stays in your browser)"
+              autocomplete="off"
+              spellcheck="false"
+              style="width:100%;background:#0a0a0a;border:1px solid #1f1f1f;color:#f5f5f5;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:border-color .2s"
+              onfocus="this.style.borderColor='#ff4500'"
+              onblur="this.style.borderColor='#1f1f1f'; if(window.novaBuilder) window.novaBuilder.saveGeminiKey(this.value);"
+            />
+
             <!-- Examples -->
             <div class="mt-4">
               <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Quick Examples:</p>
@@ -1716,7 +1731,7 @@
   </script>
 
   <!-- Builder Engine -->
-  <script src="script.js?v=13"></script>
+  <script src="script.js?v=14"></script>
 
 
 </body>
