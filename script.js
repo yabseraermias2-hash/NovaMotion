@@ -1235,28 +1235,51 @@ class NovaBuilder {
     const briefHint = (brief || '').replace(/\s+/g, ' ').trim().slice(0, 80);
     const vibe = (seed && seed.type) ? seed.type : 'website';
     let imgIndex = 0;
-    const polUrl = (prompt, w, h) => {
-      const p = encodeURIComponent((prompt || (vibe + ' ' + briefHint)).slice(0, 200));
-      const s = 1000 + (imgIndex++ * 137) % 8999;
+    // Build a uniqueness-enriched prompt so Pollinations doesn't dedupe near-identical requests.
+    const enrichPrompt = (alt, extra) => {
+      const base = (alt && alt.trim()) ? alt.trim() : (vibe + ' ' + briefHint);
+      const enriched = base + ' ' + (extra || '') + ' professional photograph cinematic lighting detailed';
+      return enriched.replace(/\s+/g, ' ').slice(0, 220);
+    };
+    const polUrl = (prompt, w, h, extraHint) => {
+      const idx = imgIndex++;
+      const p = encodeURIComponent(enrichPrompt(prompt, extraHint));
+      const s = 1000 + ((idx * 1009 + 7) % 8999);
       return 'https://image.pollinations.ai/prompt/' + p + '?width=' + w + '&height=' + h + '&nologo=true&seed=' + s + '&model=flux';
     };
 
-    // Rewrite every <img> that isn't already a Pollinations URL
+    // Rewrite every <img> that isn't already a Pollinations URL.
+    // Attach data-nm-retry attributes so our injected loader can stagger loads
+    // and retry failures with a new seed — that's how we stop losing 5 of every
+    // 6 images to Pollinations' free-tier rate limits.
     html = html.replace(/<img\b([^>]*?)>/gi, (full, attrs) => {
       const srcMatch = attrs.match(/\bsrc\s*=\s*["']([^"']+)["']/i);
       const altMatch = attrs.match(/\balt\s*=\s*["']([^"']*)["']/i);
       const widthMatch = attrs.match(/\bwidth\s*=\s*["']?(\d+)/i);
       const heightMatch = attrs.match(/\bheight\s*=\s*["']?(\d+)/i);
       const src = srcMatch ? srcMatch[1] : '';
-      if (src && /image\.pollinations\.ai/i.test(src)) return full;
       const alt = altMatch ? altMatch[1] : '';
       const w = widthMatch ? Math.min(2000, parseInt(widthMatch[1])) : 1200;
       const h = heightMatch ? Math.min(2000, parseInt(heightMatch[1])) : 800;
-      const newSrc = polUrl(alt || briefHint, w, h);
-      const newAttrs = srcMatch
-        ? attrs.replace(/\bsrc\s*=\s*["'][^"']+["']/i, 'src="' + newSrc + '"')
-        : attrs + ' src="' + newSrc + '"';
-      return '<img' + newAttrs + (newAttrs.includes('loading=') ? '' : ' loading="lazy"') + '>';
+      const extra = 'variant' + imgIndex;
+      let finalSrc;
+      if (src && /image\.pollinations\.ai/i.test(src)) {
+        // Already Pollinations — keep src but still tag for staggered loading / retry
+        finalSrc = src;
+      } else {
+        finalSrc = polUrl(alt || briefHint, w, h, extra);
+      }
+      // Strip any existing onerror; we'll rely on our loader script
+      let cleanAttrs = attrs.replace(/\bonerror\s*=\s*(["'])[^"']*\1/gi, '');
+      cleanAttrs = cleanAttrs.replace(/\bsrc\s*=\s*(["'])[^"']*\1/gi, '');
+      const baseAttrs = cleanAttrs
+        + ' data-nm-src="' + finalSrc.replace(/"/g, '&quot;') + '"'
+        + ' data-nm-alt="' + alt.replace(/"/g, '&quot;').slice(0, 120) + '"'
+        + ' data-nm-w="' + w + '" data-nm-h="' + h + '"'
+        + (cleanAttrs.includes('loading=') ? '' : ' loading="lazy"')
+        + (cleanAttrs.includes('decoding=') ? '' : ' decoding="async"');
+      // Start with a tiny 1x1 transparent PNG so broken-icon never flashes
+      return '<img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="' + baseAttrs + '>';
     });
 
     // Map common emojis the model loves to use as icons -> real photo prompts
@@ -1359,8 +1382,57 @@ class NovaBuilder {
     const imgCount = (html.match(/<img\b/gi) || []).length;
     if (imgCount < 3) {
       const heroUrl = polUrl(briefHint + ' cinematic hero photograph', 1600, 900);
-      const heroTag = '<img src="' + heroUrl + '" alt="" style="width:100%;max-height:70vh;object-fit:cover;display:block;" loading="eager"/>';
+      const heroTag = '<img data-nm-src="' + heroUrl + '" data-nm-w="1600" data-nm-h="900" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="" style="width:100%;max-height:70vh;object-fit:cover;display:block;" loading="eager" decoding="async"/>';
       html = html.replace(/<body([^>]*)>/i, '<body$1>' + heroTag);
+    }
+
+    // INJECT LOADER: stagger Pollinations image loads and retry failures with new seeds.
+    // Pollinations' free tier rate-limits concurrent requests, so 6-10 simultaneous
+    // <img> fetches causes most to 502/timeout. This loader requests them 400ms apart
+    // and retries each failed image up to 3 times with a fresh seed.
+    const loader = `
+<script>
+(function(){
+  function go(){
+    var imgs = Array.prototype.slice.call(document.querySelectorAll('img[data-nm-src]'));
+    if (!imgs.length) return;
+    imgs.forEach(function(img, i){
+      var original = img.getAttribute('data-nm-src');
+      var attempts = 0;
+      var MAX = 3;
+      function load(src){
+        img.onerror = function(){
+          attempts++;
+          if (attempts <= MAX) {
+            var seed = 1000 + Math.floor(Math.random() * 8999);
+            var retry = src.replace(/([?&])seed=\\d+/, '$1seed=' + seed);
+            setTimeout(function(){ img.src = retry; }, 600 + attempts * 400);
+          } else {
+            // Final fallback: simpler prompt with brief only
+            var w = img.getAttribute('data-nm-w') || 1200;
+            var h = img.getAttribute('data-nm-h') || 800;
+            var fb = 'https://image.pollinations.ai/prompt/' + encodeURIComponent('${enrichPrompt('', '').replace(/'/g, "\\'")}'+' fallback '+i) + '?width='+w+'&height='+h+'&nologo=true&seed='+ (5000+i) +'&model=flux';
+            img.onerror = null;
+            img.src = fb;
+          }
+        };
+        img.src = src;
+      }
+      // Stagger initial load by 400ms per image to avoid hammering Pollinations
+      setTimeout(function(){ load(original); }, i * 400);
+    });
+  }
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(go, 50);
+  } else {
+    document.addEventListener('DOMContentLoaded', go);
+  }
+})();
+</script>`;
+    if (/<\/body>/i.test(html)) {
+      html = html.replace(/<\/body>/i, loader + '</body>');
+    } else {
+      html = html + loader;
     }
 
     return html;
