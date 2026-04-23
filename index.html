@@ -1276,6 +1276,17 @@
             ></textarea>
             <div id="nb-error"></div>
 
+            <!-- Reference URL (optional) -->
+            <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mt-5 mb-2">Reference URL <span style="color:#484847;font-weight:400;text-transform:none;letter-spacing:0">— optional, scraped via Firecrawl for design cues</span></label>
+            <input
+              id="nb-refurl"
+              type="url"
+              placeholder="https://stripe.com, https://linear.app, https://awwwards.com/sites/..."
+              style="width:100%;background:#0a0a0a;border:1px solid #1f1f1f;color:#f5f5f5;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:border-color .2s"
+              onfocus="this.style.borderColor='#ff4500'"
+              onblur="this.style.borderColor='#1f1f1f'"
+            />
+
             <!-- Examples -->
             <div class="mt-4">
               <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Quick Examples:</p>
@@ -1705,7 +1716,7 @@
   </script>
 
   <!-- Builder Engine -->
-  <script src="script.js?v=10"></script>
+  <script src="script.js?v=11"></script>
 
 
 </body>

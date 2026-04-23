@@ -1078,10 +1078,13 @@ class NovaBuilder {
       const tid = setTimeout(() => ctrl.abort(), 120000);
       let cfRes;
       try {
+        const refUrlEl = document.getElementById('nb-refurl');
+        const referenceUrl = refUrlEl && refUrlEl.value && refUrlEl.value.trim() ? refUrlEl.value.trim() : '';
+        if (referenceUrl && onProgress) onProgress(3, 'Scraping reference with Firecrawl...');
         cfRes = await fetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ brief, name: seed.name || 'Untitled', type: seed.type || 'website' }),
+          body: JSON.stringify({ brief, name: seed.name || 'Untitled', type: seed.type || 'website', referenceUrl }),
           signal: ctrl.signal,
         });
       } finally {

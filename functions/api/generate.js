@@ -76,8 +76,61 @@ export async function onRequestPost(context) {
 
   const name = (body.name || 'Untitled').toString();
   const type = (body.type || 'website').toString();
+  const referenceUrl = (body.referenceUrl || '').toString().trim();
 
-  const userMsg = `Brief:\n${brief}\n\nDetected site name: ${name}\nDetected type: ${type}\n\nReturn the complete single-file HTML now.`;
+  // If a reference URL was provided, scrape it with Firecrawl and extract
+  // design cues (colors, fonts, layout patterns, tone of voice) that we
+  // inject into the user message as a "Reference:" block.
+  let referenceBlock = '';
+  if (referenceUrl && env.FIRECRAWL_API_KEY) {
+    try {
+      const fcRes = await fetch('https://api.firecrawl.dev/v1/scrape', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${env.FIRECRAWL_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url: referenceUrl,
+          formats: ['markdown'],
+          onlyMainContent: true,
+          waitFor: 1500,
+        }),
+      });
+      if (fcRes.ok) {
+        const fcJson = await fcRes.json();
+        const md = (fcJson?.data?.markdown || '').slice(0, 3500);
+        const html = (fcJson?.data?.html || fcJson?.data?.rawHtml || '').slice(0, 12000);
+
+        // Extract color hex codes and font-family declarations from the raw HTML
+        const hexes = [...new Set((html.match(/#[0-9a-fA-F]{6}\b/g) || []))].slice(0, 8);
+        const fonts = [...new Set((html.match(/font-family\s*:\s*["']?([A-Za-z][A-Za-z0-9 \-]+)/g) || [])
+          .map(s => s.replace(/.*font-family\s*:\s*["']?/, '').trim()))].slice(0, 5);
+        const title = (fcJson?.data?.metadata?.title || '').slice(0, 120);
+        const description = (fcJson?.data?.metadata?.description || '').slice(0, 200);
+
+        referenceBlock = [
+          '\n\n=== REFERENCE SITE (scraped via Firecrawl) ===',
+          `URL: ${referenceUrl}`,
+          title ? `Title: ${title}` : '',
+          description ? `Description: ${description}` : '',
+          hexes.length ? `Detected color palette: ${hexes.join(', ')}` : '',
+          fonts.length ? `Detected fonts: ${fonts.join(', ')}` : '',
+          md ? `\nContent sample:\n${md.slice(0, 1500)}` : '',
+          '=== END REFERENCE ===',
+          '',
+          'Use the reference as LOOSE design inspiration only. Adapt its palette, typography, and tone to the brief — do not copy its copy or layout verbatim. The brief always wins.',
+        ].filter(Boolean).join('\n');
+      }
+    } catch (e) {
+      // Firecrawl scrape failed — proceed without reference, don't block the build
+      referenceBlock = '\n\n(Note: reference URL scrape failed, proceeding with brief alone.)';
+    }
+  } else if (referenceUrl && !env.FIRECRAWL_API_KEY) {
+    referenceBlock = '\n\n(Note: reference URL was supplied but FIRECRAWL_API_KEY is not configured, so scraping was skipped.)';
+  }
+
+  const userMsg = `Brief:\n${brief}\n\nDetected site name: ${name}\nDetected type: ${type}${referenceBlock}\n\nReturn the complete single-file HTML now.`;
 
   try {
     const aiResponse = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
