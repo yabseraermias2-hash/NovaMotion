@@ -1391,38 +1391,64 @@ class NovaBuilder {
 
     // INJECT LOADER: stagger Pollinations image loads and retry failures with new seeds.
     // Pollinations' free tier rate-limits concurrent requests, so 6-10 simultaneous
-    // <img> fetches causes most to 502/timeout. This loader requests them 400ms apart
-    // and retries each failed image up to 3 times with a fresh seed.
+    // <img> fetches causes most to 502/timeout. This loader requests them 400ms apart,
+    // retries each failed image up to 3 times with a fresh seed, and then falls through
+    // to our first-party /api/image endpoint (Workers AI Flux) as a reliable backup.
+    //
+    // NOTE: the generated site is viewed via a blob: URL (origin "null"), so relative
+    // paths like "/api/image" don't resolve. We hard-inject the builder's origin.
+    const apiOrigin = (typeof location !== 'undefined' && /^https?:/.test(location.origin))
+      ? location.origin
+      : 'https://novamotion.pages.dev';
+
     const loader = `
 <script>
 (function(){
+  var API_ORIGIN = ${JSON.stringify(apiOrigin)};
+  function extractPrompt(u){
+    try {
+      var m = u.match(/\\/prompt\\/([^?]+)/);
+      return m ? decodeURIComponent(m[1]) : '';
+    } catch(e) { return ''; }
+  }
+  function workersAIUrl(prompt, w, h, seed){
+    return API_ORIGIN + '/api/image?prompt=' + encodeURIComponent(prompt)
+      + '&w=' + w + '&h=' + h + '&seed=' + seed;
+  }
   function go(){
     var imgs = Array.prototype.slice.call(document.querySelectorAll('img[data-nm-src]'));
     if (!imgs.length) return;
     imgs.forEach(function(img, i){
       var original = img.getAttribute('data-nm-src');
+      var w = parseInt(img.getAttribute('data-nm-w') || '1200', 10);
+      var h = parseInt(img.getAttribute('data-nm-h') || '800', 10);
+      var prompt = extractPrompt(original);
       var attempts = 0;
-      var MAX = 3;
-      function load(src){
-        img.onerror = function(){
-          attempts++;
-          if (attempts <= MAX) {
-            var seed = 1000 + Math.floor(Math.random() * 8999);
-            var retry = src.replace(/([?&])seed=\\d+/, '$1seed=' + seed);
-            setTimeout(function(){ img.src = retry; }, 600 + attempts * 400);
-          } else {
-            // Final fallback: simpler prompt with brief only
-            var w = img.getAttribute('data-nm-w') || 1200;
-            var h = img.getAttribute('data-nm-h') || 800;
-            var fb = 'https://image.pollinations.ai/prompt/' + encodeURIComponent('${enrichPrompt('', '').replace(/'/g, "\\'")}'+' fallback '+i) + '?width='+w+'&height='+h+'&nologo=true&seed='+ (5000+i) +'&model=flux';
+      var MAX_POL = 3;
+      var triedWorkers = false;
+      function onFail(){
+        attempts++;
+        if (attempts <= MAX_POL) {
+          // Retry Pollinations with a fresh seed and backoff
+          var seed = 1000 + Math.floor(Math.random() * 8999);
+          var retry = original.replace(/([?&])seed=\\d+/, '$1seed=' + seed);
+          setTimeout(function(){ img.src = retry; }, 600 + attempts * 400);
+        } else if (!triedWorkers && prompt) {
+          // Fall through to Workers AI Flux (first-party, no rate limit)
+          triedWorkers = true;
+          var seed = 2000 + i * 37;
+          img.onerror = function(){
+            // If Workers AI ALSO fails, stop — leave the 1x1 placeholder.
             img.onerror = null;
-            img.src = fb;
-          }
-        };
-        img.src = src;
+          };
+          img.src = workersAIUrl(prompt, w, h, seed);
+        } else {
+          img.onerror = null;
+        }
       }
+      img.onerror = onFail;
       // Stagger initial load by 400ms per image to avoid hammering Pollinations
-      setTimeout(function(){ load(original); }, i * 400);
+      setTimeout(function(){ img.src = original; }, i * 400);
     });
   }
   if (document.readyState === 'complete' || document.readyState === 'interactive') {
