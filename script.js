@@ -1318,17 +1318,14 @@ class NovaBuilder {
       const enriched = base + ' ' + (extra || '') + ' professional photograph cinematic lighting detailed';
       return enriched.replace(/\s+/g, ' ').slice(0, 220);
     };
-    // PRIMARY image source: our own /api/image endpoint (Workers AI Flux).
-    // First-party, no rate limits, reliable. We keep the name polUrl so
-    // downstream code doesn't have to change.
-    const apiBaseForImg = (typeof location !== 'undefined' && /^https?:/.test(location.origin))
-      ? location.origin
-      : 'https://novamotion.pages.dev';
+    // Image source: Pollinations (free, direct URL, no server quota).
+    // We reverted from /api/image because Workers AI daily 10k-neuron cap
+    // was exhausted by testing. Pollinations rate-limits but at least works.
     const polUrl = (prompt, w, h, extraHint) => {
       const idx = imgIndex++;
       const p = encodeURIComponent(enrichPrompt(prompt, extraHint));
       const s = 1000 + ((idx * 1009 + 7) % 8999);
-      return apiBaseForImg + '/api/image?prompt=' + p + '&w=' + w + '&h=' + h + '&seed=' + s;
+      return 'https://image.pollinations.ai/prompt/' + p + '?width=' + w + '&height=' + h + '&nologo=true&seed=' + s + '&model=flux';
     };
 
     // Rewrite every <img> that isn't already a Pollinations URL.
