@@ -93,9 +93,10 @@ export async function onRequestPost(context) {
   const name = (body.name || 'Untitled').toString();
   const type = (body.type || 'website').toString();
   const referenceUrl = (body.referenceUrl || '').toString().trim();
-  // Prefer BYOK key from the request body; fall back to the server-side
-  // Cloudflare Pages env var so every user of the deployed site
-  // automatically gets Gemini 2.5 Pro quality without pasting their own key.
+  // Prefer BYOK keys from the request body; fall back to server-side Cloudflare
+  // Pages env vars so the deployed site can offer free Premium AI without
+  // requiring every user to paste their own key.
+  const anthropicKey = (body.anthropicKey || env.ANTHROPIC_API_KEY || '').toString().trim();
   const geminiKey = (body.geminiKey || env.GEMINI_API_KEY || '').toString().trim();
 
   // If a reference URL was provided, scrape it with Firecrawl and extract
@@ -152,7 +153,33 @@ export async function onRequestPost(context) {
 
   const userMsg = `Brief:\n${brief}\n\nDetected site name: ${name}\nDetected type: ${type}${referenceBlock}\n\nReturn the complete single-file HTML now.`;
 
-  // BYOK path: user supplied a Google Gemini key → use Gemini 2.5 Pro
+  // TIER 1 — BYOK Anthropic: highest-quality HTML generation via Claude Opus 4.7.
+  let anthropicError = '';
+  const anthropicKeyPresent = !!anthropicKey;
+  const anthropicKeyValid = anthropicKey && /^sk-ant-[\w-]{20,}$/.test(anthropicKey);
+  if (anthropicKeyValid) {
+    try {
+      const html = await callAnthropic(anthropicKey, SYSTEM_PROMPT, userMsg);
+      if (html && html.length > 500) {
+        return new Response(JSON.stringify({ html, model: 'claude-opus-4-7', engine: 'anthropic' }), {
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-store',
+            'Access-Control-Allow-Origin': '*',
+          },
+        });
+      }
+      anthropicError = 'Claude returned empty/short output';
+    } catch (err) {
+      anthropicError = err?.message || String(err);
+    }
+  } else if (anthropicKeyPresent) {
+    anthropicError = 'Anthropic key format invalid (must start with sk-ant-)';
+  } else {
+    anthropicError = 'No Anthropic key in request or env';
+  }
+
+  // TIER 2 — BYOK path: user supplied a Google Gemini key → use Gemini 2.5 Pro
   // (free tier, far higher quality than Llama 3.3 70B for HTML).
   let geminiError = '';
   let geminiKeyPresent = !!geminiKey;
@@ -208,8 +235,45 @@ export async function onRequestPost(context) {
       },
     });
   } catch (err) {
-    return jsonError('All engines failed. Gemini: ' + geminiError + ' | Workers AI: ' + (err?.message || String(err)), 502);
+    return jsonError('All engines failed. Claude: ' + anthropicError + ' | Gemini: ' + geminiError + ' | Workers AI: ' + (err?.message || String(err)), 502);
   }
+}
+
+// Call Anthropic Claude Opus 4.7 via raw HTTP (no SDK — this runs in the
+// Cloudflare Pages Functions runtime, where fetch is idiomatic). Uses adaptive
+// thinking for quality and prompt caching on the system prompt (which is
+// static across requests, so subsequent calls within 5 minutes pay ~10% of
+// the input cost on the cached prefix).
+async function callAnthropic(apiKey, systemPrompt, userMsg) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-opus-4-7',
+      max_tokens: 16000,
+      thinking: { type: 'adaptive' },
+      output_config: { effort: 'high' },
+      system: [
+        { type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } },
+      ],
+      messages: [{ role: 'user', content: userMsg }],
+    }),
+  });
+  if (!res.ok) {
+    const bodyTxt = await res.text().catch(() => '');
+    throw new Error('Anthropic ' + res.status + ': ' + bodyTxt.slice(0, 300));
+  }
+  const j = await res.json();
+  const blocks = Array.isArray(j?.content) ? j.content : [];
+  let text = blocks.filter(b => b && b.type === 'text').map(b => b.text || '').join('').trim();
+  text = text.replace(/^```(?:html)?\s*/i, '').replace(/\s*```$/i, '').trim();
+  const docIdx = text.search(/<!DOCTYPE\s+html/i);
+  if (docIdx > 0) text = text.slice(docIdx);
+  return text;
 }
 
 // Call Google AI Studio (Gemini 2.5 Pro) with the same system + user prompts.

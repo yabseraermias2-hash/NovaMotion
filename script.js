@@ -1000,7 +1000,7 @@ class NovaProjects {
 class NovaBuilder {
   constructor() { this.generatedHTML = null; this.generatedName = null; this.building = false; }
 
-  init() { this._bindUI(); this._updateAuthUI(); this._renderProjectsList(); this._loadGeminiKey(); }
+  init() { this._bindUI(); this._updateAuthUI(); this._renderProjectsList(); this._loadPremiumKey(); }
 
   async launch() {
     if (this.building) return;
@@ -1080,13 +1080,16 @@ class NovaBuilder {
       try {
         const refUrlEl = document.getElementById('nb-refurl');
         const referenceUrl = refUrlEl && refUrlEl.value && refUrlEl.value.trim() ? refUrlEl.value.trim() : '';
-        const geminiKey = this._getGeminiKey();
+        const premium = this._getPremiumKey();
+        const anthropicKey = premium.provider === 'anthropic' ? premium.key : '';
+        const geminiKey = premium.provider === 'gemini' ? premium.key : '';
         if (referenceUrl && onProgress) onProgress(3, 'Scraping reference with Firecrawl...');
-        if (geminiKey && onProgress) onProgress(5, 'Calling NovaMotion AI engine (Gemini 2.5 Pro)...');
+        if (anthropicKey && onProgress) onProgress(5, 'Calling NovaMotion AI engine (Claude Opus 4.7)...');
+        else if (geminiKey && onProgress) onProgress(5, 'Calling NovaMotion AI engine (Gemini 2.5 Pro)...');
         cfRes = await fetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ brief, name: seed.name || 'Untitled', type: seed.type || 'website', referenceUrl, geminiKey }),
+          body: JSON.stringify({ brief, name: seed.name || 'Untitled', type: seed.type || 'website', referenceUrl, anthropicKey, geminiKey }),
           signal: ctrl.signal,
         });
       } finally {
@@ -1558,26 +1561,40 @@ class NovaBuilder {
   deleteProject(id) { NovaProjects.delete(id); this._renderProjectsList(); }
   useExample(t) { const el = document.getElementById('nb-brief'); if (el) { el.value = t; el.focus(); } }
 
-  // BYOK Gemini — key stays in the user's browser only.
-  _getGeminiKey() {
+  // BYOK Premium AI — key stays in the user's browser only.
+  // Accepts either a Claude (sk-ant-...) or Gemini (AIza...) key; provider is
+  // auto-detected by prefix so a single input handles both engines.
+  _detectProvider(raw) {
+    const k = (raw || '').trim();
+    if (/^sk-ant-[\w-]{20,}$/.test(k)) return 'anthropic';
+    if (/^AIza[\w-]{20,}$/.test(k)) return 'gemini';
+    return null;
+  }
+  _getPremiumKey() {
     try {
       const el = document.getElementById('nb-gemini-key');
-      if (el && el.value && el.value.trim()) return el.value.trim();
-      return (localStorage.getItem('nm-gemini-key') || '').trim();
-    } catch (e) { return ''; }
+      const raw = (el && el.value && el.value.trim()) || (localStorage.getItem('nm-premium-key') || localStorage.getItem('nm-gemini-key') || '').trim();
+      const provider = this._detectProvider(raw);
+      return { provider, key: provider ? raw : '' };
+    } catch (e) { return { provider: null, key: '' }; }
   }
-  saveGeminiKey(v) {
+  savePremiumKey(v) {
     try {
       const clean = (v || '').trim();
-      if (clean) localStorage.setItem('nm-gemini-key', clean);
-      else localStorage.removeItem('nm-gemini-key');
+      if (clean) localStorage.setItem('nm-premium-key', clean);
+      else localStorage.removeItem('nm-premium-key');
+      localStorage.removeItem('nm-gemini-key');
     } catch (e) { /* ignore */ }
   }
-  _loadGeminiKey() {
+  _loadPremiumKey() {
     try {
       const el = document.getElementById('nb-gemini-key');
-      const stored = localStorage.getItem('nm-gemini-key');
+      const stored = localStorage.getItem('nm-premium-key') || localStorage.getItem('nm-gemini-key') || '';
       if (el && stored) el.value = stored;
+      if (stored && !localStorage.getItem('nm-premium-key')) {
+        localStorage.setItem('nm-premium-key', stored);
+        localStorage.removeItem('nm-gemini-key');
+      }
     } catch (e) { /* ignore */ }
   }
   switchTab(tab) {
