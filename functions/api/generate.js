@@ -94,10 +94,14 @@ export async function onRequestPost(context) {
   const type = (body.type || 'website').toString();
   const referenceUrl = (body.referenceUrl || '').toString().trim();
   // Prefer BYOK keys from the request body; fall back to server-side Cloudflare
-  // Pages env vars so the deployed site can offer free Premium AI without
-  // requiring every user to paste their own key.
-  const anthropicKey = (body.anthropicKey || env.ANTHROPIC_API_KEY || '').toString().trim();
-  const geminiKey = (body.geminiKey || env.GEMINI_API_KEY || '').toString().trim();
+  // Pages env vars ONLY when the user sent no key at all. If the user pasted
+  // a Gemini key, they want Gemini — the server must not silently preempt
+  // with env.ANTHROPIC_API_KEY (and vice versa).
+  const bodyAnthropicKey = (body.anthropicKey || '').toString().trim();
+  const bodyGeminiKey = (body.geminiKey || '').toString().trim();
+  const userSentKey = !!(bodyAnthropicKey || bodyGeminiKey);
+  const anthropicKey = bodyAnthropicKey || (userSentKey ? '' : (env.ANTHROPIC_API_KEY || '').toString().trim());
+  const geminiKey = bodyGeminiKey || (userSentKey ? '' : (env.GEMINI_API_KEY || '').toString().trim());
 
   // If a reference URL was provided, scrape it with Firecrawl and extract
   // design cues (colors, fonts, layout patterns, tone of voice) that we

@@ -1099,7 +1099,11 @@ class NovaBuilder {
         const j = await cfRes.json();
         let html = String(j.html || '').trim();
         if (html.length > 500) {
-          if (onProgress) onProgress(70, 'Parsing 70B response...');
+          const engineLabel = j.engine === 'anthropic' ? 'Claude Opus 4.7'
+            : j.engine === 'google-ai-studio' ? ('Gemini (' + (j.model || 'pro') + ')')
+            : j.engine === 'cloudflare-workers-ai' ? 'Workers AI Llama 3.3 70B'
+            : (j.model || j.engine || 'unknown engine');
+          if (onProgress) onProgress(70, 'Parsing response from ' + engineLabel + '...');
           html = html.replace(/^```(?:html)?\s*/i, '').replace(/\s*```$/i, '').trim();
           const docIdx = html.search(/<!DOCTYPE\s+html/i);
           if (docIdx > 0) html = html.slice(docIdx);
