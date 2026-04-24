@@ -1268,24 +1268,34 @@ class NovaBuilder {
 <style id="nm-baseline">
   /* NovaMotion baseline safety net — only fires if page CSS forgets basics */
   html { scroll-behavior: smooth; }
+  body { margin: 0; }
   body:not([style*="background"]) {
-    margin: 0;
     background: #0b0b10;
     color: #e8e8ee;
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
-  body > *:not([class]) { max-width: 1200px; margin-left: auto; margin-right: auto; padding: 1rem; }
   h1, h2, h3, h4 { font-family: 'Fraunces', Georgia, serif; line-height: 1.15; margin: 0.6em 0 0.4em; }
   h1 { font-size: clamp(2.2rem, 5vw, 4.5rem); font-weight: 700; }
   h2 { font-size: clamp(1.8rem, 3.5vw, 3rem); font-weight: 600; }
   h3 { font-size: clamp(1.2rem, 2vw, 1.6rem); font-weight: 600; }
   p { margin: 0 0 1em; }
   a { color: inherit; }
-  img { max-width: 100%; height: auto; display: block; }
+  /* Broken images fall back to slate so cards still have shape */
+  img { max-width: 100%; height: auto; display: block; background: #1a1a22; }
   nav { display: flex; align-items: center; gap: 1.5rem; padding: 1rem 2rem; }
-  section { padding: clamp(2rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem); }
+  /* Sections MUST separate cleanly — prevents overlap when the model forgets
+     flow layout or stacks things with position:absolute. */
+  section, header, footer, main > div {
+    display: block;
+    position: relative;
+    width: 100%;
+    clear: both;
+    box-sizing: border-box;
+  }
+  section { padding: clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem); }
+  section + section { margin-top: 0; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   }
@@ -1355,17 +1365,16 @@ class NovaBuilder {
       } else {
         finalSrc = polUrl(alt || briefHint, w, h, extra);
       }
-      // Strip any existing onerror; we'll rely on our loader script
+      // Direct src — no lazy-load shim. Browsers handle loading="lazy"
+      // natively, which is reliable. The previous data-nm-src approach broke
+      // when the injected loader didn't run (malformed </body>, CSP, etc.)
+      // and left every image as a placeholder gradient.
       let cleanAttrs = attrs.replace(/\bonerror\s*=\s*(["'])[^"']*\1/gi, '');
       cleanAttrs = cleanAttrs.replace(/\bsrc\s*=\s*(["'])[^"']*\1/gi, '');
       const baseAttrs = cleanAttrs
-        + ' data-nm-src="' + finalSrc.replace(/"/g, '&quot;') + '"'
-        + ' data-nm-alt="' + alt.replace(/"/g, '&quot;').slice(0, 120) + '"'
-        + ' data-nm-w="' + w + '" data-nm-h="' + h + '"'
         + (cleanAttrs.includes('loading=') ? '' : ' loading="lazy"')
         + (cleanAttrs.includes('decoding=') ? '' : ' decoding="async"');
-      // Start with a tiny 1x1 transparent PNG so broken-icon never flashes
-      return '<img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="' + baseAttrs + '>';
+      return '<img src="' + finalSrc.replace(/"/g, '&quot;') + '"' + baseAttrs + '>';
     });
 
     // Map common emojis the model loves to use as icons -> real photo prompts
@@ -1464,49 +1473,12 @@ class NovaBuilder {
       return 'style="' + cleaned + '"';
     });
 
-    // If the document has fewer than 3 <img> tags, inject a hero fallback
+    // If the document has fewer than 3 <img> tags, inject a hero fallback.
     const imgCount = (html.match(/<img\b/gi) || []).length;
     if (imgCount < 3) {
       const heroUrl = polUrl(briefHint + ' cinematic hero photograph', 1600, 900);
-      const heroTag = '<img data-nm-src="' + heroUrl + '" data-nm-w="1600" data-nm-h="900" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="" style="width:100%;max-height:70vh;object-fit:cover;display:block;" loading="eager" decoding="async"/>';
+      const heroTag = '<img src="' + heroUrl + '" alt="" style="width:100%;max-height:70vh;object-fit:cover;display:block;" loading="eager" decoding="async"/>';
       html = html.replace(/<body([^>]*)>/i, '<body$1>' + heroTag);
-    }
-
-    // INJECT LOADER: stagger /api/image (Workers AI Flux) loads.
-    // Workers AI is reliable — no retries needed, but we still stagger 300ms
-    // apart so the Pages Function isn't hit by 8 concurrent Flux requests.
-    // (Flux-schnell takes ~2-4s per image; serial-ish = faster total time.)
-    const loader = `
-<script>
-(function(){
-  function go(){
-    var imgs = Array.prototype.slice.call(document.querySelectorAll('img[data-nm-src]'));
-    if (!imgs.length) return;
-    imgs.forEach(function(img, i){
-      var src = img.getAttribute('data-nm-src');
-      // Simple fallback: if /api/image errors (AI binding down, rate limit),
-      // fade to a solid colored placeholder so nothing shows broken.
-      img.onerror = function(){
-        img.onerror = null;
-        var w = img.getAttribute('data-nm-w') || 1200;
-        var h = img.getAttribute('data-nm-h') || 800;
-        var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+w+' '+h+'"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1a1a24"/><stop offset="1" stop-color="#0b0b10"/></linearGradient></defs><rect width="100%" height="100%" fill="url(#g)"/></svg>';
-        img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
-      };
-      setTimeout(function(){ img.src = src; }, i * 300);
-    });
-  }
-  if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    setTimeout(go, 50);
-  } else {
-    document.addEventListener('DOMContentLoaded', go);
-  }
-})();
-</script>`;
-    if (/<\/body>/i.test(html)) {
-      html = html.replace(/<\/body>/i, loader + '</body>');
-    } else {
-      html = html + loader;
     }
 
     return html;
